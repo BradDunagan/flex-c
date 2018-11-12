@@ -1,23 +1,24 @@
 
 import React, { Component } from 'react';
 
-class FrameBurgerMenu extends Component {
+class BtnSplitVert extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'frame-burger-menu-' + props.frameId;
+		this.id 		= 'btn-split-vert-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
-		this.doIt 		= this.doIt.bind ( this );
+		this.doAll 		= this.doAll.bind ( this );
 		this.mouseDown	= this.mouseDown.bind ( this );
 		this.mouseUp	= this.mouseUp.bind ( this );
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.click		= this.click.bind ( this );
 
-		this.frameFnc ( { do: 		    		'frame-burger-menu-call-down',
-						  frameBurgerMenuFnc:  	this.doIt } );
+		if ( this.frameFnc ) {
+			this.frameFnc ( { do: 		    	'frame-btn-split-vert-call-down',
+							  BtnSplitVertFnc:  this.doAll } ); }
 	}	//	constructor
 	
-	doIt ( o ) {
+	doAll ( o ) {
 	}
 
 	mouseDown ( ev ) {
@@ -41,15 +42,20 @@ class FrameBurgerMenu extends Component {
 	click ( ev ) {
 		let sW = 'click()';
 		console.log ( sW );
-		this.frameFnc ( { do: 'burger-menu-click' } );
 		ev.stopPropagation();
+		if ( this.frameFnc ) {
+			this.frameFnc ( { do: 			'split-vert',
+							  contentId:	this.props.contentId } ); }
+		if ( this.props.paneFnc ) {
+			this.props.paneFnc ( { do: 'split-vert' } ); }
 	}	//	click()
 
 	render() {
 		return (
 			<img id			= { this.id }
-				 className	= "frame-burger-menu"
-				 src		= "/images/burger_lite_18x18.png"
+				 className	= "btn-split-vert"
+				 style		= { this.props.style }
+				 src		= "/images/split_vert_lite_18x18.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }
@@ -57,6 +63,6 @@ class FrameBurgerMenu extends Component {
 		);
 	}   //  render()
 
-}   //  class FrameBurgerMenu
+}   //  class BtnSplitVert
 
-export default FrameBurgerMenu;
+export default BtnSplitVert;

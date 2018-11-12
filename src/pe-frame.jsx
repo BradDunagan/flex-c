@@ -22,15 +22,17 @@ Also -
 import React			from 'react';
 
 import PEFrameHeader	from './pe-frame-header';
-import PEFrameContent	from './pe-frame-content';
+import Pane				from './pane';
 import PEFrameFooter	from './pe-frame-footer';
 import TitleBar 		from './title-bar'
 import Sizer 			from './sizer'
+import BurgerMenu		from './burger-menu';
 
 
 class PEFrame extends React.Component {
 	constructor ( props ) {
 		super ( props );
+		this.eleId 		= 'rr-frame-1';
 		this.peId 		= props.frameId;
 		this.appFnc 	= props.appFrameFnc;
 		this.contentFnc = null;
@@ -41,22 +43,49 @@ class PEFrame extends React.Component {
 				top:        this.props.top,
 				width:      this.props.width,
 				height:     this.props.height,
-			}
+			},
+			burgerMenu: null,
+			contentRestoreIncomplete:	false
 		};
-		this.iconize 		= this.iconize.bind ( this );
-		this.transitionEnd	= this.transitionEnd.bind ( this );
-		this.clickIcon		= this.clickIcon.bind ( this );
-		this.doAll 			= this.doAll.bind ( this );
+		this.burgerMenuClick	= this.burgerMenuClick.bind ( this );
+		this.iconize 			= this.iconize.bind ( this );
+		this.transitionEnd		= this.transitionEnd.bind ( this );
+		this.clickIcon			= this.clickIcon.bind ( this );
+		this.doAll 				= this.doAll.bind ( this );
+
+		this.contentState = null;
 	}	//	constructor()
+
+	burgerMenuClick() {
+		let sW = 'PEFrame burgerMenuClick()';
+		console.log ( sW );
+		let fe = document.getElementById ( this.eleId );
+		let r  = fe.getBoundingClientRect();
+	//	this.setState ( { burgerMenu:
+	//		<BurgerMenu eleId = { 'rr-pe-frame-burger-menu' }
+	//					style = {{ left:	r.x + 'px',
+	//							   top: 	r.y + 'px' }} />
+	//	} );
+		this.appFnc ( { do: 		'show-menu',
+						menuEleId:	this.eleId + '-burger-menu',
+						menuX:		r.x,
+						menuY:		r.y,
+						menuItems:	[ 'Tabs',
+									  'UDUI',
+									  'Viewport',
+									  'Process',
+									  'Diagnostics',
+									  'Values',
+									  'Stdout' ],
+						upFnc:		this.doAll,
+						ctx:		{ after:	'menu-item' }
+		} );
+	}	//	burgerMenuClick()
 
 	iconize ( o ) {
 		let sW = 'iconize()';
 		console.log ( 'Frame ' + sW );
-		//	1	Make the frame infisible.
-		//	2	Render a rectangle matching the frame's position and
-		//		size.
-		//	3	Transition that rectangle to the icon's position and
-		//		size.
+		this.contentState = this.contentFnc ( { do: 'get-state' } );
 		this.setState ( { iconized: { 
 			style: {
 				left:		this.state.style.left,
@@ -123,11 +152,13 @@ class PEFrame extends React.Component {
 			}
 		} } );
 		window.setTimeout ( () => {
-			this.setState ( { iconized: null } );
+			this.setState ( { iconized: 				null,
+							  contentRestoreIncomplete:	true } );
 		}, 200 );
 	}	//	clickIcon()
 
 	doAll ( o ) {
+		let sW = 'PEFrame ' + this.eleId + ' doAll()';
 		let frame = this;
 		function setCallDown ( o ) {
 			if ( o.to && o.to === 'PEFrameContent' ) 
@@ -172,6 +203,8 @@ class PEFrame extends React.Component {
 			this.sizeH0 = Number.parseInt ( this.state.style.height );
 			if ( this.titleBarFnc ) {
 				this.titleBarFnc ( o ); }
+			if ( this.contentFnc ) {
+				this.contentFnc ( o ); }
 			this.appFnc ( { do: 		'size-frame',
 							frameFnc:	this.doAll,
 							ev: 		o.ev } );
@@ -190,6 +223,12 @@ class PEFrame extends React.Component {
 				this.titleBarFnc ( o ) }
 			if ( this.sizerFnc ) {
 				this.sizerFnc ( o ); }
+			if ( this.contentFnc ) {
+				this.contentFnc ( o ); }
+			return;
+		}
+		if ( o.do === 'burger-menu-click' ) {
+			this.burgerMenuClick();
 			return;
 		}
 		if ( o.do === 'iconize' ) {
@@ -202,12 +241,33 @@ class PEFrame extends React.Component {
 			}
 			return;
 		}
+		if ( o.do === 'split-vert' ) {
+			if ( this.contentFnc ) {
+				this.contentFnc ( o );
+			}
+			return;
+		}
+		if ( o.do === 'content-split-horz' ) {
+			if ( this.titleBarFnc ) {
+				this.titleBarFnc ( o ) }
+			return;
+		}
+		if ( o.do === 'content-split-drag' ) {
+			if ( this.titleBarFnc ) {
+				this.titleBarFnc ( o ) }
+			return;
+		}
+		if ( o.do === 'menu-item' ) {
+			console.log ( sW + ' menu-item: ' + o.menuItemText );
+			return;
+		}
 	}   //  doAll()
 
 	render() {
 		if ( this.state.iconized ) {
 			return (
-				<div className 			= 'rr-pe-frame'
+				<div id					= { this.eleId }
+					 className 			= 'rr-pe-frame'
 					 style 				= { this.state.iconized.style }
 					 onTransitionEnd	= { this.transitionEnd }
 					 onClick			= { this.clickIcon } >
@@ -218,21 +278,34 @@ class PEFrame extends React.Component {
 				</div>
 			); }
 		return (
-			<div className = "rr-pe-frame"
-				 style = {this.state.style}>
+			<div id			= { this.eleId }
+				 className	= "rr-pe-frame"
+				 style 		= {this.state.style}>
 				<TitleBar frameId	= 'frame-1'
 						  appFnc 	= { this.appFnc }
 						  frameFnc	= { this.doAll } />
-				<PEFrameHeader frame	= {this.doAll} />
-				<PEFrameContent peId 		= {this.peId} 
-								frameFnc 	= {this.doAll} />
+				<PEFrameHeader frame	= { this.doAll } />
+				<Pane peId 		= { this.peId } 
+					  frameFnc 	= { this.doAll }
+					  tabs		= { true } />
 				<PEFrameFooter />
 				<Sizer frameId 		= 'frame-1'
 					   appFnc 	= { this.appFnc }
 					   frameFnc	= { this.doAll }  />
+				{ this.state.burgerMenu }
 			</div>
 		)
-	}
-}
+	}	//	render()
+
+	componentDidUpdate() {
+		if ( this.state.contentRestoreIncomplete ) {
+			this.contentFnc ( { do: 	'set-state',
+								state:	this.contentState } );
+			this.contentState = null;
+			this.state.contentRestoreIncomplete = false;
+		}
+	}	//	componentDidUpdate()
+
+}	//	class PEFrame
 
 export { PEFrame as default };

@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 class BtnSplitHorz extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'frame-burger-menu-' + props.frameId;
+		this.id 		= 'btn-split-horz-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.doAll 		= this.doAll.bind ( this );
@@ -13,8 +13,9 @@ class BtnSplitHorz extends Component {
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.click		= this.click.bind ( this );
 
-		this.frameFnc ( { do: 		    		'frame-btn-split-horz-call-down',
-						  BtnSplitHorzFnc:  	this.doAll } );
+        if ( this.frameFnc ) {
+            this.frameFnc ( { do: 		    	'frame-btn-split-horz-call-down',
+                              BtnSplitHorzFnc:  this.doAll } ); }
 	}	//	constructor
 	
 	doAll ( o ) {
@@ -42,13 +43,18 @@ class BtnSplitHorz extends Component {
 		let sW = 'click()';
 		console.log ( sW );
 		ev.stopPropagation();
-		this.frameFnc ( { do: 'split-horz' } );
+		if ( this.frameFnc ) {
+			this.frameFnc ( { do: 			'split-horz',
+							  contentId:	this.props.contentId } ); }
+		if ( this.props.paneFnc ) {
+			this.props.paneFnc ( { do: 'split-horz' } ); }
 	}	//	click()
 
 	render() {
 		return (
 			<img id			= { this.id }
 				 className	= "btn-split-horz"
+				 style		= { this.props.style }
 				 src		= "/images/split_horz_lite_18x18.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }

@@ -1,9 +1,16 @@
+/*
+		 1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+*/
+
 import React, { Component } from 'react';
 
 import FrameBurgerMenu      from './frame-burger-menu';
 import FrameIconize			from './frame-iconize';
 import FrameDestroy			from './frame-destroy';
 import BtnSplitHorz 		from './btn-split-horz';
+import BtnSplitVert 		from './btn-split-vert';
 
 class TitleBar extends Component {
 	constructor ( props ) {
@@ -17,11 +24,25 @@ class TitleBar extends Component {
 				top:	'0px',
 				width:	'0px',
 				height:	'18px'
-			}
+			},
+	//		splitHorz:	false,
+	//		styleSplitHorz: {
+	//			left: 	'200px'
+	//		},
+	//		styleSplitVert: {
+	//			left: 	'218px'
+	//		},
+	//		styleSplitHorz2: {
+	//			left: 	'0px'
+	//		},
+	//		styleSplitVert2: {
+	//			left: 	'0px'
+	//		},
 		};
-		this.doAll 		= this.doAll.bind ( this );
-		this.mouseDown	= this.mouseDown.bind ( this );
-		this.mouseUp	= this.mouseUp.bind ( this );
+	//	this.contentSplit 	= this.contentSplit.bind ( this );
+		this.doAll 			= this.doAll.bind ( this );
+		this.mouseDown		= this.mouseDown.bind ( this );
+		this.mouseUp		= this.mouseUp.bind ( this );
 
 		this.sizeW0 = 0;
 
@@ -29,6 +50,37 @@ class TitleBar extends Component {
 						  titleBarFnc:  this.doAll } );
 	}	//	constructor
 	
+	/*
+	contentSplit ( o ) {
+		//	The frame's top content pane has been split and the two
+		//	sides' width/height has changed. The size of each is
+		//	specified as a percentage of the total width of the parent
+		//	content (or the width of this title bar (in the case of 
+		//	a horz split)).
+		let wt 	 = Number.parseInt ( this.state.style.width );
+		let wlft = (wt * o.sizes[0]) / 100;
+		let clft = wlft / 2;
+		let wrgt = (wt * o.sizes[1]) / 100;
+		let crgt = wlft + (wrgt / 2);
+		this.setState ( {
+			splitHorz: 		true,
+			contentIds:		o.sides ? o.sides : null,
+			styleSplitHorz: {
+				left: 		(clft - 20) + 'px'
+			},
+			styleSplitVert: {
+				left: 		(clft + 2) + 'px'
+			},
+			styleSplitHorz2: {
+				left: 		(crgt - 20) + 'px'
+			},
+			styleSplitVert2: {
+				left: 		(crgt + 2) + 'px'
+			}
+		} );
+	}	//	contentSplit()
+	*/
+
 	doAll ( o ) {
 		if ( o.do === 'size-start' ) {
 			this.sizeW0 = Number.parseInt ( this.state.style.width );
@@ -41,10 +93,26 @@ class TitleBar extends Component {
 					top:	this.state.style.top,
 					width:	(this.sizeW0 + o.dX) + 'px',
 					height:	this.state.style.height
+				},
+				styleSplitHorz: {
+					left: 	(((this.sizeW0 + o.dX) / 2) - 20) + 'px'
+				},
+				styleSplitVert: {
+					left: 	(((this.sizeW0 + o.dX) / 2) + 2) + 'px'
 				}
 			} );
 			return;
 		}
+		/*
+		if ( o.do === 'content-split-horz' ) {
+			this.contentSplit ( o );
+			return;
+		}
+		if ( o.do === 'content-split-drag' ) {
+			this.contentSplit ( o );
+			return;
+		}
+		*/
 	}
 
 	mouseDown ( ev ) {
@@ -62,6 +130,33 @@ class TitleBar extends Component {
 	}	//	mouseUp()
 	
 	render() {
+		/*
+		if ( this.state.splitHorz ) {
+			let contentIds = this.state.contentIds;
+			return (
+				<div id			= { this.id }
+					className	= 'rr-title-bar'
+					style		= { this.state.style }
+					onMouseDown	= { this.mouseDown }
+					onMouseUp	= { this.mouseUp } >
+					<FrameBurgerMenu frameFnc 	= { this.frameFnc } />
+					<FrameDestroy frameFnc 		= { this.frameFnc } />
+					<FrameIconize frameFnc 		= { this.frameFnc } />
+					<BtnSplitHorz frameFnc 		= { this.frameFnc } 
+								  style 		= { this.state.styleSplitHorz } 
+								  contentId		= { contentIds ? contentIds[0] : 0 } />
+					<BtnSplitVert frameFnc 		= { this.frameFnc } 
+								  style 		= { this.state.styleSplitVert }
+								  contentId		= { contentIds ? contentIds[0] : 0 } />
+					<BtnSplitHorz frameFnc		= { this.frameFnc } 
+								  style 		= { this.state.styleSplitHorz2 }
+								  contentId		= { contentIds ? contentIds[1] : 0 } />
+					<BtnSplitVert frameFnc		= { this.frameFnc } 
+								  style 		= { this.state.styleSplitVert2 }
+								  contentId		= { contentIds ? contentIds[1] : 0 } />
+				</div>
+			);
+		}
 		return (
 			<div id				= { this.id }
 				 className		= 'rr-title-bar'
@@ -71,7 +166,24 @@ class TitleBar extends Component {
 				<FrameBurgerMenu frameFnc 	= { this.frameFnc } />
 				<FrameDestroy frameFnc 		= { this.frameFnc } />
 				<FrameIconize frameFnc 		= { this.frameFnc } />
-				<BtnSplitHorz frameFnc 		= { this.frameFnc } />
+				<BtnSplitHorz frameFnc 		= { this.frameFnc } 
+							  style 		= { this.state.styleSplitHorz } 
+							  contentId		= { 0 } />
+				<BtnSplitVert frameFnc 		= { this.frameFnc } 
+							  style 		= { this.state.styleSplitVert } 
+							  contentId		= { 0 } />
+			</div>
+		);
+		*/
+		return (
+			<div id				= { this.id }
+				 className		= 'rr-title-bar'
+				 style			= { this.state.style }
+				 onMouseDown	= { this.mouseDown }
+				 onMouseUp		= { this.mouseUp } >
+				<FrameBurgerMenu frameFnc 	= { this.frameFnc } />
+				<FrameDestroy frameFnc 		= { this.frameFnc } />
+				<FrameIconize frameFnc 		= { this.frameFnc } />
 			</div>
 		);
 	}   //  render()

@@ -5,13 +5,21 @@ import AppHeader 			from './app-header';
 import AppContent 			from './app-content';
 import AppFooter 			from './app-footer';
 
+import AppDialog			from './app-dialog';
+
 class AppFrame extends Component {
 	constructor ( props ) {
 		super ( props );
 
+		this.state = {
+			appDialog:  [],
+		};
+
+		this.dlgList = [];
+
 		this.mouseMove 		= this.mouseMove.bind ( this );
 		this.mouseUp 		= this.mouseUp.bind ( this );
-		this.doIt 			= this.doIt.bind ( this );
+		this.doAll 			= this.doAll.bind ( this );
 	
 	
 		this.frameMoving = {
@@ -30,7 +38,7 @@ class AppFrame extends Component {
 
 	mouseMove ( ev ) {
 		let sW = 'mouseMove()';
-		console.log ( sW );
+	//	console.log ( sW );
 		if ( this.frameMoving.moverMouseDown ) {
 			this.frameMoving.frameFnc ( { do: 	'move',
 										  dX:	ev.pageX - this.frameMoving.startX,
@@ -58,20 +66,60 @@ class AppFrame extends Component {
 			return;	}
 	}	//	mouseUp()
 
-	doIt ( o ) {
+	updateDialogState() {
+		this.setState ( {  
+			appDialog: this.dlgList.map ( ( r, i ) => {
+				if ( ! r.mnu ) {
+					return ( <AppDialog key = {i}
+										upFncAppFrame = {this.doAll}
+										upFnc = {r.upFnc}
+										ctx = {r.ctx}
+										dlg = {r.dlg}
+										mnu = {r.mnu} /> );
+				} else {
+					return ( <AppDialog key = {i}
+										upFncAppFrame = {this.doAll}
+										dlg = {r.dlg}
+										mnu = {r.mnu} /> );
+				}
+			} )
+		} );
+	}	//	updateDialogState()
+
+	doAll ( o ) {
 		if ( o.do === 'move-frame' ) {
 			this.frameMoving.moverMouseDown	= true;
 			this.frameMoving.frameFnc 		= o.frameFnc;
 			this.frameMoving.startX			= o.ev.pageX;
 			this.frameMoving.startY			= o.ev.pageY;
+			return;
 		}
 		if ( o.do === 'size-frame' ) {
 			this.frameSizing.sizerMouseDown	= true;
 			this.frameSizing.frameFnc 		= o.frameFnc;
 			this.frameSizing.startX			= o.ev.pageX;
 			this.frameSizing.startY 		= o.ev.pageY;
+			return;
 		}
-	}	//	doIt()
+		if ( o.do === 'show-sign-in-dlg' ) {
+			this.dlgList.push ( { dlg: 		'sign-in',
+								  upFnc: 	this.doAll,
+								  ctx: 		null } );
+			this.updateDialogState();
+			return;
+		}
+		if ( o.do === 'show-menu' ) {
+			this.dlgList.push ( { dlg: 		'menu',
+								  mnu:		o } );
+			this.updateDialogState();
+			return;
+		}
+		if ( o.do === 'menu-dismiss' ) {
+			this.dlgList.pop();
+			this.updateDialogState();
+			return;
+		}
+	}	//	doAll()
 
 	render() {
 		return (
@@ -79,8 +127,9 @@ class AppFrame extends Component {
 				 onMouseMove	= { this.mouseMove } 
 				 onMouseUp		= { this.mouseUp } >
 				<AppHeader />
-				<AppContent appFrameFnc = { this.doIt } />
+				<AppContent appFrameFnc = { this.doAll } />
 				<AppFooter />
+				{ this.state.appDialog }
 			</div>
 		);
 	}	//	render()

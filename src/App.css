@@ -1,4 +1,17 @@
 
+.rr-app-screen-dialog {
+	position:           absolute;
+	left:               0px;
+	top:                0px;
+	width:              100%;
+	height:             100%;
+	background-color:   rgba(255,255,255,0.7);
+	display:            flex;
+	flex-direction:     row;
+	align-items:        center;
+	justify-content:    center;
+}
+
 .rr-app-frame {                 /*  Should fill the browser window without  */
 	display:            flex;   /*  showing scroll bars.                    */
 	flex:               auto;
@@ -91,6 +104,7 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	flex:               1 1 auto;
 }
 
+
 .rr-pe-frame-status-bar {
 	flex:               1 1 auto;
 	max-height:         18px;
@@ -133,6 +147,15 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	background-color:       white;
 	opacity:                0.9;
 }
+/*
+.rr-title-bar {
+	position:               absolute;
+	border-bottom: 			solid 1px lightgray;
+	cursor:                 move;
+	background-color:       transparent;
+	opacity:                1.0;
+}
+*/
 
 .frame-burger-menu {
 	width: 			18px;
@@ -156,6 +179,36 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	cursor: 		pointer;
 }
 
+
+/*
+.rr-button-bar {
+	position:               absolute;
+	background-color:       transparent;
+	opacity:                0.0;
+	transition-property:    background-color, opacity, border-bottom;
+	transition-duration:    300ms;
+}
+
+.rr-button-bar:hover {
+	background-color:       white;
+	opacity:                0.9;
+}
+*/
+/*	Absolute position overrides flex flow.
+	Do not specifiy left, top.
+	Width must be set in JavaScript as the container width changes (presumably
+	to the width of the container).											  */
+.rr-button-bar {
+	position:				absolute;
+	height:					18px;
+	border-bottom: 			solid 1px gainsboro;
+	text-align:				center;
+}
+
+
+/* ------------------------------  Spliting  -------------------------------  */
+
+/*
 .btn-split-horz {
 	margin-right:	4px;
 	width: 			18px;
@@ -163,8 +216,28 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	cursor: 		pointer;
 }
 
+.btn-split-vert {
+	margin-right:	4px;
+	width: 			18px;
+	float: 			right;
+	cursor: 		pointer;
+}
+*/
+.btn-split-horz {
+	margin-right:	4px;
+	width: 			18px;
+/*	float: 			right;		*/
+/*	position:		absolute;	*/
+	cursor: 		pointer;
+}
 
-/* ------------------------------  Spliting  -------------------------------  */
+.btn-split-vert {
+	margin-right:	4px;
+	width: 			18px;
+/*	float: 			right;		*/
+/*	position:		absolute;	*/
+	cursor: 		pointer;
+}
 
 .split {
 	-webkit-box-sizing: border-box;
@@ -173,12 +246,18 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	overflow-y: 		auto;
 	overflow-x: 		hidden;
 }
-.content {
-/*	border: 1px solid #C0C0C0;				*/
-/*	box-shadow: inset 0 1px 2px #e4e4e4;	*/
+.pane-content {
 	background-color: 	#fff;
-	padding-top:		2px;
-	padding-left: 		6px;
+/*	padding-top:		2px;			*/
+/*	padding-left: 		6px;			*/
+	display:            flex;
+	flex:               1 1 auto;
+}
+.pane {
+	background-color: 	lightblue;
+	display:            flex;
+/*	flex-direction:     column;	dependent on split - therefore, in style 	*/
+	flex:               1 1 auto;
 }
 .gutter {
 	background-color:		transparent;
@@ -194,7 +273,66 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	background-image: 	url('../node_modules/split.js/grips/horizontal.png');
 }
 .split.split-horizontal, .gutter.gutter-horizontal {
-/*	height: 			100%;		*/
-	flex: 				0 1 auto;
 	float: 				left;
+}
+.split.split-vertical, .gutter.gutter-vertical {
+/*	flex: 				0 1 auto;	*/
+}
+
+
+/* ----------------------------  Burger Menu  ------------------------------  */
+
+.rr-burger-menu {
+	position:			fixed;
+	border:				solid 1px black;
+	background-color:	white;
+}
+
+.rr-burger-menu ul {
+	margin:				2px 2px 0px 2px;
+	padding:			0px;
+}
+
+.rr-burger-menu ul li {
+	list-style-type:	none;
+	text-align:			left;
+	margin-bottom:		2px;
+	cursor:				pointer;
+}
+
+.rr-burger-menu ul li:hover {
+	background-color:	lightgrey;
+}
+
+/* --------------------------------  Tabs  ---------------------------------  */
+
+.rr-tabs {
+	flex:			1 1 auto;
+	display:		flex;
+	flex-direction:	column;
+}
+
+.rr-tab-pages {
+	display:		flex;
+	flex:			1 1 auto;
+	border-bottom:	solid 1px black;
+}
+
+.rr-tab-page-names {
+	display:		flex;
+	flex-direction:	row;
+	flex:			1 1 auto;
+	min-height:		22px;
+	max-height:		22px;
+}
+
+.rr-tab-page-name {
+/*	margin-right:	4px;			*/
+	margin-top:		-1px;
+	padding-left:	8px;
+	padding-right:	8px;
+	padding-top:	3px;
+	padding-bottom:	3px;
+	border-right:	solid 1px gray;
+	cursor:			pointer;
 }
