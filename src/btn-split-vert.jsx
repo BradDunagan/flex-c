@@ -6,16 +6,16 @@ class BtnSplitVert extends Component {
 		super ( props );
 		this.id 		= 'btn-split-vert-' + props.frameId;
 		this.appFnc 	= props.appFnc;
-		this.frameFnc 	= props.frameFnc;
+	//	this.frameFnc 	= props.frameFnc;
 		this.doAll 		= this.doAll.bind ( this );
 		this.mouseDown	= this.mouseDown.bind ( this );
 		this.mouseUp	= this.mouseUp.bind ( this );
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.click		= this.click.bind ( this );
 
-		if ( this.frameFnc ) {
-			this.frameFnc ( { do: 		    	'frame-btn-split-vert-call-down',
-							  BtnSplitVertFnc:  this.doAll } ); }
+	//	if ( this.frameFnc ) {
+	//		this.frameFnc ( { do: 		    	'frame-btn-split-vert-call-down',
+	//						  BtnSplitVertFnc:  this.doAll } ); }
 	}	//	constructor
 	
 	doAll ( o ) {
@@ -43,11 +43,19 @@ class BtnSplitVert extends Component {
 		let sW = 'click()';
 		console.log ( sW );
 		ev.stopPropagation();
-		if ( this.frameFnc ) {
-			this.frameFnc ( { do: 			'split-vert',
-							  contentId:	this.props.contentId } ); }
-		if ( this.props.paneFnc ) {
-			this.props.paneFnc ( { do: 'split-vert' } ); }
+	//	if ( this.frameFnc ) {
+	//		this.frameFnc ( { do: 			'split-vert',
+	//						  contentId:	this.props.contentId } ); }
+		if ( this.props.containerFnc ) {
+			//	Do the split call through the container because the container
+			//	will remove the button bar this button is on.
+			//	Got to go through the button bar to tell the container which
+			//	button bar to remove.
+			this.props.bbFnc ( { do: 'split-vert' } );
+		} else {
+			if ( this.props.paneFnc ) {
+			this.props.paneFnc ( { do: 'split-vert' } ); } 
+		}
 	}	//	click()
 
 	render() {

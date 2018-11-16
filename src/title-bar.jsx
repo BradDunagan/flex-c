@@ -15,7 +15,7 @@ import BtnSplitVert 		from './btn-split-vert';
 class TitleBar extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'title-bar-' + props.frameId;
+		this.eleId 		= 'title-bar-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.state = {
@@ -134,7 +134,7 @@ class TitleBar extends Component {
 		if ( this.state.splitHorz ) {
 			let contentIds = this.state.contentIds;
 			return (
-				<div id			= { this.id }
+				<div id			= { this.eleId }
 					className	= 'rr-title-bar'
 					style		= { this.state.style }
 					onMouseDown	= { this.mouseDown }
@@ -158,7 +158,7 @@ class TitleBar extends Component {
 			);
 		}
 		return (
-			<div id				= { this.id }
+			<div id				= { this.eleId }
 				 className		= 'rr-title-bar'
 				 style			= { this.state.style }
 				 onMouseDown	= { this.mouseDown }
@@ -176,7 +176,7 @@ class TitleBar extends Component {
 		);
 		*/
 		return (
-			<div id				= { this.id }
+			<div id				= { this.eleId }
 				 className		= 'rr-title-bar'
 				 style			= { this.state.style }
 				 onMouseDown	= { this.mouseDown }
@@ -189,7 +189,7 @@ class TitleBar extends Component {
 	}   //  render()
 
 	componentDidMount() {
-		let e = document.getElementById ( this.id );
+		let e = document.getElementById ( this.eleId );
 		let p = e.parentElement;
 		this.setState ( { 
 			style: {

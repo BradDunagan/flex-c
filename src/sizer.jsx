@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class Sizer extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'sizer-' + props.frameId;
+		this.id 		= 'sizer-' + props.frameEleId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.state = {

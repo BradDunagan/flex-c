@@ -56,24 +56,7 @@ class Pane extends React.Component {
 		this.propagateDown_SizeOp 	= this.propagateDown_SizeOp.bind ( this );
 		this.doAll 					= this.doAll.bind ( this );
 
-		this.sizeButtonBar		= this.sizeButtonBar.bind ( this );
-
-		if ( ! props.parentFnc ) {
-			props.frameFnc ( { do:  'set-call-down',
-							   to:  'PEFrameContent',
-							   fnc: this.doAll } );
-		} else {
-			props.parentFnc ( { do:  		'set-call-down',
-								to: 		'child-pane',
-								childEleId: props.eleId,
-								fnc: 		this.doAll } );
-			if ( props.tabEleId ) {
-				props.parentFnc ( { do:				'set-call-down',
-									to:				'tab-pane',
-									tabPaneEleId:	this.eleId,
-									tabPaneFnc:		this.doAll } );
-			}
-		}
+		this.sizeButtonBar			= this.sizeButtonBar.bind ( this );
 
 		this.state = {
 			style: props.tabEleId ? props.style : {
@@ -95,6 +78,10 @@ class Pane extends React.Component {
 	//	this.tabPagesFnc	= null;
 		this.tabPanes		= {};		//	keyed by eleId of tab pane
 		this.h0				= 0;		//	used when this is on a tab page
+
+		//	If there is a parent pane then false until that parent makes
+		//	a calldown with 'set-at-frame-top' specifying possibly otherwise.
+	//	this.isAtFrameTop	= props.parentFnc ? false : true;
 	}	//  constructor()
 
 	//	Data associated with any element.  Keys are the elements' id.
@@ -154,6 +141,11 @@ class Pane extends React.Component {
 		let sW = 'splitHorz()';
 		console.log ( 'Frame ' + sW );
 
+		if ( this.props.atFrameTop && this.buttonBarFnc ) {
+			this.props.frameFnc ( { do: 		'remove-pane-btn-bar',
+									bbEleId:	this.buttonBarEleId } );
+			this.buttonBarEleId = null; }
+
 		let sp = this.splitPrep ( o );
 		
 		this.setState ( { 
@@ -185,6 +177,8 @@ class Pane extends React.Component {
 				},
 				incomplete: 	true }
 		} );
+
+		this.buttonBarFnc = null;
 	}	//	splitHorz()
 
 	splitVert ( o ) {
@@ -226,6 +220,7 @@ class Pane extends React.Component {
 				incomplete: 	true, }
 		} );
 
+		this.buttonBarFnc = null;
 	}	//	splitVert()
 
 	propagateDown_SizeOp ( o ) {
@@ -268,13 +263,23 @@ class Pane extends React.Component {
 				let sh = this.state.splitHorz;
 				if ( sh ) {
 					if ( sh.left.eleId === o.childEleId ) {
-						sh.left.paneFnc = o.fnc; }
+						sh.left.paneFnc = o.fnc; 
+					//	sh.left.paneFnc ( { do:	'set-at-frame-top',
+					//					    is:	this.isAtFrameTop } ); 
+					}
 					if ( sh.right.eleId === o.childEleId ) {
-						sh.right.paneFnc = o.fnc; } }
+						sh.right.paneFnc = o.fnc; 
+					//	sh.right.paneFnc ( { do: 'set-at-frame-top',
+					//					     is: this.isAtFrameTop } ); 
+					} 
+				}
 				let sv = this.state.splitVert;
 				if ( sv ) {
 					if ( sv.top.eleId === o.childEleId ) {
-						sv.top.paneFnc = o.fnc; }
+						sv.top.paneFnc = o.fnc; 
+					//	sv.top.paneFnc ( { do: 'set-at-frame-top',
+					//					   is:  this.isAtFrameTop } ); 
+					}
 					if ( sv.bottom.eleId === o.childEleId ) {
 						sv.bottom.paneFnc = o.fnc; } }
 			}
@@ -287,12 +292,16 @@ class Pane extends React.Component {
 			if ( o.to === 'tab-pane' ) {
 				this.tabPanes[o.tabPaneEleId] = { fnc:	o.tabPaneFnc };
 			}
+			if ( o.to === 'button-bar' ) {
+				this.buttonBarFnc 	= o.bbFnc; 
+				this.buttonBarEleId = o.bbEleId;
+			}
 			return;
 		}
-		if ( o.do === 'button-bar-call-down' ) {
-			this.buttonBarFnc = o.buttonBarFnc;
-			return;
-		}
+	//	if ( o.do === 'button-bar-call-down' ) {
+	//		this.buttonBarFnc = o.buttonBarFnc;
+	//		return;
+	//	}
 		if ( o.do === 'split-horz' ) {
 			this.splitHorz ( o );
 			return;
@@ -361,24 +370,47 @@ class Pane extends React.Component {
 		if ( o.do === 'set-state' ) {
 			let lft = null, rgt = null, top = null, bot = null;
 			let sh = o.state.splitHorz;
-			if ( sh ) {
-		//		lft = sh.left.contentState;		delete sh.left.contentState;
-		//		rgt = sh.right.contentState;	delete sh.right.contentState;
-				sh.opts.elementStyle 	= this.myElementStyleFnc;
-				sh.opts.onDrag			= this.splitDrag;
-				sh.incomplete 			= true; }
 			let sv = o.state.splitVert;
+			if ( (! this.parentFnc) && (sh || sv) ) {
+				this.props.frameFnc ( { do: 'clear-pane-btn-bars' } ); }
+			if ( sh ) {
+				sh.opts.elementStyle	= this.myElementStyleFnc;
+				sh.opts.onDrag			= this.splitDrag;
+				sh.incomplete			= true; }
 			if ( sv ) {
-		//		top = sv.top.contentState;		delete sv.top.contentState;
-		//		bot = sb.bottom.contentState;	delete sv.bottom.contentState;
-				sv.opts.elementStyle 	= this.myElementStyleFnc;
+				sv.opts.elementStyle	= this.myElementStyleFnc;
 				sv.opts.onDrag			= this.splitDrag;
-				sv.incomplete 			= true; }
+				sv.incomplete			= true; }
+			
 			this.eleData = Object.assign ( {}, o.state.eleData );
 			delete o.state.eleData;
 			this.setState ( o.state );
 			return;
 		}
+
+	//	if ( o.do === 'is-at-frame-top-border' ) {
+	//		if ( ! this.parentFnc ) {
+	//
+	//		}
+	//		let sv = o.state.splitVert;
+	//		if ( sv ) {
+	//		}
+	//		let sh = o.state.splitHorz;
+	//		if ( sh ) {
+	//		}
+	//		return false;
+	//	}
+
+	//	if ( o.do === 'set-at-frame-top' ) {
+	//		this.isAtFrameTop = o.is;
+	//		if ( this.isAtFrameTop ) {
+	//			//	The button bar for this pane should up in the frame's
+	//			//	transient title bar thing.
+	//			//	So the button bar element is not a child element of this
+	//			//	pane.
+	//		}
+	//		return;
+	//	}
 	}   //  doAll()
 
 	render() {
@@ -391,16 +423,18 @@ class Pane extends React.Component {
 				<div id 		= { this.eleId }
 					 className 	= { this.class }
 					 style 		= { this.state.style } >
-					<Pane eleId 	= { lft.eleId }
-						  class 	= { lft.class }
-						  peId 		= { this.props.peId }
-						  frameFnc	= { this.props.frameFnc } 
-						  parentFnc = { this.doAll } />
-					<Pane eleId 	= { rgt.eleId } 
-						  class 	= { rgt.class }
-						  peId 		= { this.props.peId }
-						  frameFnc	= { this.props.frameFnc } 
-						  parentFnc = { this.doAll } />
+					<Pane eleId 		= { lft.eleId }
+						  class 		= { lft.class }
+						  peId 			= { this.props.peId }
+						  frameFnc		= { this.props.frameFnc } 
+						  parentFnc 	= { this.doAll } 
+						  atFrameTop	= { this.props.atFrameTop } />
+					<Pane eleId 		= { rgt.eleId } 
+						  class 		= { rgt.class }
+						  peId 			= { this.props.peId }
+						  frameFnc		= { this.props.frameFnc } 
+						  parentFnc 	= { this.doAll } 
+						  atFrameTop	= { this.props.atFrameTop } />
 				</div>
 			); }
 
@@ -414,34 +448,51 @@ class Pane extends React.Component {
 					 className 	= { this.class }
 					 style 		= { this.state.style } >
 					<div style = { this.state.containerStyle } >
-						<Pane eleId 	= { top.eleId }
-							  class 	= { top.class }
-							  peId 		= { this.props.peId }
-							  frameFnc	= { this.props.frameFnc } 
-							  parentFnc = { this.doAll } />
-						<Pane eleId 	= { bot.eleId } 
-							  class 	= { bot.class }
-							  peId 		= { this.props.peId }
-							  frameFnc	= { this.props.frameFnc } 
-							  parentFnc = { this.doAll } />
+						<Pane eleId 		= { top.eleId }
+							  class 		= { top.class }
+							  peId 			= { this.props.peId }
+							  frameFnc		= { this.props.frameFnc } 
+							  parentFnc 	= { this.doAll } 
+							  atFrameTop	= { this.props.atFrameTop } />
+						<Pane eleId 		= { bot.eleId } 
+							  class 		= { bot.class }
+							  peId 			= { this.props.peId }
+							  frameFnc		= { this.props.frameFnc } 
+							  parentFnc 	= { this.doAll } 
+							  atFrameTop	= { false } />
 					</div>
 				</div>
 			); }
 
 		if ( this.props.parentFnc ) {
 			console.log ( 'Pane render() this.props.parentFnc )' );
-			return (
-				<div id 		= { this.eleId }
-					 className 	= { this.class }
-					 style 		= { this.state.style } >
-					<PaneContent eleId 		= { this.contentEleId }
-								 peId		= { this.props.peId }
-								 paneFnc	= { this.doAll }
-								 frameFnc 	= { this.props.frameFnc } />
-					<ButtonBar eleId	= { this.buttonBarEleId }
-							   paneFnc	= { this.doAll } />
-				</div>
-			); }
+			if ( this.props.atFrameTop ) {
+				return (
+					<div id 		= { this.eleId }
+						 className 	= { this.class }
+						 style 		= { this.state.style } >
+						<PaneContent eleId 		= { this.contentEleId }
+									 peId		= { this.props.peId }
+									 paneFnc	= { this.doAll }
+									 frameFnc 	= { this.props.frameFnc } />
+					</div>
+				); }
+			else {
+				return (
+					<div id 		= { this.eleId }
+						 className 	= { this.class }
+						 style 		= { this.state.style } >
+						<PaneContent eleId 		= { this.contentEleId }
+									 peId		= { this.props.peId }
+									 paneFnc	= { this.doAll }
+									 frameFnc 	= { this.props.frameFnc } />
+						<ButtonBar eleId			= { this.buttonBarEleId }
+								   containerFnc		= { null }
+								   paneFnc			= { this.doAll }
+								   isForRootPane	= { false } />
+					</div>
+				); }
+			}
 		
 		if ( this.state.tabs ) {
 			return (
@@ -458,6 +509,7 @@ class Pane extends React.Component {
 			);
 		}
 		console.log ( 'Pane render()' );
+		/*
 		return (
 			<div id 		= { this.eleId }
 				 className 	= { this.class }
@@ -467,23 +519,59 @@ class Pane extends React.Component {
 							 peId		= { this.props.peId }
 							 paneFnc	= { this.doAll }
 							 frameFnc 	= { this.props.frameFnc } />
-				<ButtonBar eleId	= { this.buttonBarEleId }
-						   paneFnc	= { this.doAll } />
+				<ButtonBar eleId		= { this.buttonBarEleId }
+						   containerFnc	= { null }
+						   paneFnc		= { this.doAll } />
+			</div>
+		);
+		*/
+		return (
+			<div id 		= { this.eleId }
+				 className 	= { this.class }
+				 style 		= { this.state.style } >
+				{ this.state.contentElements }
+				<PaneContent eleId 		= { this.contentEleId } 
+							 peId		= { this.props.peId }
+							 paneFnc	= { this.doAll }
+							 frameFnc 	= { this.props.frameFnc } />
 			</div>
 		);
 	}   //  render()
 
 	sizeButtonBar() {
-		let e  = document.getElementById ( this.eleId );
-		let bb = document.getElementById ( this.buttonBarEleId );
-		if ( e && bb ) {
-		//	console.log ( 'e && bb' );
-			bb.style.width = e.offsetWidth + 'px';
+		if ( ! this.props.atFrameTop ) {
+			let e  = document.getElementById ( this.eleId );
+			let bb = document.getElementById ( this.buttonBarEleId );
+			if ( e && bb ) {
+			//	console.log ( 'e && bb' );
+				bb.style.width = e.offsetWidth + 'px'; }
+		} else {
+			if ( this.buttonBarFnc ) {
+				let pe = document.getElementById ( this.eleId );
+				this.buttonBarFnc ( { do: 		'set-left-and-width',
+									  left: 	pe.offsetLeft,
+									  width:	pe.offsetWidth } ); }
 		}
 	}	//	sizeButtonBar()
 
 	componentDidMount() {
 		this.sizeButtonBar();
+
+		if ( ! this.props.parentFnc ) {
+			this.props.frameFnc ( { do:		'set-call-down',
+									to:		'root-pane',
+									fnc:	this.doAll } );
+		} else {
+			this.props.parentFnc ( { do:  			'set-call-down',
+									 to: 			'child-pane',
+									 childEleId:	this.props.eleId,
+									 fnc: 			this.doAll } );
+			if ( this.props.tabEleId ) {
+				this.props.parentFnc ( { do:			'set-call-down',
+										 to:			'tab-pane',
+										 tabPaneEleId:	this.eleId,
+										 tabPaneFnc:	this.doAll } ); }
+		}
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
@@ -527,6 +615,18 @@ class Pane extends React.Component {
 									 state:	sh.right.contentState } );
 				delete sh.right.contentState; }
 
+			if ( this.props.atFrameTop ) {
+				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+									  	paneEleId:	sh.left.eleId,
+										paneFnc:	sh.left.paneFnc,
+										paneLeft:	lft.offsetLeft,
+										paneWidth:	lft.offsetWidth } );
+				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+									  	paneEleId:	sh.right.eleId,
+										paneFnc:	sh.right.paneFnc,
+										paneLeft:	rgt.offsetLeft,
+										paneWidth:	rgt.offsetWidth } );
+			}
 			sh.incomplete = false
 		}
 		let sv = this.state.splitVert;
@@ -559,7 +659,9 @@ class Pane extends React.Component {
 
 			this.propagateDown_SizeOp ( { do: 'splitter-dragged' } );
 
+			let topSplit = false;
 			if ( sv.top.contentState ) {
+				topSplit = true;
 				sv.top.paneFnc ( { do:		'set-state',
 								   state:	sv.top.contentState } );
 				delete sv.top.contentState; }
@@ -567,6 +669,14 @@ class Pane extends React.Component {
 				sv.bottom.paneFnc ( { do:		'set-state',
 									  state:	sv.bottom.contentState } );
 				delete sv.bottom.contentState; }
+
+			if ( this.props.atFrameTop && ! topSplit ) {
+				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+									  	paneEleId:	sv.top.eleId,
+										paneFnc:	sv.top.paneFnc,
+										paneLeft:	top.offsetLeft,
+										paneWidth:	top.offsetWidth } );
+			}
 
 			sv.incomplete = false
 		}

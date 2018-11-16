@@ -21,12 +21,15 @@ Also -
 
 import React			from 'react';
 
-import PEFrameHeader	from './pe-frame-header';
-import Pane				from './pane';
-import PEFrameFooter	from './pe-frame-footer';
-import TitleBar 		from './title-bar'
-import Sizer 			from './sizer'
-import BurgerMenu		from './burger-menu';
+import PEFrameHeader		from './pe-frame-header';
+import Pane					from './pane';
+import PEFrameFooter		from './pe-frame-footer';
+/*
+import TitleBar 			from './title-bar'
+*/
+import TransientTitleBar	from './pe-frame-transient-title-bar';
+import Sizer 				from './sizer'
+import BurgerMenu			from './burger-menu';
 
 
 class PEFrame extends React.Component {
@@ -35,8 +38,10 @@ class PEFrame extends React.Component {
 		this.eleId 		= 'rr-frame-1';
 		this.peId 		= props.frameId;
 		this.appFnc 	= props.appFrameFnc;
-		this.contentFnc = null;
+		this.rootPaneFnc	= null;
+		this.titleBarFnc	= null;
 		this.state = {
+			titleBar:	null,
 			iconized:	null,
 			style: {
 				left:       this.props.left,
@@ -53,7 +58,7 @@ class PEFrame extends React.Component {
 		this.clickIcon			= this.clickIcon.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
-		this.contentState = null;
+		this.contentState 	= null;
 	}	//	constructor()
 
 	burgerMenuClick() {
@@ -85,8 +90,9 @@ class PEFrame extends React.Component {
 	iconize ( o ) {
 		let sW = 'iconize()';
 		console.log ( 'Frame ' + sW );
-		this.contentState = this.contentFnc ( { do: 'get-state' } );
-		this.setState ( { iconized: { 
+		this.contentState = this.rootPaneFnc ( { do: 'get-state' } );
+		this.setState ( { titleBar: null,
+						  iconized: { 
 			style: {
 				left:		this.state.style.left,
 				top: 		this.state.style.top,
@@ -138,6 +144,7 @@ class PEFrame extends React.Component {
 	clickIcon ( ev ) {
 		let sW = 'clickIcon()';
 		console.log ( 'Frame ' + sW );
+		//	First, transition to the frame's position and size.
 		let style = this.state.iconized.style;
 		this.setState ( { iconized: { 
 			style: {
@@ -151,6 +158,7 @@ class PEFrame extends React.Component {
 				visibility:		'hidden'
 			}
 		} } );
+		//	Now, after a delay, restore the frame.
 		window.setTimeout ( () => {
 			this.setState ( { iconized: 				null,
 							  contentRestoreIncomplete:	true } );
@@ -161,10 +169,22 @@ class PEFrame extends React.Component {
 		let sW = 'PEFrame ' + this.eleId + ' doAll()';
 		let frame = this;
 		function setCallDown ( o ) {
-			if ( o.to && o.to === 'PEFrameContent' ) 
-				frame.contentFnc = o.fnc;
-			if ( o.to && o.to === 'PECmdEditor' ) 
-				frame.editor = o.fnc;
+			if ( o.to && o.to === 'root-pane' ) {
+				frame.rootPaneFnc = o.fnc;
+			//	if ( frame.titleBarFnc ) {
+			//		frame.titleBarFnc ( { do: 			'set-root-pane-fnc',
+			//							  rootPaneFnc:	o.fnc } ); } 
+				frame.setState ( { titleBar:
+					<TransientTitleBar frameEleId	= { frame.eleId }
+									   appFnc 		= { frame.appFnc }
+									   frameFnc		= { frame.doAll }
+									   rootPaneFnc	= { o.fnc } />
+				}, () => {
+				} );
+				return; 
+			}
+			if ( o.to && o.to === 'PECmdEditor' ) {
+				frame.editor = o.fnc; }
 		}
 
 		if ( o.do === 'set-call-down' ) {
@@ -177,6 +197,16 @@ class PEFrame extends React.Component {
 		}
 		if ( o.do === 'title-bar-call-down' ) {
 			this.titleBarFnc = o.titleBarFnc;
+		//	if ( this.rootPaneFnc ) {
+		//		this.titleBarFnc ( { do: 			'set-root-pane-fnc',
+		//							 rootPaneFnc:	this.rootPaneFnc } ); }
+			//	Do this here because it is now known that button bar functions 
+			//	are set	up in the title bar.
+			if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
+				this.rootPaneFnc ( { do: 	'set-state',
+									 state:	this.contentState } );
+				this.contentState = null;
+				this.state.contentRestoreIncomplete = false; }
 			return;
 		}
 		if ( o.do === 'move-start' ) {
@@ -203,8 +233,8 @@ class PEFrame extends React.Component {
 			this.sizeH0 = Number.parseInt ( this.state.style.height );
 			if ( this.titleBarFnc ) {
 				this.titleBarFnc ( o ); }
-			if ( this.contentFnc ) {
-				this.contentFnc ( o ); }
+			if ( this.rootPaneFnc ) {
+				this.rootPaneFnc ( o ); }
 			this.appFnc ( { do: 		'size-frame',
 							frameFnc:	this.doAll,
 							ev: 		o.ev } );
@@ -223,8 +253,8 @@ class PEFrame extends React.Component {
 				this.titleBarFnc ( o ) }
 			if ( this.sizerFnc ) {
 				this.sizerFnc ( o ); }
-			if ( this.contentFnc ) {
-				this.contentFnc ( o ); }
+			if ( this.rootPaneFnc ) {
+				this.rootPaneFnc ( o ); }
 			return;
 		}
 		if ( o.do === 'burger-menu-click' ) {
@@ -236,14 +266,14 @@ class PEFrame extends React.Component {
 			return;
 		}
 		if ( o.do === 'split-horz' ) {
-			if ( this.contentFnc ) {
-				this.contentFnc ( o );
+			if ( this.rootPaneFnc ) {
+				this.rootPaneFnc ( o );
 			}
 			return;
 		}
 		if ( o.do === 'split-vert' ) {
-			if ( this.contentFnc ) {
-				this.contentFnc ( o );
+			if ( this.rootPaneFnc ) {
+				this.rootPaneFnc ( o );
 			}
 			return;
 		}
@@ -261,9 +291,30 @@ class PEFrame extends React.Component {
 			console.log ( sW + ' menu-item: ' + o.menuItemText );
 			return;
 		}
+		if ( o.do === 'add-pane-btn-bar' ) {
+			frame.titleBarFnc ( o );
+			return;
+		}
+		if ( o.do === 'clear-pane-btn-bars' ) {
+			frame.titleBarFnc ( o );
+			return;
+		}
+		if ( o.do === 'remove-pane-btn-bar' ) {
+			frame.titleBarFnc ( o );
+			return;
+		}
 	}   //  doAll()
 
 	render() {
+		/*
+				<TitleBar frameId	= 'frame-1'
+						  appFnc 	= { this.appFnc }
+						  frameFnc	= { this.doAll } />
+
+				<TransientTitleBar frameEleId	= { this.eleId }
+								   appFnc 		= { this.appFnc }
+								   frameFnc		= { this.doAll } />
+		*/
 		if ( this.state.iconized ) {
 			return (
 				<div id					= { this.eleId }
@@ -281,29 +332,35 @@ class PEFrame extends React.Component {
 			<div id			= { this.eleId }
 				 className	= "rr-pe-frame"
 				 style 		= {this.state.style}>
-				<TitleBar frameId	= 'frame-1'
-						  appFnc 	= { this.appFnc }
-						  frameFnc	= { this.doAll } />
+				{ this.state.titleBar }
 				<PEFrameHeader frame	= { this.doAll } />
-				<Pane peId 		= { this.peId } 
-					  frameFnc 	= { this.doAll }
-					  tabs		= { true } />
+				<Pane peId 			= { this.peId } 
+					  frameFnc 		= { this.doAll }
+					  tabs			= { false } 
+					  atFrameTop	= { true } />
 				<PEFrameFooter />
-				<Sizer frameId 		= 'frame-1'
-					   appFnc 	= { this.appFnc }
-					   frameFnc	= { this.doAll }  />
+				<Sizer frameEleId 	= { this.eleId }
+					   appFnc 		= { this.appFnc }
+					   frameFnc		= { this.doAll }  />
 				{ this.state.burgerMenu }
 			</div>
 		)
 	}	//	render()
 
 	componentDidUpdate() {
-		if ( this.state.contentRestoreIncomplete ) {
-			this.contentFnc ( { do: 	'set-state',
-								state:	this.contentState } );
-			this.contentState = null;
-			this.state.contentRestoreIncomplete = false;
-		}
+	//	if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
+	//		this.rootPaneFnc ( { do: 	'set-state',
+	//							 state:	this.contentState } );
+	//		this.contentState = null;
+	//		this.state.contentRestoreIncomplete = false;
+	//	}
+	//
+	//	Title bar must be set up before the pane's state (with possible
+	//	child panes) is set because of button bar issues in the title
+	//	bar (the button bar container function must be set in the title
+	//	bar). So the pane's state is set in the 'title-bar-call-down'
+	//	command in doAll().
+
 	}	//	componentDidUpdate()
 
 }	//	class PEFrame

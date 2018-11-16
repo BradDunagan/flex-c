@@ -8,6 +8,9 @@ class ButtonBar extends Component {
 		super ( props );
 		console.log ( 'ButtonBar constructor()' );
 		this.state = {
+			style: {
+				//	Assuming not for the root pane.
+			},
 			styleSplitHorz: {
 		//		left: 	'0px'
 			},
@@ -15,15 +18,103 @@ class ButtonBar extends Component {
 		//		left: 	'0px'
 			}
 		};
+
+		this.mouseEnter		= this.mouseEnter.bind ( this );
+		this.mouseLeave		= this.mouseLeave.bind ( this );
 		this.doAll 			= this.doAll.bind ( this );
 
 	//	this.sizeW0 = 0;
 
-		props.paneFnc ( { do:				'button-bar-call-down',
-						  buttonBarFnc:		this.doAll } );
+		this.bshFnc 	= null;
+		this.bsvFnc		= null;
+	//	this.paneFnc	= null;
+
+	//	if ( props.paneFnc ) {
+	//		props.paneFnc ( { do:				'button-bar-call-down',
+	//						  buttonBarFnc:		this.doAll } ); }
+	//	else {
+	//	if ( ! props.paneFnc ) {
+	//		//	for the root pane
+		if ( props.isForRootPane ) {
+			this.state.style = {
+				width:				'100%',
+				opacity:			'1.0',
+				transitionProperty:	'none'
+			}
+		}
 	}	//	constructor
 	
+	mouseEnter ( ev ) {
+		let sW = 'ButtonBar mouseEnter()';
+	//	console.log ( sW );
+	//	let isAtTop = this.props.paneFnc ( { do: 'is-at-frame-top-border' } );
+	//	if ( isAtTop ) {
+	//		console.log ( sW + ' also need to show frame top button bar' );
+	//	}
+	}	//	mouseEnter()
+	
+	mouseLeave ( ev ) {
+		let sW = 'ButtonBar mouseLeave()';
+	//	console.log ( sW );
+	}	//	mouseLeave()
+	
 	doAll ( o ) {
+		let sW = 'ButtonBar doAll()';
+		if ( o.do === 'set-call-down' ) {
+			if ( o.to === 'btn-split-horz' ) {
+				console.log ( sW + ' bshFnc' );
+				this.bshFnc = o.bshFnc; 
+			//	if ( this.paneFnc ) {
+			//		this.bshFnc ( { do: 		'set-pane-fnc',
+			//						paneFnc:	this.paneFnc } ); }
+			}
+			if ( o.to === 'btn-split-vert' ) {
+				console.log ( sW + ' bsvFnc' );
+				this.bsvFnc = o.bsvFnc;
+			//	if ( this.paneFnc ) {
+			//		this.bsvFnc ( { do: 		'set-pane-fnc',
+			//						paneFnc:	this.paneFnc } ); }
+			}
+			return;
+		}
+	//	if ( o.do === 'set-pane-fnc' ) {
+	//		console.log ( sW + ' paneFnc' );
+	//		this.paneFnc = o.paneFnc;
+	//		if ( this.bshFnc ) {
+	//			this.bshFnc ( { do: 		'set-pane-fnc',
+	//							paneFnc:	this.paneFnc } ); }
+	//		if ( this.bsvFnc ) {
+	//			this.bsvFnc ( { do: 		'set-pane-fnc',
+	//							paneFnc:	this.paneFnc } ); }
+	//		return;
+	//	}
+		if ( (o.do === 'split-horz') || (o.do === 'split-vert') ) {
+		//	let paneFnc = this.paneFnc ? this.paneFnc : this.props.paneFnc;
+		//	if ( ! paneFnc ) {
+		//		console.log ( sW + ' split ERROR: no paneFnc' );
+		//		return; }
+			if ( this.props.containerFnc ) {
+				o.bbEleId = this.props.eleId;
+			//	o.paneFnc = paneFnc;
+				o.paneFnc = this.props.paneFnc;
+				this.props.containerFnc ( o );
+			} else {
+			//	paneFnc ( o );	}
+				this.props.paneFnc ( o );	}
+			return;
+		}
+		if ( o.do === 'set-left-and-width' ) {
+			//	This command implies this button bar is part of the
+			//	transient title bar at the top of the frame.  I.e., the top 
+			//	of the pane borders the top of the frame.
+			this.setState ( { style: {
+				left:				o.left  + 'px',
+				width:				o.width + 'px',
+				opacity:			'1.0',
+				transitionProperty:	'none'
+			} } );
+			return;
+		}
 		/*
 		if ( o.do === 'size-start' ) {
 			this.sizeW0 = Number.parseInt ( this.state.style.width );
@@ -47,7 +138,7 @@ class ButtonBar extends Component {
 			return;
 		}
 		*/
-	}
+	}	//	doAll()
 
 	render() {
 		console.log ( 'ButtonBar render()' );
@@ -58,13 +149,21 @@ class ButtonBar extends Component {
 			</div>
 		);
 		*/
+		let ctnrFnc = this.props.containerFnc ? this.props.containerFnc : null;
 		return (
 			<div id				= { this.props.eleId }
-				 className		= 'rr-button-bar' >
-				<BtnSplitHorz paneFnc	= { this.props.paneFnc } 
+				 className		= 'rr-button-bar' 
+				 style 			= { this.state.style }
+				 onMouseEnter	= { this.mouseEnter }
+				 onMouseLeave	= { this.mouseLeave }>
+				<BtnSplitHorz containerFnc	= { ctnrFnc }
+							  bbFnc			= { this.doAll }
+							  paneFnc		= { this.props.paneFnc } 
 							  style 		= { this.state.styleSplitHorz } 
 							  contentId		= { 0 } />
-				<BtnSplitVert paneFnc	= { this.props.paneFnc } 
+				<BtnSplitVert containerFnc	= { ctnrFnc }
+							  bbFnc			= { this.doAll }
+							  paneFnc		= { this.props.paneFnc } 
 							  style 		= { this.state.styleSplitVert } 
 							  contentId		= { 0 } />
 			</div>
@@ -90,7 +189,21 @@ class ButtonBar extends Component {
 			}
 		} );
 		*/
-	}
+	//	let paneFnc = this.paneFnc ? this.paneFnc : this.props.paneFnc;
+		if ( this.props.containerFnc ) {
+			this.props.containerFnc ( { do: 			'set-call-down',
+										to:				'button-bar',
+										bbEleId:		this.props.eleId,
+										bbFnc:			this.doAll  } ); }
+								//		needPaneFnc:	(! paneFnc) } ); }
+
+	//	if ( paneFnc ) {
+	//		paneFnc ( { do: 			'set-call-down',
+		this.props.paneFnc ( { do: 		'set-call-down',
+							   to:		'button-bar',
+							   bbEleId:	this.props.eleId,
+							   bbFnc:	this.doAll } );	
+	}	//	componentDidMount()
 	
 	componentWillUnmount() {
 		let e  = document.getElementById ( this.props.eleId );

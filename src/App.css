@@ -36,6 +36,7 @@ Absolute positioning elements within scrollable div
 https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-scrollable-div 
 */
 .rr-app-content {
+	background-color:	cadetblue;
 	flex: 1 1 		auto;
 	border-top:     solid 1px lightsteelblue;
 	border-bottom:  solid 1px lightsteelblue;
@@ -157,6 +158,34 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 */
 
+.rr-transient-title-bar {
+	position:               absolute;
+	left:					0px;
+	top:					0px;
+	border-bottom: 			solid 1px gainsboro;
+	cursor:                 move;
+	background-color:       transparent;
+	opacity:                0.0;
+	transition-property:    background-color, opacity, border-bottom;
+	transition-duration:    300ms;
+}
+
+.rr-transient-title-bar:hover {
+	background-color:       white;
+	opacity:                0.9;
+}
+
+.rr-frame-header-title-bar {
+	width:					100%;
+	height:					18px;
+/*	border-bottom: 			solid 1px gainsboro;	*/
+}
+
+.rr-pane-button-bars-container {
+	width:					100%;
+	height:					18px;
+}
+
 .frame-burger-menu {
 	width: 			18px;
 	position: 		absolute;
@@ -198,13 +227,32 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	Do not specifiy left, top.
 	Width must be set in JavaScript as the container width changes (presumably
 	to the width of the container).											  */
+/*
 .rr-button-bar {
 	position:				absolute;
 	height:					18px;
 	border-bottom: 			solid 1px gainsboro;
 	text-align:				center;
 }
+*/
+.rr-button-bar {
+	position:               absolute;
+	height:					18px;
+	border-bottom: 			solid 1px;
+	text-align:				center;
+	cursor:					default;
+	background-color:       transparent;
+	border-bottom-color:	transparent;
+	opacity:                0.0;
+	transition-property:    background-color, border-bottom-color, opacity;
+	transition-duration:    300ms;
+}
 
+.rr-button-bar:hover {
+	background-color:       white;
+	border-bottom-color:	gainsboro;
+	opacity:                0.9;
+}
 
 /* ------------------------------  Spliting  -------------------------------  */
 
