@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 class FrameDestroy extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'frame-destroy-' + props.frameId;
+		this.eleId 		= 'frame-destroy-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.doIt 		= this.doIt.bind ( this );
@@ -46,7 +46,7 @@ class FrameDestroy extends Component {
 
 	render() {
 		return (
-			<img id			= { this.id }
+			<img id			= { this.eleId }
 				 className	= "frame-destroy"
 				 src		= "/images/frame_destroy_lite_18x18.png" 
 				 onMouseDown 	= { this.mouseDown }

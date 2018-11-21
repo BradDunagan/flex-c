@@ -41,7 +41,7 @@ class Sizer extends Component {
 
 	mouseDown ( ev ) {
 		let sW = 'mouseDown()';
-		console.log ( sW );
+	//	console.log ( sW );
 		this.sizeX0 = Number.parseInt ( this.state.style.left );
 		this.sizeY0 = Number.parseInt ( this.state.style.top );
 		this.frameFnc ( { do: 	'size-start',
@@ -50,7 +50,7 @@ class Sizer extends Component {
 
 	mouseUp ( ev ) {
 		let sW = 'mouseUp()';
-		console.log ( sW );
+	//	console.log ( sW );
 	}	//	mouseUp()
 	
 	render() {

@@ -15,10 +15,11 @@ class TabName extends Component {
 
 		this.state = {
 			style:	{},
-			name:	'Name'
+		//	name:	'Name'
 		};
 		
-		props.namesFnc ( { do:			'set-call-down',
+	//	props.namesFnc ( { do:			'set-call-down',
+		props.tabsFnc  ( { do:			'set-call-down',
 						   to:			'tab-name',
 						   nameEleId:	props.eleId,
 						   nameFnc:		this.doAll } );
@@ -26,7 +27,8 @@ class TabName extends Component {
 	
 
 	click ( ev ) {
-		this.props.namesFnc ( { do: 		'name-click',
+	//	this.props.namesFnc ( { do: 		'name-click',
+		this.props.tabsFnc  ( { do: 		'name-click',
 								nameEleId: 	this.props.eleId } );
 	}	//	click()
 
@@ -52,7 +54,7 @@ class TabName extends Component {
 				 className	= 'rr-tab-page-name'
 				 style		= { this.state.style } 
 				 onClick	= { this.click } >
-				{ this.state.name }
+				{ this.props.text }
 			</div>
 		);
 	}   //  render()

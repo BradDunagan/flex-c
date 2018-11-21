@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 
+import BtnBurger 			from './btn-burger';
 import BtnSplitHorz 		from './btn-split-horz';
 import BtnSplitVert 		from './btn-split-vert';
+
+let lastBtnBarId = 0;
+
+function nextBtnBarId() {
+	return ++lastBtnBarId;
+}
 
 class ButtonBar extends Component {
 	constructor ( props ) {
@@ -141,7 +148,7 @@ class ButtonBar extends Component {
 	}	//	doAll()
 
 	render() {
-		console.log ( 'ButtonBar render()' );
+	//	console.log ( 'ButtonBar render()' );
 		/*
 		return (
 			<div id				= { this.props.eleId }
@@ -156,12 +163,18 @@ class ButtonBar extends Component {
 				 style 			= { this.state.style }
 				 onMouseEnter	= { this.mouseEnter }
 				 onMouseLeave	= { this.mouseLeave }>
-				<BtnSplitHorz containerFnc	= { ctnrFnc }
+				<BtnBurger eleId		= { 'rr-bgr-' + this.props.bbId }
+						   containerFnc	= { ctnrFnc }
+						   bbFnc		= { this.doAll }
+						   paneFnc		= { this.props.paneFnc } />
+				<BtnSplitHorz eleId			= { 'rr-sh-' + this.props.bbId }
+							  containerFnc	= { ctnrFnc }
 							  bbFnc			= { this.doAll }
 							  paneFnc		= { this.props.paneFnc } 
 							  style 		= { this.state.styleSplitHorz } 
 							  contentId		= { 0 } />
-				<BtnSplitVert containerFnc	= { ctnrFnc }
+				<BtnSplitVert eleId			= { 'rr-sv-' + this.props.bbId }
+							  containerFnc	= { ctnrFnc }
 							  bbFnc			= { this.doAll }
 							  paneFnc		= { this.props.paneFnc } 
 							  style 		= { this.state.styleSplitVert } 
@@ -211,8 +224,8 @@ class ButtonBar extends Component {
 	}
 
 	componentDidUpdate() {
-		let e  = document.getElementById ( this.props.eleId );
-		console.log ( 'ButtonBar did update. e: ' + e );
+	//	let e  = document.getElementById ( this.props.eleId );
+	//	console.log ( 'ButtonBar did update. e: ' + e );
 		/*
 		if ( ! e ) {
 			return; }
@@ -232,4 +245,8 @@ class ButtonBar extends Component {
 
 }   //  class ButtonBar
 
+/*
 export default ButtonBar;
+*/
+
+export { nextBtnBarId, ButtonBar } ;

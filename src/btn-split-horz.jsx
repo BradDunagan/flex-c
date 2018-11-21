@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 class BtnSplitHorz extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.eleId 		= 'btn-split-horz-' + props.frameId;
 	//	this.appFnc 	= props.appFnc;
 	//	this.frameFnc 	= props.frameFnc;
 		this.doAll 		= this.doAll.bind ( this );
@@ -65,7 +64,7 @@ class BtnSplitHorz extends Component {
 
 	render() {
 		return (
-			<img id			= { this.eleId }
+			<img id			= { this.props.eleId }
 				 className	= "btn-split-horz"
 				 style		= { this.props.style }
 				 src		= "/images/split_horz_lite_18x18.png"

@@ -1,25 +1,26 @@
 
 import React, { Component } from 'react';
 
-class FrameBurgerMenu extends Component {
+class BtnBurger extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.eleId 		= 'frame-burger-menu-' + props.frameId;
-		this.appFnc 	= props.appFnc;
-		this.frameFnc 	= props.frameFnc;
-		this.doIt 		= this.doIt.bind ( this );
+	//	this.appFnc 	= props.appFnc;
+	//	this.frameFnc 	= props.frameFnc;
+		this.doAll 		= this.doAll.bind ( this );
 		this.mouseDown	= this.mouseDown.bind ( this );
 		this.mouseUp	= this.mouseUp.bind ( this );
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.click		= this.click.bind ( this );
 
-		this.frameFnc ( { do: 		    		'frame-burger-menu-call-down',
-						  frameBurgerMenuFnc:  	this.doIt } );
+	//	if ( this.frameFnc ) {
+    //      this.frameFnc ( { do: 		    	'frame-btn-split-horz-call-down',
+	//                        BtnSplitHorzFnc:  this.doAll } ); }
+	
+	//	if ( this.props.paneFnc ) {
+	//		this.paneFnc = this.props.paneFnc; }
+	//	this.paneFnc = null;
 	}	//	constructor
 	
-	doIt ( o ) {
-	}
-
 	mouseDown ( ev ) {
 		let sW = 'mouseDown()';
 		console.log ( sW );
@@ -41,14 +42,22 @@ class FrameBurgerMenu extends Component {
 	click ( ev ) {
 		let sW = 'click()';
 		console.log ( sW );
-		this.frameFnc ( { do: 'frame-burger-click' } );
 		ev.stopPropagation();
+		this.props.paneFnc ( { do: 'pane-burger-click' } );
 	}	//	click()
+
+	doAll ( o ) {
+	//	if ( o.do === 'set-pane-fnc' ) {
+	//		this.paneFnc = o.paneFnc;
+	//		return;
+	//	}
+	}	//	doAll()
 
 	render() {
 		return (
-			<img id			= { this.eleId }
-				 className	= "frame-burger-menu"
+			<img id			= { this.props.eleId }
+				 className	= "rr-btn-burger"
+				 style		= { this.props.style }
 				 src		= "/images/burger_lite_18x18.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
@@ -57,6 +66,12 @@ class FrameBurgerMenu extends Component {
 		);
 	}   //  render()
 
-}   //  class FrameBurgerMenu
+	componentDidMount() {
+	//	this.props.bbFnc ( { do: 		'set-call-down',
+	//						 to:		'btn-burger',
+	//						 bshFnc:	this.doAll } );
+	}	//	componentDidMount()
 
-export default FrameBurgerMenu;
+}   //  class BtnBurger
+
+export default BtnBurger;

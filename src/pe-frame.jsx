@@ -35,7 +35,7 @@ import BurgerMenu			from './burger-menu';
 class PEFrame extends React.Component {
 	constructor ( props ) {
 		super ( props );
-		this.eleId 		= 'rr-frame-1';
+		this.eleId 		= 'rr-frame-' + props.frameId;
 		this.peId 		= props.frameId;
 		this.appFnc 	= props.appFrameFnc;
 		this.rootPaneFnc	= null;
@@ -52,17 +52,38 @@ class PEFrame extends React.Component {
 			burgerMenu: null,
 			contentRestoreIncomplete:	false
 		};
-		this.burgerMenuClick	= this.burgerMenuClick.bind ( this );
+		this.zTop				= this.zTop.bind ( this );
+		this.mouseDown			= this.mouseDown.bind ( this );
+		this.burgerClick		= this.burgerClick.bind ( this );
+		this.iconize2			= this.iconize2.bind ( this );
 		this.iconize 			= this.iconize.bind ( this );
 		this.transitionEnd		= this.transitionEnd.bind ( this );
 		this.clickIcon			= this.clickIcon.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
+		this.iconSlot		= null;
 		this.contentState 	= null;
+
+		this.props.appFrameContent ( { do: 			'set-call-down',
+									   to:			'frame',
+									   frameId:		this.props.frameId,
+									   frameFnc:	this.doAll } );
+
 	}	//	constructor()
 
-	burgerMenuClick() {
-		let sW = 'PEFrame burgerMenuClick()';
+	zTop() {
+		this.props.appFrameContent ( { do: 		'ensure-frame-z-is-top',
+									  frameId:	this.props.frameId } );
+	}	//	zTop()
+
+	mouseDown ( ev ) {
+		let sW = 'PEFrame mouseDown()';
+	//	console.log ( sW );
+		this.zTop();
+	}	//	mouseDown()
+
+	burgerClick() {
+		let sW = 'PEFrame burgerClick()';
 		console.log ( sW );
 		let fe = document.getElementById ( this.eleId );
 		let r  = fe.getBoundingClientRect();
@@ -85,7 +106,27 @@ class PEFrame extends React.Component {
 						upFnc:		this.doAll,
 						ctx:		{ after:	'menu-item' }
 		} );
-	}	//	burgerMenuClick()
+	}	//	burgerClick()
+
+	iconize2() {
+		window.setTimeout ( () => {
+			this.setState ( { iconized: { 
+				style: {
+				//	left:		'20px',
+				//	top: 		'20px',
+					left:		this.iconSlot.x + 'px',
+					top: 		this.iconSlot.y + 'px',
+					width:		'50px',
+					height:		'60px',
+					transitionProperty: 	'left, top, width, height',
+					transitionDuration:		'200ms' },
+				iconName: {
+					visibility: 	'hidden' },
+				titleBar: null,
+			} } );
+			this.iconSlot = null;
+		}, 50 );
+	}	//	iconize2()
 
 	iconize ( o ) {
 		let sW = 'iconize()';
@@ -104,20 +145,19 @@ class PEFrame extends React.Component {
 				visibility: 	'hidden',
 			}
 		} } );
-		window.setTimeout ( () => {
-			this.setState ( { iconized: { 
-				style: {
-					left:		'20px',
-					top: 		'20px',
-					width:		'50px',
-					height:		'60px',
-					transitionProperty: 	'left, top, width, height',
-					transitionDuration:		'200ms' },
-				iconName: {
-					visibility: 	'hidden',
-				}
-			} } );
-		}, 50 );
+		if ( ! this.iconSlot ) {
+		//	this.props.appFrameContent ( { 
+		//		do: 		'get-icon-slot',
+		//		frameId: 	this.props.frameId } )
+		//	.then ( ( slot ) => {
+		//		this.iconSlot = slot;
+		//		this.iconize2();
+		//	} );
+			this.iconSlot = this.props.appFrameContent ( { 
+				do: 		'get-icon-slot',
+				frameId: 	this.props.frameId } ); 
+		}
+		this.iconize2();
 	}	//	iconize()
 
 	transitionEnd ( ev ) {
@@ -162,6 +202,7 @@ class PEFrame extends React.Component {
 		window.setTimeout ( () => {
 			this.setState ( { iconized: 				null,
 							  contentRestoreIncomplete:	true } );
+			this.zTop();
 		}, 200 );
 	}	//	clickIcon()
 
@@ -171,20 +212,12 @@ class PEFrame extends React.Component {
 		function setCallDown ( o ) {
 			if ( o.to && o.to === 'root-pane' ) {
 				frame.rootPaneFnc = o.fnc;
-			//	if ( frame.titleBarFnc ) {
-			//		frame.titleBarFnc ( { do: 			'set-root-pane-fnc',
-			//							  rootPaneFnc:	o.fnc } ); } 
-				frame.setState ( { titleBar:
-					<TransientTitleBar frameEleId	= { frame.eleId }
-									   appFnc 		= { frame.appFnc }
-									   frameFnc		= { frame.doAll }
-									   rootPaneFnc	= { o.fnc } />
-				}, () => {
-				} );
 				return; 
 			}
 			if ( o.to && o.to === 'PECmdEditor' ) {
 				frame.editor = o.fnc; }
+			if ( o.to && o.to === 'client-content-fnc' ) {
+				frame.rootPaneFnc ( o ); }
 		}
 
 		if ( o.do === 'set-call-down' ) {
@@ -257,8 +290,8 @@ class PEFrame extends React.Component {
 				this.rootPaneFnc ( o ); }
 			return;
 		}
-		if ( o.do === 'burger-menu-click' ) {
-			this.burgerMenuClick();
+		if ( o.do === 'frame-burger-click' ) {
+			this.burgerClick();
 			return;
 		}
 		if ( o.do === 'iconize' ) {
@@ -287,10 +320,6 @@ class PEFrame extends React.Component {
 				this.titleBarFnc ( o ) }
 			return;
 		}
-		if ( o.do === 'menu-item' ) {
-			console.log ( sW + ' menu-item: ' + o.menuItemText );
-			return;
-		}
 		if ( o.do === 'add-pane-btn-bar' ) {
 			frame.titleBarFnc ( o );
 			return;
@@ -301,6 +330,19 @@ class PEFrame extends React.Component {
 		}
 		if ( o.do === 'remove-pane-btn-bar' ) {
 			frame.titleBarFnc ( o );
+			return;
+		}
+		if ( o.do === 'show-menu' ) {
+			this.appFnc ( o );
+			return;
+		}
+		if ( o.do === 'append-menu-items' ) {
+			this.props.appFrameContent ( o );
+			return;
+		}
+		if ( o.do === 'menu-item' ) {
+			o.frameId = this.props.frameId;
+			this.props.appFrameContent ( o );
 			return;
 		}
 	}   //  doAll()
@@ -324,28 +366,45 @@ class PEFrame extends React.Component {
 					 onClick			= { this.clickIcon } >
 					<div className 	= 'rr-iconized-frame-name'
 						 style 		= { this.state.iconized.iconName } >
-						FrameName
+						{ 'Frame-' + this.props.frameId }
 					</div>
 				</div>
 			); }
 		return (
-			<div id			= { this.eleId }
-				 className	= "rr-pe-frame"
-				 style 		= {this.state.style}>
-				{ this.state.titleBar }
+			<div id				= { this.eleId }
+				 className		= "rr-pe-frame"
+				 style 			= { this.state.style}
+				 onMouseDown	= { this.mouseDown } >
 				<PEFrameHeader frame	= { this.doAll } />
 				<Pane peId 			= { this.peId } 
 					  frameFnc 		= { this.doAll }
 					  tabs			= { false } 
-					  atFrameTop	= { true } />
+					  atFrameTop	= { true } 
+					  contentStyle	= { this.props.contentStyle }
+					  ccEleId		= { this.props.ccEleId }
+					  clientContent	= { this.props.clientContent } />
 				<PEFrameFooter />
 				<Sizer frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }
 					   frameFnc		= { this.doAll }  />
+				{ this.state.titleBar }
 				{ this.state.burgerMenu }
 			</div>
 		)
 	}	//	render()
+
+	componentDidMount() {
+		if ( ! this.state.titleBar ) {
+			this.setState ( { titleBar:
+				<TransientTitleBar frameId		= { this.props.frameId }
+								   frameEleId	= { this.eleId }
+								   appFnc 		= { this.appFnc }
+								   frameFnc		= { this.doAll }
+								   rootPaneFnc	= { this.rootPaneFnc } />
+			}, () => {
+			} );
+		}
+	}	//	componentDidMount()
 
 	componentDidUpdate() {
 	//	if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
@@ -360,6 +419,18 @@ class PEFrame extends React.Component {
 	//	bar (the button bar container function must be set in the title
 	//	bar). So the pane's state is set in the 'title-bar-call-down'
 	//	command in doAll().
+		//	But do do this - like componentDidMount(), but since that
+		//	is not called when restoring from an icon, we do it here too.
+		if ( this.state.contentRestoreIncomplete && ! this.state.titleBar ) {
+			this.setState ( { titleBar:
+				<TransientTitleBar frameId		= { this.props.frameId }
+								   frameEleId	= { this.eleId }
+								   appFnc 		= { this.appFnc }
+								   frameFnc		= { this.doAll }
+								   rootPaneFnc	= { this.rootPaneFnc } />
+			}, () => {
+			} );
+		}
 
 	}	//	componentDidUpdate()
 

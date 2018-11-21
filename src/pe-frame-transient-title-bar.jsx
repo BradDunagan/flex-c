@@ -82,10 +82,12 @@ class TransientTitleBar extends Component {
 			<div id			= { this.eleId }
 				 className	= 'rr-transient-title-bar'
 				 style		= { this.state.style } >
-				<FrameHeaderTitleBar frameEleId 	= { this.props.frameEleId }
+				<FrameHeaderTitleBar frameId		= { this.props.frameId }
+								     frameEleId 	= { this.props.frameEleId }
 									 appFnc 		= { this.appFnc }
 									 frameFnc		= { this.frameFnc } />
-				<PaneButtonBarsContainer frameFnc 		= { this.frameFnc }
+				<PaneButtonBarsContainer frameId		= { this.props.frameId }
+								   		 frameFnc 		= { this.frameFnc }
 										 rootPaneFnc	= { this.props.rootPaneFnc }
 										 ttbFnc			= { this.doAll } />
 			</div>

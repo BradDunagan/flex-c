@@ -55,7 +55,7 @@ class AppFrame extends Component {
 
 	mouseUp ( ev ) {
 		let sW = 'mouseUp()';
-		console.log ( sW );
+	//	console.log ( sW );
 		if ( this.frameMoving.moverMouseDown ) {
 			this.frameMoving.moverMouseDown	= false;
 			this.frameMoving.frameFnc		= null;
@@ -126,8 +126,10 @@ class AppFrame extends Component {
 			<div className		= 'rr-app-frame'
 				 onMouseMove	= { this.mouseMove } 
 				 onMouseUp		= { this.mouseUp } >
-				<AppHeader />
-				<AppContent appFrameFnc = { this.doAll } />
+				<AppHeader clientFnc   = { this.props.clientFnc }
+						   appFrameFnc = { this.doAll } />
+				<AppContent clientFnc 	= { this.props.clientFnc }
+							appFrameFnc = { this.doAll } />
 				<AppFooter />
 				{ this.state.appDialog }
 			</div>

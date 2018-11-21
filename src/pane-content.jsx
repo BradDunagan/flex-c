@@ -27,7 +27,9 @@ class PaneContent extends React.Component {
 		}
 		return (
 			<div id 		= { this.props.eleId }
-				 className 	= 'pane-content' >
+				 className 	= 'pane-content'
+				 style		= { this.props.style } >
+				{ this.props.content }
 			</div>
 		);
 	}   //  render()

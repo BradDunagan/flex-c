@@ -6,13 +6,18 @@
 
 import React, { Component } from 'react';
 
+/*
 import ButtonBar 			from './button-bar';
 
 let lastBtnBarId = 0;
+*/
+import { ButtonBar, nextBtnBarId } 			from './button-bar';
 
 class PaneButtonBarsContainer extends Component {
 	constructor ( props ) {
 		super ( props );
+
+		this.eleId = 'rr-bb-container-' + props.frameId;
 
 		this.state = {
 			buttonBars: []
@@ -32,25 +37,8 @@ class PaneButtonBarsContainer extends Component {
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'button-bar' ) {
 				console.log ( sW + ' bbFnc' );
-				this.buttonBars[o.bbEleId].buttonBarFnc = o.bbFnc;
-			//	if ( this.rootPaneFnc && o.needPaneFnc ) {
-			//		o.bbFnc ( { do:			'set-pane-fnc',
-			//					paneFnc:	this.rootPaneFnc } ); }
-			}
+				this.buttonBars[o.bbEleId].buttonBarFnc = o.bbFnc; }
 			return; }
-	//	if ( o.do === 'set-root-pane-fnc' ) {
-	//		console.log ( sW + ' rootPaneFnc' );
-	//		this.rootPaneFnc = o.rootPaneFnc;
-	//		let keys = Object.keys ( this.buttonBars );
-	//		if ( keys.length === 1 ) {
-	//			let bb = this.buttonBars[keys[0]];
-	//			bb.paneFnc = this.rootPaneFnc;
-	//			if ( bb.buttonBarFnc ) {
-	//				bb.buttonBarFnc ( { do:			'set-pane-fnc',
-	//									paneFnc:	this.rootPaneFnc } ); }
-	//		}
-	//		return;
-	//	}
 		if ( (o.do === 'split-horz') || (o.do === 'split-vert') ) {
 			console.log ( sW + ' split-horz/vert' );
 			//	Remove the button bar. Then call the pane to do the split.
@@ -62,8 +50,10 @@ class PaneButtonBarsContainer extends Component {
 		}
 		if ( o.do === 'add-pane-btn-bar' ) {
 			console.log ( sW + ' add-pane-btn-bar' );
-			let eleId = 'bb-' + ++lastBtnBarId;
-			this.buttonBars[eleId] = { buttonBar: 		null,
+			let bbId  = nextBtnBarId();
+			let eleId = 'rr-bb-' + bbId;
+			this.buttonBars[eleId] = { bbId:			bbId,
+									   buttonBar: 		null,
 									   buttonBarFnc:	null,
 							   		   paneFnc:			o.paneFnc,
 									   isForRootPane:	false };
@@ -95,7 +85,7 @@ class PaneButtonBarsContainer extends Component {
 
 	render() {
 		return (
-			<div id				= { 'bb-container' }
+			<div id				= { this.eleId }
 				 className		= 'rr-pane-button-bars-container' >
 				{ this.state.buttonBars }
 			</div>
@@ -105,14 +95,15 @@ class PaneButtonBarsContainer extends Component {
 	setButtonBarsState ( fnc ) {
 		const sW = 'PaneButtonBarsContainer setButtonBarsState()';
 		let bba = [];
-		let bbId = 0;
+		let key = 0;
 		for ( var eleId in this.buttonBars ) {
 			bba.push ( ' ' + eleId ); }
 		console.log ( sW + ' BB eleIds: ' + bba );
 		bba = [];
 		for ( var eleId in this.buttonBars ) {
 			let d = this.buttonBars[eleId];
-			d.buttonBar = <ButtonBar key 			= { ++bbId }
+			d.buttonBar = <ButtonBar key 			= { ++key }
+									 bbId 			= { d.bbId }
 									 eleId			= { eleId }
 									 containerFnc	= { this.doAll }
 									 paneFnc		= { d.paneFnc }
@@ -125,8 +116,10 @@ class PaneButtonBarsContainer extends Component {
 	componentDidMount() {
 		const sW = 'PaneButtonBarsContainer componentDidMount()';
 		console.log ( sW );
-		let eleId1 = 'bb-' + ++lastBtnBarId;
-		this.buttonBars[eleId1] = { buttonBar: 		null,
+		let bbId  = nextBtnBarId();
+		let eleId = 'rr-bb-' + bbId;
+		this.buttonBars[eleId]  = { bbId:			bbId,
+									buttonBar: 		null,
 									buttonBarFnc:	null,
 								//	paneFnc:		null };
 									paneFnc:		this.props.rootPaneFnc,
@@ -149,3 +142,4 @@ class PaneButtonBarsContainer extends Component {
 }   //  class PaneButtonBarsContainer
 
 export default PaneButtonBarsContainer;
+

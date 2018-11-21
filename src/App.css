@@ -31,6 +31,55 @@
 /*  border: solid 1px blue;     */
 }
 
+.rr-app-header-title {
+	display:        flex;
+	font-family:    sans-serif, 'Roboto';
+	font-size:      18px;
+	font-weight:    medium;
+	padding-top:    2px;
+	padding-left:   5px;
+	cursor:         default;
+}
+
+.rr-app-header-menu-bar {
+	margin-top:			6px;
+	margin-left:		20px;
+	display:        	flex;
+	flex-direction:		row;
+	justify-content:	start;
+	flex:           	1 1  auto;
+	max-height:     	18px;
+	min-height:     	18px;
+}
+
+.rr-app-header-menu-bar-item {
+	margin-right:		10px;
+	max-width:			fit-content;
+	flex:           	1 1  auto;
+	cursor:				pointer;
+}
+
+.rr-app-header-pid {
+	display:        flex;
+	padding-top:    6px;
+	padding-right:  5px;
+	cursor:         pointer;    
+}
+
+.rr-app-header-sign-in {
+	display:        flex;
+	padding-top:    6px;
+	padding-right:  5px;
+	cursor:         pointer;    
+}
+
+.rr-app-header-user {
+	display:        flex;
+	padding-top:    6px;
+	padding-right:  5px;
+	cursor:         pointer;    
+}
+
 /*  
 Absolute positioning elements within scrollable div 
 https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-scrollable-div 
@@ -253,6 +302,14 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	border-bottom-color:	gainsboro;
 	opacity:                0.9;
 }
+
+.rr-btn-burger {
+	margin-right:	4px;
+	width: 			18px;
+	float: 			left;
+	cursor: 		pointer;
+}
+
 
 /* ------------------------------  Spliting  -------------------------------  */
 

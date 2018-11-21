@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 class FrameIconize extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.id 		= 'frame-iconize-' + props.frameId;
+		this.eleId 		= 'frame-iconize-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.doIt 		= this.doIt.bind ( this );
@@ -47,7 +47,7 @@ class FrameIconize extends Component {
 
 	render() {
 		return (
-			<img id			= { this.id }
+			<img id			= { this.eleId }
 				 className	= "frame-iconize"
 				 src		= "/images/frame_iconize_lite_18x18.png" 
 				 onMouseDown 	= { this.mouseDown }

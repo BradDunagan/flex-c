@@ -13,7 +13,7 @@ import FrameDestroy			from './frame-destroy';
 class FrameHeaderTitleBar extends Component {
 	constructor ( props ) {
 		super ( props );
-		this.eleId 		= 'title-bar-' + props.frameEleId;
+		this.eleId 		= 'rr-frame-header-title-bar-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
 		this.state = {
@@ -28,7 +28,7 @@ class FrameHeaderTitleBar extends Component {
 	
 	mouseDown ( ev ) {
 		let sW = 'mouseDown()';
-		console.log ( sW );
+	//	console.log ( sW );
 		this.sizeX0 = Number.parseInt ( this.state.style.left );
 		this.sizeY0 = Number.parseInt ( this.state.style.top );
 		this.frameFnc ( { do: 	'move-start',
@@ -37,7 +37,7 @@ class FrameHeaderTitleBar extends Component {
 
 	mouseUp ( ev ) {
 		let sW = 'mouseUp()';
-		console.log ( sW );
+	//	console.log ( sW );
 	}	//	mouseUp()
 	
 	doAll ( o ) {
@@ -50,9 +50,12 @@ class FrameHeaderTitleBar extends Component {
 				 style			= { this.state.style }
 				 onMouseDown	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp } >
-				<FrameBurgerMenu frameFnc 	= { this.frameFnc } />
-				<FrameDestroy frameFnc 		= { this.frameFnc } />
-				<FrameIconize frameFnc 		= { this.frameFnc } />
+				<FrameBurgerMenu frameId	= { this.props.frameId }
+								 frameFnc 	= { this.frameFnc } />
+				<FrameDestroy frameId		= { this.props.frameId }
+							  frameFnc 		= { this.frameFnc } />
+				<FrameIconize frameId		= { this.props.frameId }
+							  frameFnc 		= { this.frameFnc } />
 			</div>
 		);
 	}   //  render()
