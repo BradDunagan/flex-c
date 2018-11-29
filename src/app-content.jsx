@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 
 import PEFrame          from './pe-frame';
+import { getPaneId }	from './pane';
+
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 
 let lastFrameId = 0;
 
@@ -23,6 +27,7 @@ class AppContent extends React.Component {
 		let frame = null;
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'frame' ) {
+				diag ( [1], sW + ': set-call-down to frame' );
 				frame = this.frames[o.frameId];
 				if ( ! frame ) {
 					console.log ( sW + ' frame of frameId ' + o.frameId 
@@ -31,7 +36,8 @@ class AppContent extends React.Component {
 				frame.frameFnc = o.frameFnc;
 				return;
 			}
-			if ( o.to === 'client-content-fnc' ) {
+			if ( o.to === 'client-content' ) {
+				diag ( [1, 2], sW + ': set-call-down to client-content' );
 				frame = this.frames[o.frameId];
 				frame.frameFnc ( o )
 				return;
@@ -40,21 +46,27 @@ class AppContent extends React.Component {
 			return;
 		}
 		if ( o.do === 'get-new-frame-id' ) {
-			return ++lastFrameId;
+			return { frameId:	++lastFrameId,
+					 paneId:	getPaneId() };
 		}
 		if ( o.do === 'add-frame' ) {
+			diag ( [1], sW + ': add-frame' );
 			let fa = [];
 			frame = <PEFrame key 			 = { o.frameId }
 							 frameId 		 = { o.frameId }
+							 paneId			 = { o.paneId }
 							 appFrameFnc 	 = { this.props.appFrameFnc } 
 							 appFrameContent = { this.doAll }
 							 left 	= { o.left }
 							 top	= { o.top }
 							 width 	= { o.width }
 							 height	= { o.height }
-							 contentStyle	= { o.parentStyle }
-							 ccEleId		= { o.ccEleId }
-							 clientContent	= { o.content }  />;
+
+						//	 contentStyle	= { o.parentStyle }
+						//	 ccEleId		= { o.ccEleId }
+						//	 clientContent	= { o.content } 
+							 
+							 clientFnc		= { this.props.clientFnc } />;
 
 			this.frames[o.frameId] = { frame: 		frame,
 									   ccEleId:		o.ccEleId,
@@ -128,6 +140,8 @@ class AppContent extends React.Component {
 	}   //  doAll()
 
 	render() {
+		const sW = 'AppContent render()';
+		diag ( [1], sW );
 		return (
 			<div className = "rr-app-content">
 				<div className = "rr-mird-container">
@@ -141,6 +155,9 @@ class AppContent extends React.Component {
 	}   //  render()
 
 	componentDidMount() {
+		const sW = 'AppContent componentDidMount()';
+		diag ( [1], sW );
+
 		this.props.clientFnc ( { do: 	'set-call-down',
 								 to: 	'app-frame',
 								 fnc:	this.props.appFrameFnc } );
@@ -167,6 +184,8 @@ class AppContent extends React.Component {
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
+		const sW = 'AppContent componentDidUpdate()';
+		diag ( [1], sW );
 
 	}	//	componentDidUpdate()
 

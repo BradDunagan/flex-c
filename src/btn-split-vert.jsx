@@ -22,25 +22,25 @@ class BtnSplitVert extends Component {
 
 	mouseDown ( ev ) {
 		let sW = 'mouseDown()';
-		console.log ( sW );
+	//	console.log ( sW );
 		ev.stopPropagation();
 	}	//	mouseDown()
 
 	mouseUp ( ev ) {
 		let sW = 'mouseUp()';
-		console.log ( sW );
+	//	console.log ( sW );
 		ev.stopPropagation();
 	}	//	mouseUp()
 
 	mouseMove ( ev ) {
 		let sW = 'mouseMove()';
-		console.log ( sW );
+	//	console.log ( sW );
 		ev.stopPropagation();
 	}	//	mouseMove()
 
 	click ( ev ) {
 		let sW = 'click()';
-		console.log ( sW );
+	//	console.log ( sW );
 		ev.stopPropagation();
 	//	if ( this.frameFnc ) {
 	//		this.frameFnc ( { do: 			'split-vert',

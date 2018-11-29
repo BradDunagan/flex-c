@@ -9,8 +9,12 @@ import React, { Component } from 'react';
 import FrameHeaderTitleBar		from './pe-frame-header-title-bar';
 import PaneButtonBarsContainer	from './pane-button-bars-container';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 class TransientTitleBar extends Component {
 	constructor ( props ) {
+		const sW = 'TransientTitleBar constructor()';
+		diag ( [1, 2, 3], sW );
 		super ( props );
 		this.eleId 			= 'transient-title-bar-' + props.frameEleId;
 		this.appFnc 		= props.appFnc;
@@ -27,7 +31,10 @@ class TransientTitleBar extends Component {
 	}	//	constructor
 	
 	doAll ( o ) {
-		let sW = 'TransientTitleBar doAll()';
+		let sW = 'TransientTitleBar doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [1, 2, 3], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'pane-button-bars-container' ) {
 				this.pbbcFnc = o.pbbcFnc; 
@@ -78,6 +85,8 @@ class TransientTitleBar extends Component {
 	}	//	doAll()
 
 	render() {
+		const sW = 'TransientTitleBar render()';
+		diag ( [1, 2, 3], sW );
 		return (
 			<div id			= { this.eleId }
 				 className	= 'rr-transient-title-bar'
@@ -103,6 +112,8 @@ class TransientTitleBar extends Component {
 	}   //  render()
 
 	componentDidMount() {
+		const sW = 'TransientTitleBar componentDidMount()';
+		diag ( [1, 2, 3], sW );
 		let e = document.getElementById ( this.eleId );
 		let p = e.parentElement;
 		this.setState ( { 

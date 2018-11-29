@@ -36,11 +36,11 @@ class PaneButtonBarsContainer extends Component {
 		const sW = 'PaneButtonBarsContainer doAll()';
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'button-bar' ) {
-				console.log ( sW + ' bbFnc' );
+			//	console.log ( sW + ' bbFnc' );
 				this.buttonBars[o.bbEleId].buttonBarFnc = o.bbFnc; }
 			return; }
 		if ( (o.do === 'split-horz') || (o.do === 'split-vert') ) {
-			console.log ( sW + ' split-horz/vert' );
+		//	console.log ( sW + ' split-horz/vert' );
 			//	Remove the button bar. Then call the pane to do the split.
 			delete this.buttonBars[o.bbEleId];
 			this.setButtonBarsState ( () => {
@@ -49,7 +49,7 @@ class PaneButtonBarsContainer extends Component {
 			return;
 		}
 		if ( o.do === 'add-pane-btn-bar' ) {
-			console.log ( sW + ' add-pane-btn-bar' );
+		//	console.log ( sW + ' add-pane-btn-bar' );
 			let bbId  = nextBtnBarId();
 			let eleId = 'rr-bb-' + bbId;
 			this.buttonBars[eleId] = { bbId:			bbId,
@@ -66,13 +66,13 @@ class PaneButtonBarsContainer extends Component {
 			return;
 		}
 		if ( o.do === 'clear-pane-btn-bars' ) {
-			console.log ( sW + ' clear-pane-btn-bars' );
+		//	console.log ( sW + ' clear-pane-btn-bars' );
 			this.buttonBars = {};
 			this.setButtonBarsState();
 			return;
 		}
 		if ( o.do === 'remove-pane-btn-bar' ) {
-			console.log ( sW + ' remove-pane-btn-bar' );
+		//	console.log ( sW + ' remove-pane-btn-bar' );
 			if ( this.buttonBars[o.bbEleId] ) {
 				delete this.buttonBars[o.bbEleId];
 				this.setButtonBarsState(); }
@@ -98,7 +98,7 @@ class PaneButtonBarsContainer extends Component {
 		let key = 0;
 		for ( var eleId in this.buttonBars ) {
 			bba.push ( ' ' + eleId ); }
-		console.log ( sW + ' BB eleIds: ' + bba );
+	//	console.log ( sW + ' BB eleIds: ' + bba );
 		bba = [];
 		for ( var eleId in this.buttonBars ) {
 			let d = this.buttonBars[eleId];
@@ -115,7 +115,7 @@ class PaneButtonBarsContainer extends Component {
 
 	componentDidMount() {
 		const sW = 'PaneButtonBarsContainer componentDidMount()';
-		console.log ( sW );
+	//	console.log ( sW );
 		let bbId  = nextBtnBarId();
 		let eleId = 'rr-bb-' + bbId;
 		this.buttonBars[eleId]  = { bbId:			bbId,

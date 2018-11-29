@@ -40,7 +40,7 @@ class FrameIconize extends Component {
 
 	click ( ev ) {
 		let sW = 'click()';
-		console.log ( sW );
+	//	console.log ( sW );
 		ev.stopPropagation();
 		this.frameFnc ( { do: 'iconize' } );
 	}	//	click()

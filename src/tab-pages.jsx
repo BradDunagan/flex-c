@@ -64,7 +64,7 @@ class TabPages extends Component {
 		return (
 			<div id			= { this.props.eleId }
 				 className	= 'rr-tab-pages' >
-				{this.props.pages}
+				{this.props.page}
 			</div>
 		);
 	}   //  render()
@@ -75,19 +75,20 @@ class TabPages extends Component {
 	//		width:		'100%',
 	//	//	height:		(this.getHeight() - 1) + 'px'
 	//	}
-		let tabId = this.props.eleId + '-page-' + 1;
-		let page1 = <Pane key 		= { tabId }
-						  tabId 	= { tabId }
-					  	  peId 		= { this.props.peId }
-					  	  frameFnc	= { this.props.frameFnc } 
-					  	  parentFnc = { this.props.paneFnc }
-						  style 	= { null }
-					  	  tabs      = { false } />
-		this.pages[tabId] = { page: 	page1,
-							  paneFnc:	null };
-							   
-		this.setState ( { pages: [ page1 ] }, () => {
-		} );
+
+	//	let tabId = this.props.eleId + '-page-' + 1;
+	//	let page1 = <Pane key 		= { tabId }
+	//					  tabId 	= { tabId }
+	//				  	  peId 		= { this.props.peId }
+	//				  	  frameFnc	= { this.props.frameFnc } 
+	//				  	  parentFnc = { this.props.paneFnc }
+	//					  style 	= { null }
+	//				  	  tabs      = { false } />
+	//	this.pages[tabId] = { page: 	page1,
+	//						  paneFnc:	null };
+	//						   
+	//	this.setState ( { pages: [ page1 ] }, () => {
+	//	} );
 
 	}	//	componentDidMount()
 

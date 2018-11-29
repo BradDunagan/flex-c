@@ -4,6 +4,8 @@ import BtnBurger 			from './btn-burger';
 import BtnSplitHorz 		from './btn-split-horz';
 import BtnSplitVert 		from './btn-split-vert';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 let lastBtnBarId = 0;
 
 function nextBtnBarId() {
@@ -12,8 +14,10 @@ function nextBtnBarId() {
 
 class ButtonBar extends Component {
 	constructor ( props ) {
+		const sW = 'ButtonBar constructor()';
+		diag ( [1, 2, 3], sW );
 		super ( props );
-		console.log ( 'ButtonBar constructor()' );
+	//	console.log ( 'ButtonBar constructor()' );
 		this.state = {
 			style: {
 				//	Assuming not for the root pane.
@@ -66,17 +70,20 @@ class ButtonBar extends Component {
 	}	//	mouseLeave()
 	
 	doAll ( o ) {
-		let sW = 'ButtonBar doAll()';
+		let sW = 'ButtonBar doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [1, 2, 3], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'btn-split-horz' ) {
-				console.log ( sW + ' bshFnc' );
+			//	console.log ( sW + ' bshFnc' );
 				this.bshFnc = o.bshFnc; 
 			//	if ( this.paneFnc ) {
 			//		this.bshFnc ( { do: 		'set-pane-fnc',
 			//						paneFnc:	this.paneFnc } ); }
 			}
 			if ( o.to === 'btn-split-vert' ) {
-				console.log ( sW + ' bsvFnc' );
+			//	console.log ( sW + ' bsvFnc' );
 				this.bsvFnc = o.bsvFnc;
 			//	if ( this.paneFnc ) {
 			//		this.bsvFnc ( { do: 		'set-pane-fnc',
@@ -148,7 +155,8 @@ class ButtonBar extends Component {
 	}	//	doAll()
 
 	render() {
-	//	console.log ( 'ButtonBar render()' );
+		const sW = 'ButtonBar render()';
+		diag ( [1, 2, 3], sW );
 		/*
 		return (
 			<div id				= { this.props.eleId }
@@ -185,8 +193,9 @@ class ButtonBar extends Component {
 	}   //  render()
 	
 	componentDidMount() {
+		const sW = 'ButtonBar componentDidMount()';
+		diag ( [1, 2, 3], sW );
 		let e  = document.getElementById ( this.props.eleId );
-		console.log ( 'ButtonBar mounted. e: ' + e );
 		/*
 		let p  = e.parentElement;
 		let w  = p.clientWidth;
@@ -210,22 +219,23 @@ class ButtonBar extends Component {
 										bbFnc:			this.doAll  } ); }
 								//		needPaneFnc:	(! paneFnc) } ); }
 
-	//	if ( paneFnc ) {
-	//		paneFnc ( { do: 			'set-call-down',
-		this.props.paneFnc ( { do: 		'set-call-down',
-							   to:		'button-bar',
-							   bbEleId:	this.props.eleId,
-							   bbFnc:	this.doAll } );	
+	//	this.props.paneFnc ( { do: 		'set-call-down',
+	//						   to:		'button-bar',
+	//						   bbEleId:	this.props.eleId,
+	//						   bbFnc:	this.doAll } );	
 	}	//	componentDidMount()
 	
 	componentWillUnmount() {
+		const sW = 'ButtonBar componentWillUnmount()';
+		diag ( [1, 2, 3], sW );
 		let e  = document.getElementById ( this.props.eleId );
-		console.log ( 'ButtonBar will unmount. e: ' + e );
+	//	console.log ( 'ButtonBar will unmount. e: ' + e );
 	}
 
 	componentDidUpdate() {
+		const sW = 'ButtonBar componentDidUpdate()';
+		diag ( [1, 2, 3], sW );
 	//	let e  = document.getElementById ( this.props.eleId );
-	//	console.log ( 'ButtonBar did update. e: ' + e );
 		/*
 		if ( ! e ) {
 			return; }

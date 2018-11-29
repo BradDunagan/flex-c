@@ -31,27 +31,20 @@ import TransientTitleBar	from './pe-frame-transient-title-bar';
 import Sizer 				from './sizer'
 import BurgerMenu			from './burger-menu';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 
 class PEFrame extends React.Component {
 	constructor ( props ) {
 		super ( props );
+		const sW = 'PEFrame constructor()';
+		diag ( [1], sW );
 		this.eleId 		= 'rr-frame-' + props.frameId;
 		this.peId 		= props.frameId;
 		this.appFnc 	= props.appFrameFnc;
 		this.rootPaneFnc	= null;
 		this.titleBarFnc	= null;
-		this.state = {
-			titleBar:	null,
-			iconized:	null,
-			style: {
-				left:       this.props.left,
-				top:        this.props.top,
-				width:      this.props.width,
-				height:     this.props.height,
-			},
-			burgerMenu: null,
-			contentRestoreIncomplete:	false
-		};
+
 		this.zTop				= this.zTop.bind ( this );
 		this.mouseDown			= this.mouseDown.bind ( this );
 		this.burgerClick		= this.burgerClick.bind ( this );
@@ -60,6 +53,25 @@ class PEFrame extends React.Component {
 		this.transitionEnd		= this.transitionEnd.bind ( this );
 		this.clickIcon			= this.clickIcon.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
+
+		this.state = {
+		//	titleBar:	null,
+			titleBar:
+				<TransientTitleBar frameId		= { props.frameId }
+								   frameEleId	= { this.eleId }
+								   appFnc 		= { this.appFnc }
+								   frameFnc		= { this.doAll }
+								   rootPaneFnc	= { null } />,
+			iconized:	null,
+			style: {
+				left:       props.left,
+				top:        props.top,
+				width:      props.width,
+				height:     props.height,
+			},
+			burgerMenu: null,
+			contentRestoreIncomplete:	false
+		};
 
 		this.iconSlot		= null;
 		this.contentState 	= null;
@@ -84,7 +96,7 @@ class PEFrame extends React.Component {
 
 	burgerClick() {
 		let sW = 'PEFrame burgerClick()';
-		console.log ( sW );
+	//	console.log ( sW );
 		let fe = document.getElementById ( this.eleId );
 		let r  = fe.getBoundingClientRect();
 	//	this.setState ( { burgerMenu:
@@ -130,7 +142,9 @@ class PEFrame extends React.Component {
 
 	iconize ( o ) {
 		let sW = 'iconize()';
-		console.log ( 'Frame ' + sW );
+		diagsFlush();
+		diagsPrint ( 2, 2000 );
+		diag ( [2], sW );
 		this.contentState = this.rootPaneFnc ( { do: 'get-state' } );
 		this.setState ( { titleBar: null,
 						  iconized: { 
@@ -162,7 +176,7 @@ class PEFrame extends React.Component {
 
 	transitionEnd ( ev ) {
 		let sW = 'transitionEnd()';
-		console.log ( sW );
+	//	console.log ( sW );
 		//	This fires for each of the left, top, width, height transition
 		//	properties. That is, four times.  Simply set the icon's name 
 		//	visiblity on the event that indicates one of the transitions 
@@ -182,8 +196,10 @@ class PEFrame extends React.Component {
 	}	//	transitionEnd()
 
 	clickIcon ( ev ) {
-		let sW = 'clickIcon()';
-		console.log ( 'Frame ' + sW );
+		let sW = 'PEFrame clickIcon()';
+		diagsFlush();
+		diagsPrint ( 2, 2000 );
+		diag ( [2], sW );
 		//	First, transition to the frame's position and size.
 		let style = this.state.iconized.style;
 		this.setState ( { iconized: { 
@@ -211,12 +227,14 @@ class PEFrame extends React.Component {
 		let frame = this;
 		function setCallDown ( o ) {
 			if ( o.to && o.to === 'root-pane' ) {
+				diag ( [1], sW + ' setCallDown() to root-pane' );
 				frame.rootPaneFnc = o.fnc;
 				return; 
 			}
 			if ( o.to && o.to === 'PECmdEditor' ) {
 				frame.editor = o.fnc; }
-			if ( o.to && o.to === 'client-content-fnc' ) {
+			if ( o.to && o.to === 'client-content' ) {
+				diag ( [1, 2], sW + ' setCallDown() to client-content' );
 				frame.rootPaneFnc ( o ); }
 		}
 
@@ -348,6 +366,8 @@ class PEFrame extends React.Component {
 	}   //  doAll()
 
 	render() {
+		const sW = 'PEFrame render()';
+		diag ( [1, 3], sW );
 		/*
 				<TitleBar frameId	= 'frame-1'
 						  appFnc 	= { this.appFnc }
@@ -376,13 +396,18 @@ class PEFrame extends React.Component {
 				 style 			= { this.state.style}
 				 onMouseDown	= { this.mouseDown } >
 				<PEFrameHeader frame	= { this.doAll } />
-				<Pane peId 			= { this.peId } 
+				<Pane paneId		= { this.props.paneId }
+					  peId 			= { this.peId } 
 					  frameFnc 		= { this.doAll }
 					  tabs			= { false } 
 					  atFrameTop	= { true } 
-					  contentStyle	= { this.props.contentStyle }
-					  ccEleId		= { this.props.ccEleId }
-					  clientContent	= { this.props.clientContent } />
+
+				//	  contentStyle	= { this.props.contentStyle }
+				//	  ccEleId		= { this.props.ccEleId }
+				//	  clientContent	= { this.props.clientContent } 
+					  
+					  clientFnc		= { this.props.clientFnc } />
+
 				<PEFrameFooter />
 				<Sizer frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }
@@ -394,7 +419,10 @@ class PEFrame extends React.Component {
 	}	//	render()
 
 	componentDidMount() {
+		const sW = 'PEFrame componentDidMount()';
+		diag ( [1, 2], sW );
 		if ( ! this.state.titleBar ) {
+			diag ( [1], sW + ' this.setState ( { titleBar: ... ' );
 			this.setState ( { titleBar:
 				<TransientTitleBar frameId		= { this.props.frameId }
 								   frameEleId	= { this.eleId }
@@ -407,6 +435,8 @@ class PEFrame extends React.Component {
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
+		const sW = 'PEFrame componentDidUpdate()';
+		diag ( [1, 2, 3], sW );
 	//	if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
 	//		this.rootPaneFnc ( { do: 	'set-state',
 	//							 state:	this.contentState } );
