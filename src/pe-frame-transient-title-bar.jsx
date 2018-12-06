@@ -14,7 +14,7 @@ import {diag, diagsFlush, diagsPrint} 	from './diags';
 class TransientTitleBar extends Component {
 	constructor ( props ) {
 		const sW = 'TransientTitleBar constructor()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		super ( props );
 		this.eleId 			= 'transient-title-bar-' + props.frameEleId;
 		this.appFnc 		= props.appFnc;
@@ -34,7 +34,7 @@ class TransientTitleBar extends Component {
 		let sW = 'TransientTitleBar doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'pane-button-bars-container' ) {
 				this.pbbcFnc = o.pbbcFnc; 
@@ -49,12 +49,12 @@ class TransientTitleBar extends Component {
 			}
 			return;
 		}
-	//	if ( o.do === 'set-root-pane-fnc' ) {
+		if ( o.do === 'set-root-pane-fnc' ) {
 	//		this.rootPaneFnc = o.rootPaneFnc;
-	//		if ( this.pbbcFnc ) {
-	//			this.pbbcFnc ( o ); }
-	//		return;
-	//	}
+			if ( this.pbbcFnc ) {
+				this.pbbcFnc ( o ); }
+			return;
+		}
 		if ( o.do === 'size-start' ) {
 			this.sizeW0 = Number.parseInt ( this.state.style.width );
 			return;
@@ -86,7 +86,7 @@ class TransientTitleBar extends Component {
 
 	render() {
 		const sW = 'TransientTitleBar render()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		return (
 			<div id			= { this.eleId }
 				 className	= 'rr-transient-title-bar'
@@ -97,7 +97,7 @@ class TransientTitleBar extends Component {
 									 frameFnc		= { this.frameFnc } />
 				<PaneButtonBarsContainer frameId		= { this.props.frameId }
 								   		 frameFnc 		= { this.frameFnc }
-										 rootPaneFnc	= { this.props.rootPaneFnc }
+									//	 rootPaneFnc	= { this.props.rootPaneFnc }
 										 ttbFnc			= { this.doAll } />
 			</div>
 		);
@@ -113,7 +113,7 @@ class TransientTitleBar extends Component {
 
 	componentDidMount() {
 		const sW = 'TransientTitleBar componentDidMount()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		let e = document.getElementById ( this.eleId );
 		let p = e.parentElement;
 		this.setState ( { 
@@ -122,7 +122,8 @@ class TransientTitleBar extends Component {
 			}
 		} );
 
-		this.frameFnc ( { do: 		    'title-bar-call-down',
+		this.frameFnc ( { do: 		    'set-call-down',
+						  to:			'title-bar',
 						  titleBarFnc:  this.doAll } );
 	}	//	componentDidMount()
 

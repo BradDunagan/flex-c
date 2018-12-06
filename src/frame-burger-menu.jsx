@@ -1,23 +1,24 @@
 
 import React, { Component } from 'react';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 class FrameBurgerMenu extends Component {
 	constructor ( props ) {
+		let sW = props.frameId + ' FrameBurgerMenu constructor()';
+		diag ( [4], sW );
 		super ( props );
 		this.eleId 		= 'frame-burger-menu-' + props.frameId;
 		this.appFnc 	= props.appFnc;
 		this.frameFnc 	= props.frameFnc;
-		this.doIt 		= this.doIt.bind ( this );
+		this.doAll 		= this.doAll.bind ( this );
 		this.mouseDown	= this.mouseDown.bind ( this );
 		this.mouseUp	= this.mouseUp.bind ( this );
 		this.mouseMove	= this.mouseMove.bind ( this );
 		this.click		= this.click.bind ( this );
-
-		this.frameFnc ( { do: 		    		'frame-burger-menu-call-down',
-						  frameBurgerMenuFnc:  	this.doIt } );
 	}	//	constructor
 	
-	doIt ( o ) {
+	doAll ( o ) {
 	}
 
 	mouseDown ( ev ) {
@@ -46,6 +47,8 @@ class FrameBurgerMenu extends Component {
 	}	//	click()
 
 	render() {
+		let sW = this.props.frameId + ' FrameBurgerMenu render()';
+		diag ( [4], sW );
 		return (
 			<img id			= { this.eleId }
 				 className	= "frame-burger-menu"
@@ -56,6 +59,19 @@ class FrameBurgerMenu extends Component {
 				 onClick		= { this.click } />
 		);
 	}   //  render()
+
+	componentDidMount() {
+		let sW = this.props.frameId + ' FrameBurgerMenu componentDidMount()';
+		diag ( [4], sW );
+	//	this.frameFnc ( { do: 		    		'frame-burger-menu-call-down',
+	//					  frameBurgerMenuFnc:  	this.doAll } );
+	}	//	componentDidMount()
+
+	componentWillUnmount() {
+		let sW = this.props.frameId + ' FrameBurgerMenu componentWillUnmount()';
+		diag ( [4], sW );
+
+	}	//	componentWillUnmount()
 
 }   //  class FrameBurgerMenu
 

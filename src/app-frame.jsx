@@ -48,7 +48,8 @@ class AppFrame extends Component {
 		if ( this.frameSizing.sizerMouseDown ) {
 			this.frameSizing.frameFnc ( { do: 	'size',
 										  dX:	ev.pageX - this.frameSizing.startX,
-										  dY:	ev.pageY - this.frameSizing.startY } );
+										  dY:	ev.pageY - this.frameSizing.startY,
+										  visitedPanes:	{} } );
 			ev.preventDefault();
 			return;	}
 	}	//	mouseMove()
@@ -108,13 +109,20 @@ class AppFrame extends Component {
 			this.updateDialogState();
 			return;
 		}
+		if ( o.do === 'show-name-dlg' ) {
+			this.dlgList.push ( { dlg: 		'dlg-name',
+								  upFnc: 	o.upFnc,
+								  ctx: 		o.ctx } );
+			this.updateDialogState();
+			return;
+		}
 		if ( o.do === 'show-menu' ) {
 			this.dlgList.push ( { dlg: 		'menu',
 								  mnu:		o } );
 			this.updateDialogState();
 			return;
 		}
-		if ( o.do === 'menu-dismiss' ) {
+		if ( (o.do === 'menu-dismiss')  ||  (o.do === 'close-dlg') ) {
 			this.dlgList.pop();
 			this.updateDialogState();
 			return;

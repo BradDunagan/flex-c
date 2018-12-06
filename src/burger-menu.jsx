@@ -6,6 +6,29 @@
 
 import React, { Component } from 'react';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
+
+class MenuItemsSeparator extends Component {
+	constructor ( props ) {
+		super ( props );
+
+	}	//	constructor
+
+	doAll ( o ) {
+	}	//	doAll()
+
+	render() {
+		return (
+			<div className	= 'rr-menu-items-separator' >
+			</div>
+		);
+	}   //  render()
+
+	componentDidMount() {
+	}	//	componentDidMount()
+
+}	//	class	MenuItemsSeparator
 
 class BurgerMenu extends Component {
 	constructor ( props ) {
@@ -22,6 +45,8 @@ class BurgerMenu extends Component {
 	click ( ev ) {
 		let sW = 'BurgerMenu click()';
 		console.log ( sW + '  ' + ev.target.innerText );
+		ev.stopPropagation();
+		this.props.screenFnc ( { do: 'menu-dismiss' } );
 		this.props.upFnc ( { do: 			this.props.ctx.after,
 							 menuItemText:	ev.target.innerText } );
 	}	//	click()
@@ -47,13 +72,21 @@ class BurgerMenu extends Component {
 		let listItems = [];
 		let i = 0;
 		for ( ; i < menuItems.length; i++ ) {
+			let mi = menuItems[i];
+			if ( mi.type === 'separator' ) {
+				listItems.push ( 
+					<li key		= { i }
+						idx		= { i } >
+						<MenuItemsSeparator />
+					</li> );
+				continue; }
+
 			listItems.push ( 
 				<li key		= { i }
 					idx		= { i }
 					onClick	= { this.click } >
-					{ menuItems[i] }
-				</li>
-			);
+					{ mi.text }
+				</li> );
 		}
 		this.setState ( { listItems: listItems }, () => {
 		} );

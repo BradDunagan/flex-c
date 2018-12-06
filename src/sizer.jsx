@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 class Sizer extends Component {
 	constructor ( props ) {
+		let sW = props.frameId + ' Sizer constructor()';
+		diag ( [4], sW );
 		super ( props );
 		this.id 		= 'sizer-' + props.frameEleId;
 		this.appFnc 	= props.appFnc;
@@ -20,12 +24,11 @@ class Sizer extends Component {
 
 		this.sizeX0 = 0;
 		this.sizeY0 = 0;
-
-		this.frameFnc ( { do: 		'sizer-call-down',
-						  sizerFnc: this.doAll } );
 	}	//	constructor
 	
 	doAll ( o ) {
+		let sW = this.props.frameId + ' Sizer doAll() ' + o.do;
+		diag ( [4], sW );
 		if ( o.do === 'size' ) {
 			this.setState ( {
 				style: {
@@ -54,6 +57,8 @@ class Sizer extends Component {
 	}	//	mouseUp()
 	
 	render() {
+		let sW = this.props.frameId + ' Sizer render()';
+		diag ( [4], sW );
 		return (
 			<div id				= { this.id }
 				 className		= 'rr-sizer'
@@ -65,6 +70,13 @@ class Sizer extends Component {
 	}   //  render()
 
 	componentDidMount() {
+		let sW = this.props.frameId + ' Sizer componentDidMount()';
+		diag ( [4], sW );
+
+		this.frameFnc ( { do: 		'set-call-down',
+						  to:		'sizer',
+						  sizerFnc: this.doAll } );
+
 		let e = document.getElementById ( this.id );
 		let p = e.parentElement;
 		this.setState ( { 
@@ -76,6 +88,11 @@ class Sizer extends Component {
 			}
 		} );
 	}	//	componentDidMount()
+
+	componentWillUnmount() {
+		let sW = this.props.frameId + ' Sizer componentWillUnmount()';
+		diag ( [4], sW );
+	}	//	componentWillUnmount()
 
 }   //  class Sizer
 

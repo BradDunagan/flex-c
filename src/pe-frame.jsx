@@ -37,7 +37,7 @@ import {diag, diagsFlush, diagsPrint} 	from './diags';
 class PEFrame extends React.Component {
 	constructor ( props ) {
 		super ( props );
-		const sW = 'PEFrame constructor()';
+		const sW = props.frameId + ' PEFrame constructor()';
 		diag ( [1], sW );
 		this.eleId 		= 'rr-frame-' + props.frameId;
 		this.peId 		= props.frameId;
@@ -76,10 +76,10 @@ class PEFrame extends React.Component {
 		this.iconSlot		= null;
 		this.contentState 	= null;
 
-		this.props.appFrameContent ( { do: 			'set-call-down',
-									   to:			'frame',
-									   frameId:		this.props.frameId,
-									   frameFnc:	this.doAll } );
+	//	this.props.appFrameContent ( { do: 			'set-call-down',
+	//								   to:			'frame',
+	//								   frameId:		this.props.frameId,
+	//								   frameFnc:	this.doAll } );
 
 	}	//	constructor()
 
@@ -104,19 +104,20 @@ class PEFrame extends React.Component {
 	//					style = {{ left:	r.x + 'px',
 	//							   top: 	r.y + 'px' }} />
 	//	} );
-		this.appFnc ( { do: 		'show-menu',
-						menuEleId:	this.eleId + '-burger-menu',
-						menuX:		r.x,
-						menuY:		r.y,
-						menuItems:	[ 'Tabs',
-									  'UDUI',
-									  'Viewport',
-									  'Process',
-									  'Diagnostics',
-									  'Values',
-									  'Stdout' ],
-						upFnc:		this.doAll,
-						ctx:		{ after:	'menu-item' }
+		this.appFnc ( { 
+			do: 		'show-menu',
+			menuEleId:	this.eleId + '-burger-menu',
+			menuX:		r.x,
+			menuY:		r.y,
+			menuItems:	[ { type: 'item', 		text: 'Tabs' },
+						  { type: 'item', 		text: 'UDUI' },
+						  { type: 'item', 		text: 'Viewport' },
+						  { type: 'item', 		text: 'Process' },
+						  { type: 'item', 		text: 'Diagnostics' },
+						  { type: 'item', 		text: 'Values' },
+						  { type: 'item', 		text: 'Stdout' } ],
+			upFnc:		this.doAll,
+			ctx:		{ after:	'menu-item' }
 		} );
 	}	//	burgerClick()
 
@@ -141,9 +142,9 @@ class PEFrame extends React.Component {
 	}	//	iconize2()
 
 	iconize ( o ) {
-		let sW = 'iconize()';
+		let sW = this.props.frameId + ' PEFrame iconize()';
 		diagsFlush();
-		diagsPrint ( 2, 2000 );
+		diagsPrint ( sW, 2, 2000 );
 		diag ( [2], sW );
 		this.contentState = this.rootPaneFnc ( { do: 'get-state' } );
 		this.setState ( { titleBar: null,
@@ -196,9 +197,9 @@ class PEFrame extends React.Component {
 	}	//	transitionEnd()
 
 	clickIcon ( ev ) {
-		let sW = 'PEFrame clickIcon()';
+		let sW = this.props.frameId + ' PEFrame clickIcon()';
 		diagsFlush();
-		diagsPrint ( 2, 2000 );
+		diagsPrint ( sW, 2, 2000 );
 		diag ( [2], sW );
 		//	First, transition to the frame's position and size.
 		let style = this.state.iconized.style;
@@ -223,42 +224,48 @@ class PEFrame extends React.Component {
 	}	//	clickIcon()
 
 	doAll ( o ) {
-		let sW = 'PEFrame ' + this.eleId + ' doAll()';
-		let frame = this;
+		let sW = this.props.frameId + ' PEFrame doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [1, 2, 3], sW );
+		let self = this;
 		function setCallDown ( o ) {
-			if ( o.to && o.to === 'root-pane' ) {
-				diag ( [1], sW + ' setCallDown() to root-pane' );
-				frame.rootPaneFnc = o.fnc;
-				return; 
-			}
-			if ( o.to && o.to === 'PECmdEditor' ) {
-				frame.editor = o.fnc; }
-			if ( o.to && o.to === 'client-content' ) {
-				diag ( [1, 2], sW + ' setCallDown() to client-content' );
-				frame.rootPaneFnc ( o ); }
+			if ( ! o.to ) {
+				return; }
+			if ( o.to === 'root-pane' ) {
+				self.rootPaneFnc = o.fnc;
+				return; }
+			if ( o.to === 'PECmdEditor' ) {
+				self.editor = o.fnc; 
+				return; }
+			if ( o.to === 'client-content' ) {
+				self.rootPaneFnc ( o );
+				return }
+			if ( o.to === 'sizer' ) {
+				self.sizerFnc = o.sizerFnc;
+				return; }
+			if ( o.to === 'title-bar' ) {
+				self.titleBarFnc = o.titleBarFnc;
+			//	if ( self.rootPaneFnc ) {
+			//		self.titleBarFnc ( { do: 			'set-root-pane-fnc',
+			//							 rootPaneFnc:	self.rootPaneFnc } ); }
+
+				//	Do this here because it is now known that button bar functions 
+				//	are set	up in the title bar.
+				if ( self.state.contentRestoreIncomplete && self.state.titleBar ) {
+					self.titleBarFnc ( { do:		'set-root-pane-fnc',
+										 paneFnc:	self.rootPaneFnc } );
+
+					self.rootPaneFnc ( { do: 	'set-state',
+										state:	self.contentState } );
+					self.contentState = null;
+					self.state.contentRestoreIncomplete = false; }
+				return;	}
 		}
 
 		if ( o.do === 'set-call-down' ) {
 			setCallDown ( o );
 			return; 
-		}
-		if ( o.do === 'sizer-call-down' ) {
-			this.sizerFnc = o.sizerFnc;
-			return;
-		}
-		if ( o.do === 'title-bar-call-down' ) {
-			this.titleBarFnc = o.titleBarFnc;
-		//	if ( this.rootPaneFnc ) {
-		//		this.titleBarFnc ( { do: 			'set-root-pane-fnc',
-		//							 rootPaneFnc:	this.rootPaneFnc } ); }
-			//	Do this here because it is now known that button bar functions 
-			//	are set	up in the title bar.
-			if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
-				this.rootPaneFnc ( { do: 	'set-state',
-									 state:	this.contentState } );
-				this.contentState = null;
-				this.state.contentRestoreIncomplete = false; }
-			return;
 		}
 		if ( o.do === 'move-start' ) {
 			this.moveX0 = Number.parseInt ( this.state.style.left );
@@ -285,6 +292,7 @@ class PEFrame extends React.Component {
 			if ( this.titleBarFnc ) {
 				this.titleBarFnc ( o ); }
 			if ( this.rootPaneFnc ) {
+				o.visitedPanes = {};
 				this.rootPaneFnc ( o ); }
 			this.appFnc ( { do: 		'size-frame',
 							frameFnc:	this.doAll,
@@ -333,24 +341,28 @@ class PEFrame extends React.Component {
 				this.titleBarFnc ( o ) }
 			return;
 		}
-		if ( o.do === 'content-split-drag' ) {
-			if ( this.titleBarFnc ) {
-				this.titleBarFnc ( o ) }
-			return;
-		}
+	//	if ( o.do === 'content-split-drag' ) {
+	//		if ( this.titleBarFnc ) {
+	//			this.titleBarFnc ( o ) }
+	//		return;
+	//	}
 		if ( o.do === 'add-pane-btn-bar' ) {
-			frame.titleBarFnc ( o );
+			self.titleBarFnc ( o );
 			return;
 		}
 		if ( o.do === 'clear-pane-btn-bars' ) {
-			frame.titleBarFnc ( o );
+			self.titleBarFnc ( o );
 			return;
 		}
 		if ( o.do === 'remove-pane-btn-bar' ) {
-			frame.titleBarFnc ( o );
+			self.titleBarFnc ( o );
 			return;
 		}
 		if ( o.do === 'show-menu' ) {
+			this.appFnc ( o );
+			return;
+		}
+		if ( o.do === 'show-name-dlg' ) {
 			this.appFnc ( o );
 			return;
 		}
@@ -366,8 +378,8 @@ class PEFrame extends React.Component {
 	}   //  doAll()
 
 	render() {
-		const sW = 'PEFrame render()';
-		diag ( [1, 3], sW );
+		const sW = this.props.frameId + ' PEFrame render()';
+		diag ( [1, 2, 3], sW );
 		/*
 				<TitleBar frameId	= 'frame-1'
 						  appFnc 	= { this.appFnc }
@@ -396,7 +408,8 @@ class PEFrame extends React.Component {
 				 style 			= { this.state.style}
 				 onMouseDown	= { this.mouseDown } >
 				<PEFrameHeader frame	= { this.doAll } />
-				<Pane paneId		= { this.props.paneId }
+				<Pane frameId 		= { this.props.frameId }
+					  paneId		= { this.props.paneId }
 					  peId 			= { this.peId } 
 					  frameFnc 		= { this.doAll }
 					  tabs			= { false } 
@@ -409,7 +422,8 @@ class PEFrame extends React.Component {
 					  clientFnc		= { this.props.clientFnc } />
 
 				<PEFrameFooter />
-				<Sizer frameEleId 	= { this.eleId }
+				<Sizer frameId 		= { this.props.frameId }
+					   frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }
 					   frameFnc		= { this.doAll }  />
 				{ this.state.titleBar }
@@ -419,24 +433,36 @@ class PEFrame extends React.Component {
 	}	//	render()
 
 	componentDidMount() {
-		const sW = 'PEFrame componentDidMount()';
+		const sW = this.props.frameId + ' PEFrame componentDidMount()';
 		diag ( [1, 2], sW );
-		if ( ! this.state.titleBar ) {
-			diag ( [1], sW + ' this.setState ( { titleBar: ... ' );
-			this.setState ( { titleBar:
-				<TransientTitleBar frameId		= { this.props.frameId }
-								   frameEleId	= { this.eleId }
-								   appFnc 		= { this.appFnc }
-								   frameFnc		= { this.doAll }
-								   rootPaneFnc	= { this.rootPaneFnc } />
-			}, () => {
-			} );
+
+		this.props.appFrameContent ( { do: 			'set-call-down',
+									   to:			'frame',
+									   frameId:		this.props.frameId,
+									   frameFnc:	this.doAll } );
+
+	//	if ( ! this.state.titleBar ) {
+	//		diag ( [1], sW + ' this.setState ( { titleBar: ... ' );
+	//		this.setState ( { titleBar:
+	//			<TransientTitleBar frameId		= { this.props.frameId }
+	//							   frameEleId	= { this.eleId }
+	//							   appFnc 		= { this.appFnc }
+	//							   frameFnc		= { this.doAll }
+	//							   rootPaneFnc	= { this.rootPaneFnc } />
+	//		}, () => {
+	//		} );
+	//	}
+
+		if ( this.titleBarFnc ) {
+			this.titleBarFnc ( { do:		'set-root-pane-fnc',
+								 paneFnc:	this.rootPaneFnc } );
 		}
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
-		const sW = 'PEFrame componentDidUpdate()';
+		const sW = this.props.frameId + ' PEFrame componentDidUpdate()';
 		diag ( [1, 2, 3], sW );
+
 	//	if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
 	//		this.rootPaneFnc ( { do: 	'set-state',
 	//							 state:	this.contentState } );
@@ -449,19 +475,23 @@ class PEFrame extends React.Component {
 	//	bar (the button bar container function must be set in the title
 	//	bar). So the pane's state is set in the 'title-bar-call-down'
 	//	command in doAll().
-		//	But do do this - like componentDidMount(), but since that
-		//	is not called when restoring from an icon, we do it here too.
+
+		//	But do do this - 
 		if ( this.state.contentRestoreIncomplete && ! this.state.titleBar ) {
 			this.setState ( { titleBar:
+			//	<TransientTitleBar frameId		= { this.props.frameId }
+			//					   frameEleId	= { this.eleId }
+			//					   appFnc 		= { this.appFnc }
+			//					   frameFnc		= { this.doAll }
+			//					   rootPaneFnc	= { this.rootPaneFnc } />
 				<TransientTitleBar frameId		= { this.props.frameId }
 								   frameEleId	= { this.eleId }
 								   appFnc 		= { this.appFnc }
 								   frameFnc		= { this.doAll }
-								   rootPaneFnc	= { this.rootPaneFnc } />
-			}, () => {
-			} );
+								   rootPaneFnc	= { null } />
+			}, 
+			() => {	} );
 		}
-
 	}	//	componentDidUpdate()
 
 }	//	class PEFrame

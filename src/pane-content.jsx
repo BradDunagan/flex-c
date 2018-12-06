@@ -23,9 +23,9 @@ class PaneContent extends React.Component {
 
 		this.doAll			= this.doAll.bind ( this );
 
-		this.props.paneFnc ( { do: 		'set-call-down',
-							   to:		'pane-content',
-							   fnc:		this.doAll } );
+	//	this.props.paneFnc ( { do: 		'set-call-down',
+	//						   to:		'pane-content',
+	//						   fnc:		this.doAll } );
 	}	//  constructor()
 
 	doAll ( o ) {
@@ -48,7 +48,8 @@ class PaneContent extends React.Component {
 				<div id 		= { this.props.eleId }
 					 className 	= 'pane-content' >
 					<Tabs eleId 	= { this.props.eleId + '-tabs' } 
-						  paneId	= { this.props.paneId }
+						  frameId 	= { this.props.frameId }
+					   	  paneId	= { this.props.paneId }
 						  paneFnc	= { this.props.paneFnc }
 						  frameFnc	= { this.props.frameFnc }
 						  clientFnc	= { this.props.clientFnc } />
@@ -71,6 +72,7 @@ class PaneContent extends React.Component {
 	componentDidMount() {
 		const sW = 'PaneContent ' + this.props.paneId + ' componentDidMount()';
 		diag ( [1, 2, 3], sW );
+
 		//	Do this here (after mounting) because the client might command
 		//	'install-client-content' which will setState().
 		this.props.clientFnc ( { do: 		'set-call-down',

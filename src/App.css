@@ -1,4 +1,13 @@
 
+.rr-debug-this {
+	display:	flex;
+	position:	absolute;	/*	prevents vert scrollbar due to margin-top	*/
+	margin:		10px;
+	border:		solid 1px red;
+	width:		300px;
+	height:		300px;
+}
+
 .rr-app-screen-dialog {
 	position:           absolute;
 	left:               0px;
@@ -409,6 +418,13 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	background-color:	lightgrey;
 }
 
+.rr-menu-items-separator {
+	margin-top:			4px;
+	border-top:			solid 1px lightgray;
+	margin-bottom:		4px;
+}
+
+
 /* --------------------------------  Tabs  ---------------------------------  */
 
 .rr-tabs {
@@ -441,3 +457,104 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	border-right:	solid 1px gray;
 	cursor:			pointer;
 }
+
+
+/* ---------------------------  Name Dialog(s) ------------------------------ */
+
+.rr-pe-dlg-name-dlg {
+	display:            flex;
+	flex-direction:     row;
+	height:             135px;
+	border:             solid 1px black;
+	background-color:   white;
+}
+
+.rr-pe-dlg-name-main {
+	flex:               1 1 auto;
+	height:             400px;
+	width:              350px;
+}
+
+.rr-pe-dlg-name-title {
+	position:           relative;
+	left:               45px;
+	top:                7px;
+	width:              260px;
+	height:             36px;
+	font-size:          18px;
+	text-align:         center;
+}
+
+.rr-pe-dlg-name-buttons-container {
+	display:            flex;
+	flex-direction:     row;
+	position:           relative;
+	left:               45px;
+	top:                20px;
+	width:              260px;
+	height:             26px;
+	justify-content:    space-between;  /*  main-axis                       */
+	align-items:        center;         /*  cross-axis                      */
+}
+
+.rr-general-button {
+	font-family:        sans-serif, 'Roboto';
+	font-size:          12px;
+	background:         white;
+	border-style:       solid;
+	border-width:       1px;
+	border-color:       lightgray;
+	padding:            3px 8px 3px 8px;
+	min-width:          60px;    
+}
+
+.rr-pe-dlg-name-container { /* identical to rr-app-sign-in-email-container? */
+	display:            flex;
+	flex-direction:     column;
+	position:           relative;
+	left:               45px;
+	top:                10px;
+	width:              260px;
+	height:             36px;
+	justify-content:    space-between;  /*  main-axis                       */
+	align-items:        center;         /*  cross-axis                      */
+}
+
+.rr-app-label-input {
+	display:            flex;
+	flex-direction:     row;
+	position:           relative;
+	left:               0px;
+	top:                0px;
+	width:              260px;
+	height:             26px;
+	justify-content:    space-between;  /*  main-axis                       */
+	align-items:        center;         /*  cross-axis                      */
+}
+
+.rr-pe-dlg-name-label {
+	flex:               1 1 auto;
+	max-width:          55px;
+/*  border:             dashed 1px lightgray;   */
+	text-align:         right;
+}
+
+.rr-pe-dlg-name-input {
+	flex:               1 1 auto;
+	max-width:          190px;
+	font-family:        Verdana, Geneva, Tahoma, sans-serif;
+	font-size:          12px;
+}
+
+.rr-app-input-error {
+	flex:               1 1 auto;
+	position:           relative;
+	left:               0px;
+	top:                0px;
+	width:              260px;
+	height:             10px;
+	text-align:         right;
+	font-size:          10px;
+	color:              red;
+}
+

@@ -16,6 +16,8 @@ import {diag, diagsFlush, diagsPrint} 	from './diags';
 
 class Tabs extends Component {
 	constructor ( props ) {
+		const sW = 'Tabs constructor()';
+		diag ( [1,2,3], sW );
 		super ( props );
 
 		this.state = {
@@ -33,6 +35,8 @@ class Tabs extends Component {
 		this.setPageNamesState	= this.setPageNamesState.bind ( this );
 		this.selectTab			= this.selectTab.bind ( this );
 		this.addTab				= this.addTab.bind ( this );
+		this.nameTab			= this.nameTab.bind ( this );
+		this.nameTabName		= this.nameTabName.bind ( this );
 		this.oSetState2			= this.oSetState2.bind ( this );
 		this.oSetState			= this.oSetState.bind ( this );
 		this.pushState			= this.pushState.bind ( this );
@@ -56,14 +60,17 @@ class Tabs extends Component {
 	}	//	constructor
 	
 
-	addTabPageName ( text, cbPageName ) {
+	addTabPageName ( paneId, text, cbPageName ) {
 
-		let tabId = getNextTabId();
+		let tabId  = getNextTabId();
+		if ( paneId === 0 ) {
+			paneId = getPaneId(); }
 
 		this.pages[tabId] = { 
 			page: (
 				<Pane key 		= { tabId }
-					  paneId 	= { getPaneId() }
+					  frameId 	= { this.props.frameId }
+					  paneId 	= { paneId }
 					  tabId		= { tabId }
 					  tabsFnc	= { this.doAll }
 					  peId		= { this.props.peId }
@@ -72,8 +79,10 @@ class Tabs extends Component {
 					  style 	= { null }
 					  clientFnc	= { this.props.clientFnc }
 					  tabs		= { false } /> ),
+			paneId: 	paneId,
 			paneFnc:	null,
-			state:		null };
+		//	state:		null 
+		};
 
 		let eleId = 'rr-tab-name-' + tabId;
 		this.names[eleId] = { tabId:	tabId,
@@ -89,9 +98,12 @@ class Tabs extends Component {
 						 { page:  this.pages[tabId].page }, 
 						 () => {
 			let page = self.pages[tabId];
-			if ( page.state ) {
-				page.paneFnc ( { do: 		'set-state',
-								state:		page.state } ); }
+		//	if ( page.state ) {
+		//		page.paneFnc ( { do: 		'set-state',
+		//						state:		page.state } ); }
+			if ( page.paneFnc ) {
+				//	paneFnc() will load state from client app.
+				page.paneFnc ( { do: 'set-state' } ); }
 		} );
 	}	//	showPage()
 
@@ -123,7 +135,9 @@ class Tabs extends Component {
 	selectTab ( eleId ) {
 		if ( this.selectedNameEleId ) {
 			let page = this.pages[this.names[this.selectedNameEleId].tabId];
-			page.state = page.paneFnc ( { do: 'get-state' } );
+		//	page.state = page.paneFnc ( { do: 'get-state' } );
+			//	Have the pane get its state and store it in the client app.
+			page.paneFnc ( { do: 'get-state' } );
 			this.nameFncs[this.selectedNameEleId] ( { do: 		'select',
 													  selected:	false } ); 
 		}
@@ -135,7 +149,7 @@ class Tabs extends Component {
 
 	addTab ( cb ) {
 		let self = this;
-		this.addTabPageName ( 'Tab Name', ( eleId ) => {
+		this.addTabPageName ( 0, 'Tab Name', ( eleId ) => {
 			self.nameFncs[eleId] ( { do: 		'select',
 									 selected:	true } );
 			self.selectTab ( eleId );
@@ -144,6 +158,24 @@ class Tabs extends Component {
 		} );
 	}	//	addTab()
 
+	nameTab ( o ) {
+		this.props.frameFnc ( { do: 	'show-name-dlg',
+								upFnc: 	this.doAll,
+								ctx: 	{ title:	'Tab Name',
+										  after: 	'name-tab-name',
+										  tabId:	o.tabId } } );
+	}	//	nameTab()
+
+	nameTabName ( o ) {
+		for ( var eleId in this.names ) {
+			let d = this.names[eleId];
+			if ( d.tabId !== o.ctx.tabId ) {
+				continue; }
+			d.text = o.name;
+			this.setPageNamesState ( null);
+			break; }
+	}	//	nameTabName()
+	
 	oSetState2 ( o ) {
 		let self = this;
 		let selectedEleId = null;
@@ -158,10 +190,16 @@ class Tabs extends Component {
 				self.selectTab ( selectedEleId );
 				return; }
 			let name = names[i++]
-			let pageState = o.state.pages[name[1].tabId].state;
-			self.addTabPageName ( name[1].text, ( eleId ) => {
-				let tabId = self.names[eleId].tabId;
-				self.pages[tabId].state = Object.assign ( {}, pageState );
+		//	let pageState = o.state.pages[name[1].tabId].state;
+		//	self.addTabPageName ( name[1].text, ( eleId ) => {
+		//		let tabId = self.names[eleId].tabId;
+		//		self.pages[tabId].state = Object.assign ( {}, pageState );
+		//		if ( name[0] === o.state.selectedNameEleId ) {
+		//			selectedEleId = eleId; }
+		//		eachName();
+		//	} );
+			let page = o.state.pages[name[1].tabId];
+			self.addTabPageName ( page.paneId, name[1].text, ( eleId ) => {
 				if ( name[0] === o.state.selectedNameEleId ) {
 					selectedEleId = eleId; }
 				eachName();
@@ -209,7 +247,10 @@ class Tabs extends Component {
 	}	//	submitState()
 
 	doAll ( o ) {
-		const sW = 'Tabs doAll()';
+		let sW = 'Tabs doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [1,2,3], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'tab-name' ) {
 				this.nameFncs[o.nameEleId] = o.nameFnc;
@@ -233,8 +274,15 @@ class Tabs extends Component {
 			return;
 		}
 		if ( o.do === 'add-tab' ) {
-			console.log ( sW + ' add-tab' );
 			this.addTab();
+			return;
+		}
+		if ( o.do === 'name-tab' ) {
+			this.nameTab ( o );
+			return;
+		}
+		if ( o.do === 'name-tab-name' ) {
+			this.nameTabName ( o );
 			return;
 		}
 		if ( o.do === 'get-state' ) {
@@ -245,9 +293,15 @@ class Tabs extends Component {
 				names[eleId] = { tabId: name.tabId,
 								 text:	name.text };
 				let page = this.pages[name.tabId];
+			//	pages[name.tabId] = {
+			//		state: 	page.state ? Object.assign ( {}, page.state )
+			//						   : page.paneFnc ( { do: 'get-state' } )
+			//	}
 				pages[name.tabId] = {
-					state: 	page.state ? Object.assign ( {}, page.state )
-									   : page.paneFnc ( { do: 'get-state' } )
+					paneId:		page.paneId,
+				}
+				if ( eleId === this.selectedNameEleId ) {
+					page.paneFnc ( { do: 'get-state' } );
 				}
 			}
 			let state = {
@@ -267,6 +321,8 @@ class Tabs extends Component {
 	}	//	doAll()
 
 	render() {
+		let sW = 'Tabs render()';
+		diag ( [1,2,3], sW );
 		return (
 			<div id			= { this.props.eleId }
 				 className	= 'rr-tabs' >
@@ -284,7 +340,9 @@ class Tabs extends Component {
 	}   //  render()
 
 	componentDidMount() {
-	//	this.addTabPageName ( 'Tab Name', ( eleId ) => {
+		let sW = 'Tabs componentDidMount()';
+		diag ( [1,2,3], sW );
+	//	this.addTabPageName ( 0, 'Tab Name', ( eleId ) => {
 	//		this.nameFncs[eleId] ( { do: 		'select',
 	//								 selected:	true } );
 	//		this.selectedNameEleId = eleId;
@@ -303,6 +361,8 @@ class Tabs extends Component {
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
+		let sW = 'Tabs componentDidUpdate()';
+		diag ( [1,2,3], sW );
 		let len = this.stateStack.length;
 		let s = this.stateStack.splice ( 0, 1 );
 		if ( (len > 0) && s[0].aftr ) {

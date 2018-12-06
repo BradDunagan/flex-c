@@ -15,7 +15,7 @@ function nextBtnBarId() {
 class ButtonBar extends Component {
 	constructor ( props ) {
 		const sW = 'ButtonBar constructor()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		super ( props );
 	//	console.log ( 'ButtonBar constructor()' );
 		this.state = {
@@ -73,7 +73,7 @@ class ButtonBar extends Component {
 		let sW = 'ButtonBar doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'btn-split-horz' ) {
 			//	console.log ( sW + ' bshFnc' );
@@ -156,7 +156,7 @@ class ButtonBar extends Component {
 
 	render() {
 		const sW = 'ButtonBar render()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		/*
 		return (
 			<div id				= { this.props.eleId }
@@ -194,7 +194,7 @@ class ButtonBar extends Component {
 	
 	componentDidMount() {
 		const sW = 'ButtonBar componentDidMount()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		let e  = document.getElementById ( this.props.eleId );
 		/*
 		let p  = e.parentElement;
@@ -219,22 +219,22 @@ class ButtonBar extends Component {
 										bbFnc:			this.doAll  } ); }
 								//		needPaneFnc:	(! paneFnc) } ); }
 
-	//	this.props.paneFnc ( { do: 		'set-call-down',
-	//						   to:		'button-bar',
-	//						   bbEleId:	this.props.eleId,
-	//						   bbFnc:	this.doAll } );	
+		this.props.paneFnc ( { do: 		'set-call-down',
+							   to:		'button-bar',
+							   bbEleId:	this.props.eleId,
+							   bbFnc:	this.doAll } );	
 	}	//	componentDidMount()
 	
 	componentWillUnmount() {
 		const sW = 'ButtonBar componentWillUnmount()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 		let e  = document.getElementById ( this.props.eleId );
 	//	console.log ( 'ButtonBar will unmount. e: ' + e );
 	}
 
 	componentDidUpdate() {
 		const sW = 'ButtonBar componentDidUpdate()';
-		diag ( [1, 2, 3], sW );
+		diag ( [4], sW );
 	//	let e  = document.getElementById ( this.props.eleId );
 		/*
 		if ( ! e ) {

@@ -11,10 +11,15 @@ import ButtonBar 			from './button-bar';
 
 let lastBtnBarId = 0;
 */
-import { ButtonBar, nextBtnBarId } 			from './button-bar';
+import { ButtonBar, nextBtnBarId } 		from './button-bar';
+
+import {diag, diagsFlush, diagsPrint} 	from './diags';
+
 
 class PaneButtonBarsContainer extends Component {
 	constructor ( props ) {
+		let sW = props.frameId + ' PaneButtonBarsContainer constructor()';
+		diag ( [4], sW );
 		super ( props );
 
 		this.eleId = 'rr-bb-container-' + props.frameId;
@@ -26,19 +31,38 @@ class PaneButtonBarsContainer extends Component {
 		this.doAll 				= this.doAll.bind ( this );
 		this.setButtonBarsState	= this.setButtonBarsState.bind ( this );
 
-	//	this.rootPaneFnc 	= null;
+		this.rootPaneFnc 	= null;
 
 		this.buttonBars = {};
 
 	}	//	constructor
 	
 	doAll ( o ) {
-		const sW = 'PaneButtonBarsContainer doAll()';
+		let sW = this.props.frameId + ' PaneButtonBarsContainer  doAll() ' 
+									+ o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [4], sW );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'button-bar' ) {
 			//	console.log ( sW + ' bbFnc' );
 				this.buttonBars[o.bbEleId].buttonBarFnc = o.bbFnc; }
 			return; }
+
+		if ( o.do === 'set-root-pane-fnc' ) {
+			this.rootPaneFnc = o.paneFnc;
+			let bbId  = nextBtnBarId();
+			let eleId = 'rr-bb-' + bbId;
+			this.buttonBars[eleId]  = { bbId:			bbId,
+										buttonBar: 		null,
+										buttonBarFnc:	null,
+										paneFnc:		this.rootPaneFnc,
+										isForRootPane:	true };
+								
+			this.setButtonBarsState ( () => {
+			} );
+			return; }
+
 		if ( (o.do === 'split-horz') || (o.do === 'split-vert') ) {
 		//	console.log ( sW + ' split-horz/vert' );
 			//	Remove the button bar. Then call the pane to do the split.
@@ -84,6 +108,8 @@ class PaneButtonBarsContainer extends Component {
 	}   //  doAll()
 
 	render() {
+		let sW = this.props.frameId + ' PaneButtonBarsContainer render()';
+		diag ( [4], sW );
 		return (
 			<div id				= { this.eleId }
 				 className		= 'rr-pane-button-bars-container' >
@@ -93,7 +119,9 @@ class PaneButtonBarsContainer extends Component {
 	}   //  render()
 
 	setButtonBarsState ( fnc ) {
-		const sW = 'PaneButtonBarsContainer setButtonBarsState()';
+		let sW =   this.props.frameId 
+				 + ' PaneButtonBarsContainer setButtonBarsState()';
+		diag ( [4], sW );
 		let bba = [];
 		let key = 0;
 		for ( var eleId in this.buttonBars ) {
@@ -114,28 +142,34 @@ class PaneButtonBarsContainer extends Component {
 	}	//	setButtonBarsState()
 
 	componentDidMount() {
-		const sW = 'PaneButtonBarsContainer componentDidMount()';
-	//	console.log ( sW );
-		let bbId  = nextBtnBarId();
-		let eleId = 'rr-bb-' + bbId;
-		this.buttonBars[eleId]  = { bbId:			bbId,
-									buttonBar: 		null,
-									buttonBarFnc:	null,
-								//	paneFnc:		null };
-									paneFnc:		this.props.rootPaneFnc,
-									isForRootPane:	true };
-							   
-		this.setButtonBarsState ( () => {
-		//	this.props.ttbFnc ( { do: 		'set-call-down',
-		//						  to:		'pane-button-bars-container',
-		//						  pbbcFnc:	this.doAll } );
-		} );
+		const sW = this.props.frameId 
+				 + ' PaneButtonBarsContainer componentDidMount()';
+		diag ( [4], sW );
+	
+	//	let bbId  = nextBtnBarId();
+	//	let eleId = 'rr-bb-' + bbId;
+	//	this.buttonBars[eleId]  = { bbId:			bbId,
+	//								buttonBar: 		null,
+	//								buttonBarFnc:	null,
+	//							//	paneFnc:		null };
+	//								paneFnc:		this.props.rootPaneFnc,
+	//								isForRootPane:	true };
+	//						   
+	//	this.setButtonBarsState ( () => {
+	//	//	this.props.ttbFnc ( { do: 		'set-call-down',
+	//	//						  to:		'pane-button-bars-container',
+	//	//						  pbbcFnc:	this.doAll } );
+	//	} );
+
 		this.props.ttbFnc ( { do: 		'set-call-down',
 							  to:		'pane-button-bars-container',
 							  pbbcFnc:	this.doAll } );
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
+		const sW = this.props.frameId 
+				 + ' PaneButtonBarsContainer componentDidUpdate()';
+		diag ( [4], sW );
 
 	}	//	componentDidUpdate()
 
