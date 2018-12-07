@@ -29,8 +29,6 @@ class FrameHeaderTitleBar extends Component {
 	mouseDown ( ev ) {
 		let sW = 'mouseDown()';
 	//	console.log ( sW );
-		this.sizeX0 = Number.parseInt ( this.state.style.left );
-		this.sizeY0 = Number.parseInt ( this.state.style.top );
 		this.frameFnc ( { do: 	'move-start',
 						  ev: 	ev } );
 	}	//	mouseDown()
@@ -61,17 +59,10 @@ class FrameHeaderTitleBar extends Component {
 	}   //  render()
 
 	componentDidMount() {
-	//	let e = document.getElementById ( this.eleId );
-	//	let p = e.parentElement;
-	//	this.setState ( { 
-	//		style: {
-	//			left:	this.state.style.left,
-	//			top:	this.state.style.top,
-	//			width: 	(p.clientWidth - 0) + 'px',
-	//			height:	this.state.style.height
-	//		}
-	//	} );
 	}	//	componentDidMount()
+
+	componentWillUnmount() {
+	}	//	componentWillUnmount()
 
 }   //  class FrameHeaderTitleBar
 

@@ -159,9 +159,17 @@ class Tabs extends Component {
 	}	//	addTab()
 
 	nameTab ( o ) {
+		let curName = '';
+		for ( var eleId in this.names ) {
+			let d = this.names[eleId];
+			if ( d.tabId !== o.tabId ) {
+				continue; }
+			curName = d.text;
+			break; }
 		this.props.frameFnc ( { do: 	'show-name-dlg',
 								upFnc: 	this.doAll,
 								ctx: 	{ title:	'Tab Name',
+										  curName:	curName,
 										  after: 	'name-tab-name',
 										  tabId:	o.tabId } } );
 	}	//	nameTab()

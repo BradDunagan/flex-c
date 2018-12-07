@@ -29,6 +29,9 @@ class ButtonBar extends Component {
 		//		left: 	'0px'
 			}
 		};
+		if ( props.left && props.width ) {
+			this.state.style = { left:	props.left  + 'px',
+								 width:	props.width + 'px' }; }
 
 		this.mouseEnter		= this.mouseEnter.bind ( this );
 		this.mouseLeave		= this.mouseLeave.bind ( this );
@@ -128,6 +131,13 @@ class ButtonBar extends Component {
 				transitionProperty:	'none'
 			} } );
 			return;
+		}
+		if ( o.do === 'get-left-and-width' ) {
+			let style = this.state.style;
+			if ( style && style.left && style.width ) {
+				return { left: 	Number.parseInt ( style.left ),
+						 width:	Number.parseInt ( style.width ) }; }
+			return null;
 		}
 		/*
 		if ( o.do === 'size-start' ) {

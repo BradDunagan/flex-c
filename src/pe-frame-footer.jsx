@@ -10,13 +10,46 @@ import React        from 'react';
 class PEFrameFooter extends React.Component {
 	constructor ( props ) {
 		super ( props );
-	}
+		this.state = {
+			style:	{ display:		'none' }
+		};
+
+		this.doAll		= this.doAll.bind ( this );
+	}	//	constructor()
+
+	doAll ( o ) {
+		if ( o.do === 'is-visible' ) {
+			if ( ! this.state.style.display ) {
+				return true; }
+			return this.state.style.display !== 'none'; }
+		if ( o.do === 'show' ) {
+			this.setState ( { style: {} } );
+			return;	}
+		if ( o.do === 'hide' ) {
+			this.setState ( { style: { display: 'none' } } );
+			return;	}
+	}	//	doAll()
+
 	render() {
 		return (
-			<div className = "rr-pe-frame-status-bar">
+			<div className	= "rr-pe-frame-status-bar"
+				 style		= { this.state.style } >
 			</div>
 		)
-	}
+	}	//	render()
+
+	componentDidMount() {
+		this.props.frameFnc ( { do: 	'set-call-down',
+								to:		'frame-footer',
+								fnc:	this.doAll } );
+	}	//	componentDidMount()
+
+	componentWillUnmount() {
+		this.props.frameFnc ( { do: 	'set-call-down',
+								to:		'frame-footer',
+								fnc:	null } );
+	}	//	componentWillUnmount()
+	
 }   //  class PEFrameFooter
 
 export { PEFrameFooter as default };

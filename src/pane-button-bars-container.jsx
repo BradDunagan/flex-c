@@ -122,23 +122,53 @@ class PaneButtonBarsContainer extends Component {
 		let sW =   this.props.frameId 
 				 + ' PaneButtonBarsContainer setButtonBarsState()';
 		diag ( [4], sW );
-		let bba = [];
-		let key = 0;
-		for ( var eleId in this.buttonBars ) {
-			bba.push ( ' ' + eleId ); }
+		let bba = [], lw = {};
+	//	let key = 0;
+		for ( let eleId in this.buttonBars ) {
+			bba.push ( ' ' + eleId );
+			let d = this.buttonBars[eleId];
+			if ( d.buttonBarFnc ) {
+				lw[eleId] = d.buttonBarFnc ( { do: 	'get-left-and-width' } ); }
+		}
 	//	console.log ( sW + ' BB eleIds: ' + bba );
 		bba = [];
-		for ( var eleId in this.buttonBars ) {
+		let bb = null;
+		for ( let eleId in this.buttonBars ) {
 			let d = this.buttonBars[eleId];
-			d.buttonBar = <ButtonBar key 			= { ++key }
-									 bbId 			= { d.bbId }
-									 eleId			= { eleId }
-									 containerFnc	= { this.doAll }
-									 paneFnc		= { d.paneFnc }
-									 isForRootPane	= { d.isForRootPane } />;
-			bba.push ( d.buttonBar );
+			if ( lw[eleId] ) {
+			//	bb = <ButtonBar key 			= { ++key }
+				bb = <ButtonBar key 			= { d.bbId }
+								bbId 			= { d.bbId }
+								eleId			= { eleId }
+								containerFnc	= { this.doAll }
+								paneFnc			= { d.paneFnc }
+								isForRootPane	= { d.isForRootPane }
+								left			= { lw[eleId].left }
+								width			= { lw[eleId].width } />; }
+			else {
+			//	bb = <ButtonBar key 			= { ++key }
+				bb = <ButtonBar key 			= { d.bbId }
+								bbId 			= { d.bbId }
+								eleId			= { eleId }
+								containerFnc	= { this.doAll }
+								paneFnc			= { d.paneFnc }
+								isForRootPane	= { d.isForRootPane } />; }
+			d.buttonBar = bb;
+			bba.push ( bb );
 		}
-		this.setState ( { buttonBars: bba }, fnc );
+		this.setState ( { buttonBars: bba }, () => {
+		//	for ( let eleId in lw ) {
+		//		let o = lw[eleId];
+		//		if ( ! o ) {
+		//			continue; }
+		//		let d = this.buttonBars[eleId];
+		//		d.buttonBarFnc ( { do: 		'set-left-and-width',
+		//						   left:	o.left,
+		//						   width:	o.width } );
+		//	}
+			if ( fnc ) {
+				fnc(); }
+		} );
 	}	//	setButtonBarsState()
 
 	componentDidMount() {

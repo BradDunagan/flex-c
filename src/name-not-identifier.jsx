@@ -20,6 +20,8 @@ class NameNotIdentifier extends React.Component {
 		this.keypress = this.keypress.bind ( this );
 		this.change = this.change.bind ( this );
 		this.input = this.input.bind ( this );
+
+		this.nameText = this.props.curText;
 	}
 
 	error ( msg ) {
@@ -38,7 +40,8 @@ class NameNotIdentifier extends React.Component {
 
 	change ( e ) {
 	//  console.log ( 'change() ' + e.target.value );
-		let name = e.target.value;
+		let name 	  = e.target.value;
+		this.nameText = name;
 		if ( name.length === 0 ) {
 			this.error ( '' );
 			return;
@@ -60,10 +63,11 @@ class NameNotIdentifier extends React.Component {
 					<div className = "rr-pe-dlg-name-label">
 						Name:
 					</div>
-					<input className = "rr-pe-dlg-name-input"
-						   onKeyPress = {this.keypress}
-						   onChange = {this.change}
-						   onInput = {this.input} >
+					<input className 	= "rr-pe-dlg-name-input"
+						   value		= { this.nameText }
+						   onKeyPress 	= { this.keypress }
+						   onChange 	= { this.change }
+						   onInput 		= { this.input } >
 					</input>
 				</div>
 				<div className = "rr-app-input-error">

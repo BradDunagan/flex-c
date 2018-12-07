@@ -6,6 +6,7 @@
 
 import React		from 'react';
 
+import NoContent	from './no-content';
 import Tabs			from './tabs';
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';
@@ -17,8 +18,9 @@ class PaneContent extends React.Component {
 		diag ( [1, 2], sW );
 
 		this.state = {
-			style:		{ visibility:	'hidden' },
-			content:	null
+		//	style:		{ visibility:	'hidden' },
+			style:		null,
+			content:	( <NoContent /> ),
 		};
 
 		this.doAll			= this.doAll.bind ( this );

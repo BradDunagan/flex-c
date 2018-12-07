@@ -223,8 +223,9 @@ class Pane extends React.Component {
 		diag ( 2, sW );
 
 		if ( this.props.atFrameTop && this.buttonBarFnc ) {
-			this.props.frameFnc ( { do: 		'remove-pane-btn-bar',
-									bbEleId:	this.buttonBarEleId } );
+		//	this.props.frameFnc ( { do: 		'remove-pane-btn-bar',
+		//							bbEleId:	this.buttonBarEleId } );
+		//	Done in PaneButtonBarsContainer.
 			this.buttonBarEleId = null; }
 
 		this.doAll ( { do: 'get-state' } );

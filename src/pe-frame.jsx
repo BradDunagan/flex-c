@@ -42,6 +42,8 @@ class PEFrame extends React.Component {
 		this.eleId 		= 'rr-frame-' + props.frameId;
 		this.peId 		= props.frameId;
 		this.appFnc 	= props.appFrameFnc;
+		this.headerFnc	= null;
+		this.footerFnc	= null;
 		this.rootPaneFnc	= null;
 		this.titleBarFnc	= null;
 
@@ -52,10 +54,12 @@ class PEFrame extends React.Component {
 		this.iconize 			= this.iconize.bind ( this );
 		this.transitionEnd		= this.transitionEnd.bind ( this );
 		this.clickIcon			= this.clickIcon.bind ( this );
+		this.nameFrame			= this.nameFrame.bind ( this );
+		this.nameFrameName		= this.nameFrameName.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
 		this.state = {
-		//	titleBar:	null,
+			frameName:	'Frame-' + props.frameId,
 			titleBar:
 				<TransientTitleBar frameId		= { props.frameId }
 								   frameEleId	= { this.eleId }
@@ -104,18 +108,29 @@ class PEFrame extends React.Component {
 	//					style = {{ left:	r.x + 'px',
 	//							   top: 	r.y + 'px' }} />
 	//	} );
+		let isHdrVisible = false;
+		if ( this.headerFnc ) {
+			isHdrVisible = this.headerFnc ( { do: 'is-visible' } ); }
+		let itemTextHdr = isHdrVisible ? 'Hide Header' : 'Show Header';
+		let isFtrVisible = false;
+		if ( this.footerFnc ) {
+			isFtrVisible = this.footerFnc ( { do: 'is-visible' } ); }
+		let itemTextFtr = isFtrVisible ? 'Hide Footer' : 'Show Footer';
 		this.appFnc ( { 
 			do: 		'show-menu',
 			menuEleId:	this.eleId + '-burger-menu',
 			menuX:		r.x,
 			menuY:		r.y,
-			menuItems:	[ { type: 'item', 		text: 'Tabs' },
-						  { type: 'item', 		text: 'UDUI' },
-						  { type: 'item', 		text: 'Viewport' },
-						  { type: 'item', 		text: 'Process' },
-						  { type: 'item', 		text: 'Diagnostics' },
-						  { type: 'item', 		text: 'Values' },
-						  { type: 'item', 		text: 'Stdout' } ],
+		//	menuItems:	[ { type: 'item', 		text: 'Tabs' },
+		//				  { type: 'item', 		text: 'UDUI' },
+		//				  { type: 'item', 		text: 'Viewport' },
+		//				  { type: 'item', 		text: 'Process' },
+		//				  { type: 'item', 		text: 'Diagnostics' },
+		//				  { type: 'item', 		text: 'Values' },
+		//				  { type: 'item', 		text: 'Stdout' } ],
+			menuItems:	[ { type: 'item', 		text: 'Frame Name ...' },
+						  { type: 'item', 		text: itemTextHdr },
+						  { type: 'item', 		text: itemTextFtr } ],
 			upFnc:		this.doAll,
 			ctx:		{ after:	'menu-item' }
 		} );
@@ -223,6 +238,18 @@ class PEFrame extends React.Component {
 		}, 200 );
 	}	//	clickIcon()
 
+	nameFrame ( o ) {
+		this.appFnc ( { do: 	'show-name-dlg',
+						upFnc: 	this.doAll,
+						ctx: 	{ title:	'Frame Name',
+								  curName:	this.state.frameName,
+								  after: 	'name-frame-name' } } );
+	}	//	nameFrame()
+
+	nameFrameName ( o ) {
+		this.setState ( { frameName: o.name } );
+	}	//	nameFrameName()
+	
 	doAll ( o ) {
 		let sW = this.props.frameId + ' PEFrame doAll() ' + o.do;
 		if ( o.to ) {
@@ -231,6 +258,12 @@ class PEFrame extends React.Component {
 		let self = this;
 		function setCallDown ( o ) {
 			if ( ! o.to ) {
+				return; }
+			if ( o.to === 'frame-header' ) {
+				self.headerFnc = o.fnc;
+				return; }
+			if ( o.to === 'frame-footer' ) {
+				self.footerFnc = o.fnc;
 				return; }
 			if ( o.to === 'root-pane' ) {
 				self.rootPaneFnc = o.fnc;
@@ -371,10 +404,32 @@ class PEFrame extends React.Component {
 			return;
 		}
 		if ( o.do === 'menu-item' ) {
+			if ( o.menuItemText === 'Frame Name ...' ) {
+				this.nameFrame();
+				return; }
+			if ( o.menuItemText === 'Show Header' ) {
+				if ( this.headerFnc ) {
+					this.headerFnc ( { do: 'show' } ); }
+				return; }
+			if ( o.menuItemText === 'Hide Header' ) {
+				if ( this.headerFnc ) {
+					this.headerFnc ( { do: 'hide' } ); }
+				return; }
+			if ( o.menuItemText === 'Show Footer' ) {
+				if ( this.footerFnc ) {
+					this.footerFnc ( { do: 'show' } ); }
+				return; }
+			if ( o.menuItemText === 'Hide Footer' ) {
+				if ( this.footerFnc ) {
+					this.footerFnc ( { do: 'hide' } ); }
+				return; }
 			o.frameId = this.props.frameId;
 			this.props.appFrameContent ( o );
 			return;
 		}
+		if ( o.do === 'name-frame-name' ) {
+			this.nameFrameName ( o );
+			return; }
 	}   //  doAll()
 
 	render() {
@@ -398,7 +453,7 @@ class PEFrame extends React.Component {
 					 onClick			= { this.clickIcon } >
 					<div className 	= 'rr-iconized-frame-name'
 						 style 		= { this.state.iconized.iconName } >
-						{ 'Frame-' + this.props.frameId }
+						{ this.state.frameName }
 					</div>
 				</div>
 			); }
@@ -407,7 +462,9 @@ class PEFrame extends React.Component {
 				 className		= "rr-pe-frame"
 				 style 			= { this.state.style}
 				 onMouseDown	= { this.mouseDown } >
-				<PEFrameHeader frame	= { this.doAll } />
+				<PEFrameHeader frameId 		= { this.props.frameId }
+							   frameName	= { this.state.frameName }
+							   frameFnc		= { this.doAll } />
 				<Pane frameId 		= { this.props.frameId }
 					  paneId		= { this.props.paneId }
 					  peId 			= { this.peId } 
@@ -421,7 +478,7 @@ class PEFrame extends React.Component {
 					  
 					  clientFnc		= { this.props.clientFnc } />
 
-				<PEFrameFooter />
+				<PEFrameFooter frameFnc = { this.doAll } />
 				<Sizer frameId 		= { this.props.frameId }
 					   frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }

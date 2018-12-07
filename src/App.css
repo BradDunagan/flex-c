@@ -8,6 +8,17 @@
 	height:		300px;
 }
 
+.rr-no-content {
+	width:				100%;
+	height:				100%;
+	background-color:	transparent;
+	display:            flex;
+	flex-direction:     row;
+	align-items:        center;
+	justify-content:    center;
+	color:				lightgray;
+}
+
 .rr-app-screen-dialog {
 	position:           absolute;
 	left:               0px;
@@ -148,6 +159,7 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 
 .rr-pe-frame-title-bar {
+/*
 	display:            flex;
 	flex-direction:     row;
 	justify-content:    left;
@@ -155,6 +167,19 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	max-height:         18px;
 	min-height:         18px;
 	border-bottom:      solid 1px black;
+*/
+	width:				100%;
+	height:				18px;
+	border-bottom:      solid 1px gray;
+}
+
+.rr-frame-title {
+	position: 			absolute;
+	left:				32px;
+	top: 				1px;
+	font-family:		sans-serif, 'Roboto';
+	font-size:			14px;
+	cursor:				inherit;
 }
 
 .rr-pe-frame-content {
@@ -313,6 +338,7 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 
 .rr-btn-burger {
+	margin-left:	1px;
 	margin-right:	4px;
 	width: 			18px;
 	float: 			left;
@@ -471,7 +497,7 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 
 .rr-pe-dlg-name-main {
 	flex:               1 1 auto;
-	height:             400px;
+/*	height:             400px;			*/
 	width:              350px;
 }
 
