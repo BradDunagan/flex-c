@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import PEFrame          from './pe-frame';
+import Frame			from './frame';
 import { getPaneId }	from './pane';
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';
@@ -52,21 +52,21 @@ class AppContent extends React.Component {
 		if ( o.do === 'add-frame' ) {
 			diag ( [1], sW + ': add-frame' );
 			let fa = [];
-			frame = <PEFrame key 			 = { o.frameId }
-							 frameId 		 = { o.frameId }
-							 paneId			 = { o.paneId }
-							 appFrameFnc 	 = { this.props.appFrameFnc } 
-							 appFrameContent = { this.doAll }
-							 left 	= { o.left }
-							 top	= { o.top }
-							 width 	= { o.width }
-							 height	= { o.height }
+			frame = <Frame key 				= { o.frameId }
+						   frameId 		 	= { o.frameId }
+						   paneId			= { o.paneId }
+						   appFrameFnc 	 	= { this.props.appFrameFnc } 
+						   appFrameContent 	= { this.doAll }
+						   left 			= { o.left }
+						   top				= { o.top }
+						   width 			= { o.width }
+						   height			= { o.height }
 
-						//	 contentStyle	= { o.parentStyle }
-						//	 ccEleId		= { o.ccEleId }
-						//	 clientContent	= { o.content } 
+						// contentStyle		= { o.parentStyle }
+						// ccEleId			= { o.ccEleId }
+						// clientContent	= { o.content } 
 							 
-							 clientFnc		= { this.props.clientFnc } />;
+						   clientFnc		= { this.props.clientFnc } />;
 
 			this.frames[o.frameId] = { frame: 		frame,
 									   ccEleId:		o.ccEleId,
@@ -164,23 +164,6 @@ class AppContent extends React.Component {
 		this.props.clientFnc ( { do: 	'set-call-down',
 								 to: 	'app-content',
 								 fnc:	this.doAll } );
-
-	//	let frameId = ++lastFrameId;
-	//	let frame = <PEFrame key = {frameId}
-	//						 frameId = {frameId}
-	//						 appFrameFnc = {this.props.appFrameFnc} 
-	//						 appFrameContent = {this.doAll}
-	//						 left 	= '30px' 
-	//						 top	= '30px'
-	//						 width 	= '400px'
-	//						 height	= '460px' />;
-	//
-	//	this.frames[frameId] = { frame: 	frame,
-	//							 doAll: 	null };
-	//
-	//	let frames = this.state.frames;
-	//	frames.push ( frame );							 
-	//	this.setState ( { frames: frames } );
 	}	//	componentDidMount()
 
 	componentDidUpdate() {

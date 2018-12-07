@@ -12,7 +12,7 @@ import FrameDestroy			from './frame-destroy';
 
 
 
-class PEFrameHeader extends React.Component {
+class FrameHeader extends React.Component {
 	
 	constructor ( props ) {
 		super ( props );
@@ -66,6 +66,6 @@ class PEFrameHeader extends React.Component {
 								fnc:	null } );
 	}	//	componentWillUnmount()
 
-}   //  class PEFrameHeader
+}   //  class FrameHeader
 
-export { PEFrameHeader as default };
+export { FrameHeader as default };

@@ -21,23 +21,23 @@ Also -
 
 import React			from 'react';
 
-import PEFrameHeader		from './pe-frame-header';
+import FrameHeader			from './frame-header';
 import Pane					from './pane';
-import PEFrameFooter		from './pe-frame-footer';
+import FrameFooter			from './frame-footer';
 /*
 import TitleBar 			from './title-bar'
 */
-import TransientTitleBar	from './pe-frame-transient-title-bar';
+import TransientTitleBar	from './frame-transient-title-bar';
 import Sizer 				from './sizer'
 import BurgerMenu			from './burger-menu';
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';
 
 
-class PEFrame extends React.Component {
+class Frame extends React.Component {
 	constructor ( props ) {
 		super ( props );
-		const sW = props.frameId + ' PEFrame constructor()';
+		const sW = props.frameId + ' Frame constructor()';
 		diag ( [1], sW );
 		this.eleId 		= 'rr-frame-' + props.frameId;
 		this.peId 		= props.frameId;
@@ -93,13 +93,13 @@ class PEFrame extends React.Component {
 	}	//	zTop()
 
 	mouseDown ( ev ) {
-		let sW = 'PEFrame mouseDown()';
+		let sW = 'Frame mouseDown()';
 	//	console.log ( sW );
 		this.zTop();
 	}	//	mouseDown()
 
 	burgerClick() {
-		let sW = 'PEFrame burgerClick()';
+		let sW = 'Frame burgerClick()';
 	//	console.log ( sW );
 		let fe = document.getElementById ( this.eleId );
 		let r  = fe.getBoundingClientRect();
@@ -157,7 +157,7 @@ class PEFrame extends React.Component {
 	}	//	iconize2()
 
 	iconize ( o ) {
-		let sW = this.props.frameId + ' PEFrame iconize()';
+		let sW = this.props.frameId + ' Frame iconize()';
 		diagsFlush();
 		diagsPrint ( sW, 2, 2000 );
 		diag ( [2], sW );
@@ -212,7 +212,7 @@ class PEFrame extends React.Component {
 	}	//	transitionEnd()
 
 	clickIcon ( ev ) {
-		let sW = this.props.frameId + ' PEFrame clickIcon()';
+		let sW = this.props.frameId + ' Frame clickIcon()';
 		diagsFlush();
 		diagsPrint ( sW, 2, 2000 );
 		diag ( [2], sW );
@@ -251,7 +251,7 @@ class PEFrame extends React.Component {
 	}	//	nameFrameName()
 	
 	doAll ( o ) {
-		let sW = this.props.frameId + ' PEFrame doAll() ' + o.do;
+		let sW = this.props.frameId + ' Frame doAll() ' + o.do;
 		if ( o.to ) {
 			sW += ' to ' + o.to; }
 		diag ( [1, 2, 3], sW );
@@ -433,7 +433,7 @@ class PEFrame extends React.Component {
 	}   //  doAll()
 
 	render() {
-		const sW = this.props.frameId + ' PEFrame render()';
+		const sW = this.props.frameId + ' Frame render()';
 		diag ( [1, 2, 3], sW );
 		/*
 				<TitleBar frameId	= 'frame-1'
@@ -462,13 +462,13 @@ class PEFrame extends React.Component {
 				 className		= "rr-pe-frame"
 				 style 			= { this.state.style}
 				 onMouseDown	= { this.mouseDown } >
-				<PEFrameHeader frameId 		= { this.props.frameId }
-							   frameName	= { this.state.frameName }
-							   frameFnc		= { this.doAll } />
-				<Pane frameId 		= { this.props.frameId }
+				<FrameHeader frameId 	= { this.props.frameId }
+							 frameName	= { this.state.frameName }
+							 frameFnc	= { this.doAll } />
+				<Pane frameId		= { this.props.frameId }
 					  paneId		= { this.props.paneId }
-					  peId 			= { this.peId } 
-					  frameFnc 		= { this.doAll }
+					  peId			= { this.peId } 
+					  frameFnc		= { this.doAll }
 					  tabs			= { false } 
 					  atFrameTop	= { true } 
 
@@ -478,7 +478,7 @@ class PEFrame extends React.Component {
 					  
 					  clientFnc		= { this.props.clientFnc } />
 
-				<PEFrameFooter frameFnc = { this.doAll } />
+				<FrameFooter frameFnc = { this.doAll } />
 				<Sizer frameId 		= { this.props.frameId }
 					   frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }
@@ -490,7 +490,7 @@ class PEFrame extends React.Component {
 	}	//	render()
 
 	componentDidMount() {
-		const sW = this.props.frameId + ' PEFrame componentDidMount()';
+		const sW = this.props.frameId + ' Frame componentDidMount()';
 		diag ( [1, 2], sW );
 
 		this.props.appFrameContent ( { do: 			'set-call-down',
@@ -517,7 +517,7 @@ class PEFrame extends React.Component {
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
-		const sW = this.props.frameId + ' PEFrame componentDidUpdate()';
+		const sW = this.props.frameId + ' Frame componentDidUpdate()';
 		diag ( [1, 2, 3], sW );
 
 	//	if ( this.state.contentRestoreIncomplete && this.state.titleBar ) {
@@ -551,6 +551,6 @@ class PEFrame extends React.Component {
 		}
 	}	//	componentDidUpdate()
 
-}	//	class PEFrame
+}	//	class Frame
 
-export { PEFrame as default };
+export { Frame as default };

@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 
-import FrameHeaderTitleBar		from './pe-frame-header-title-bar';
+import FrameHeaderTitleBar		from './frame-header-title-bar';
 import PaneButtonBarsContainer	from './pane-button-bars-container';
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';

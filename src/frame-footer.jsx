@@ -7,7 +7,7 @@
 import React        from 'react';
 
 
-class PEFrameFooter extends React.Component {
+class FrameFooter extends React.Component {
 	constructor ( props ) {
 		super ( props );
 		this.state = {
@@ -50,6 +50,6 @@ class PEFrameFooter extends React.Component {
 								fnc:	null } );
 	}	//	componentWillUnmount()
 	
-}   //  class PEFrameFooter
+}   //  class FrameFooter
 
-export { PEFrameFooter as default };
+export { FrameFooter as default };
