@@ -6,6 +6,8 @@
 import React, { Component } from 'react';
 import AppFrame				from '../app-frame';
 import ContentExample1		from './content-example-1';
+import db           		from '../dbp';
+
 
 import {diag, diagsFlush, diagsPrint} 	from '../diags';
 
@@ -15,16 +17,23 @@ class App extends Component {
 	constructor ( props ) {
 		super ( props );
 
-		this.addProcess			= this.addProcess.bind ( this );
+		this.addFrame			= this.addFrame.bind ( this );
+		this.addFrames			= this.addFrames.bind ( this );
 		this.setCallDown		= this.setCallDown.bind ( this );
 		this.fixPaneId			= this.fixPaneId.bind ( this );
 		this.menuItem			= this.menuItem.bind ( this );
 		this.storeState			= this.storeState.bind ( this );
 		this.loadState			= this.loadState.bind ( this );
+		this.saveApp			= this.saveApp.bind ( this );
+		this.loadApp			= this.loadApp.bind ( this );
 		this.definePaneContent	= this.definePaneContent.bind ( this );
+		this.newFrame			= this.newFrame.bind ( this );
+		this.clearLayout		= this.clearLayout.bind ( this );
+		this.clickAppTitle		= this.clickAppTitle.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
-		this.appContentFnc = null;
+		this.appContentFnc   = null;
+		this.appContentEleId = '';
 
 	//	this.newEleIds = [];		//	For initializing new content.
 	//	this.content = {};			//	Content in each pane. Key is eleId.
@@ -36,35 +45,81 @@ class App extends Component {
 
 	}	//	constructor()
 
-	addProcess ( o ) {
-		const sW = 'App addProcess()';
+	addFrame ( o ) {
+		const sW = 'App addFrame()';
 		diagsFlush();
-		diagsPrint ( 'App addProcess()', 1, 2000 );
+		diagsPrint ( sW, 1, 2000 );
 		diag ( [1], sW );
-		let ids 	= this.appContentFnc ( { do: 'get-new-frame-id' } );
+		let ids = 	  (o && o.frameId && o.paneId) 
+					? { frameId: 	o.frameId,
+						paneId:		o.paneId }
+					: this.appContentFnc ( { do: 'get-new-frame-id' } );
 
-//		let ccEleId = 'rr-cc-' + ++lastCCId;
-//	//	this.newEleIds.push ( ccEleId );
-//		this.content[ids.paneId] = { frameId:			ids.frameId,
-//									 ccEleId:			ccEleId,
-//									 paneContentFnc:	null,
-//									 initialized:		false,
-//									 install:			null,
-//									 contentFnc:		null };
 		this.definePaneContent ( { frameId: ids.frameId,
 								   paneId:	ids.paneId } );
 
 		this.appContentFnc ( {
-			do:			'add-frame',
-			frameId:	ids.frameId,
-			paneId:		ids.paneId,
-			left:		'40px',
-			top:		'20px',
-			width:		'400px',
-			height:		'400px',
+			do:				'add-frame',
+			frameName:		(o && o.frameName) ? o.frameName : null,
+			frameId:		ids.frameId,
+			paneId:			ids.paneId,
+			left:			(o && o.left)   ? o.left   : '40px',
+			top:			(o && o.top)    ? o.top    : '20px',
+			width:			(o && o.width)  ? o.width  : '400px',
+			height:			(o && o.height) ? o.height : '400px',
+			iconized:		(o && o.iconized) ? o.iconized : null,
 		} );
 
-	}	//	addProcess()
+	}	//	addFrame()
+
+	addFrames ( a, c ) {
+		const sW = 'App addFrames()';
+	//	diagsFlush();
+	//	diagsPrint ( sW, 1, 2000 );
+	//	diag ( [1], sW );
+
+		let frames = [];
+		for ( let i = 0; i < a.length; i++ ) {
+			let o = a[i];
+			let ids = 	  (o && o.frameId && o.paneId) 
+						? { frameId: 	o.frameId,
+							paneId:		o.paneId }
+						: this.appContentFnc ( { do: 'get-new-frame-id' } );
+
+			let content = this.definePaneContent ( { frameId:	ids.frameId,
+									   				 paneId:	ids.paneId } );
+			if ( c[ids.paneId].install ) {
+				content.install = {
+					parentStyle:	{ 
+						position:	'relative',
+						overflowY:	'auto' },
+					content: 		(
+						<ContentExample1 
+							frameId			= { o.frameId }
+							paneId			= { o.paneId }
+							eleId			= { content.ccEleId }
+							clientAppFnc 	= { this.doAll }
+							appFrameFnc 	= { this.appFrameFnc }
+							appContentFnc	= { this.appContentFnc } /> ) };
+			}
+			content.state = c[ids.paneId].state;
+
+			frames.push ( {
+				frameName:		(o && o.frameName) ? o.frameName : null,
+				frameId:		ids.frameId,
+				paneId:			ids.paneId,
+				left:			(o && o.left)   ? o.left   : '40px',
+				top:			(o && o.top)    ? o.top    : '20px',
+				width:			(o && o.width)  ? o.width  : '400px',
+				height:			(o && o.height) ? o.height : '400px',
+				iconized:		(o && o.iconized) ? o.iconized : null,
+			} );
+		}	//	for ( ... )
+
+		this.appContentFnc ( { do:		'add-frames',
+							   frames:	frames } );
+
+	}	//	addFrames()
 
 	setCallDown ( o ) {
 		let sW = 'App setCallDown() ' + o.to;
@@ -73,11 +128,12 @@ class App extends Component {
 			this.appFrameFnc = o.fnc;
 			return; }
 		if ( o.to === 'app-content' ) {
-			this.appContentFnc = o.fnc;
+			this.appContentFnc	 = o.fnc;
+			this.appContentEleId = o.eleId;
 			let self = this;
 			//	Default, first frame.
 			window.setTimeout ( () => {
-				self.addProcess();
+				self.addFrame();
 			}, 500 );
 			return;
 		}
@@ -200,6 +256,46 @@ class App extends Component {
 		return content.state;
 	}	//	loadState():
 
+	saveApp ( o ) {
+		const sW = 'App saveApp()';
+		diag ( [1, 2, 3], sW );
+		let state = this.appContentFnc ( { do: 'get-state' } )
+		state.content = this.content;
+		db.addLayout ( { SystemID: 		0,
+						 UserID:		0,
+						 LayoutName:	'test',
+						 json:			JSON.stringify ( state ) } );
+	}	//	saveApp():
+
+	async loadApp ( o ) {
+		const sW = 'App loadApp()';
+		diag ( [1, 2, 3], sW );
+		this.appContentFnc ( { do: 'clear' } );
+		let record = await db.loadLayout ( [0, 0, 'test'] );
+		let state = JSON.parse ( record.json );
+	//	this.content = state.content;
+	//	delete state.content;
+		this.content = {};
+		let frames = [];
+		for ( let frameId in state ) {
+			if ( frameId === 'content' ) {
+				continue; }
+			let frm = state[frameId].frame;
+			frames.push ( {
+				frameName:	frm.frameName,
+				frameId:	frm.frameId,
+				paneId:		frm.paneId,
+				left:		frm.style.left,
+				top:		frm.style.top,
+				width:		frm.style.width,
+				height:		frm.style.height,
+				iconized:	frm.iconized ? frm.iconized : null,
+			} );
+		}
+
+		this.addFrames ( frames, state.content );
+	}	//	loadApp():
+
 	definePaneContent ( o ) {
 		const sW = 'App definePaneContent()  paneId ' + o.paneId;
 		diag ( [1, 2, 3], sW );
@@ -218,6 +314,47 @@ class App extends Component {
 		return this.content[o.paneId];
 	}	//	definePaneContent()
 
+	newFrame ( ev ) {
+		const sW = 'App newFrame()';
+		console.log ( sW );
+		this.addFrame();
+	}	//	newFrame()
+
+	clearLayout ( ev ) {
+		const sW = 'App clearLayout()';
+		console.log ( sW );
+		this.content = {};
+		this.appContentFnc ( { do: 'clear' } );
+	}	//	clearLayout()
+
+	clickAppTitle ( ev ) {
+		const sW = 'App clickAppTitle()';
+		diag ( [1, 2, 3], sW );
+
+		let ce = document.getElementById ( this.appContentEleId );
+		let r  = ce.getBoundingClientRect();
+
+		this.appFrameFnc ( { 
+			do: 		'show-menu',
+			menuEleId:	'app-title-menu',
+			menuX:		r.x + 10,
+			menuY:		r.y + 10,
+			menuItems:	[ 
+				{ type: 'item', 
+				  text: 'New Frame',		fnc: this.newFrame },
+				{ type: 'item',	
+				  text: 'Clear Layout',		fnc: this.clearLayout },
+				{ type: 'item',	
+				  text: 'Save Layout ...',	fnc: this.saveLayout },
+				{ type: 'item', 
+				  text: 'Load Layout ...',	fnc: this.loadLayout } ],
+			upFnc:		this.doAll,
+			ctx:		{ after:	'menu-item' }
+		} );
+
+	}	//	clickAppTitle()
+
+
 	doAll ( o ) {
 		let sW = 'App doAll() ' + o.do;
 		diag ( [1, 2, 3], sW );
@@ -231,11 +368,20 @@ class App extends Component {
 			case 'app-frame-menu-bar-item-click':
 				//	These are the menu items on the app header (to the right of
 				//	Robot Records).
-				if ( o.itemText === 'New Process' ) {
-					this.addProcess();
+				if ( o.itemText === 'New Frame' ) {
+					this.addFrame();
 					return;	}
-				if ( o.itemText === 'New Viewport' ) {
-				}
+		//		if ( o.itemText === 'New Process' ) {
+		//			this.addFrame();
+		//			return;	}
+		//		if ( o.itemText === 'New Viewport' ) {
+		//		}
+				if ( o.itemText === 'Save Layout' ) {
+					this.saveApp ( o );
+					return;	}
+				if ( o.itemText === 'Load Layout' ) {
+					this.loadApp ( o );
+					return;	}
 				break;
 			case 'append-menu-items':
 				if ( o.to === 'pane-burger' ) {
@@ -260,7 +406,9 @@ class App extends Component {
 
 	render() {
 		return (
-			<AppFrame clientFnc     = { this.doAll } />
+			<AppFrame appTitle		= 'Robot Records'
+					  appTitleClick	= { this.clickAppTitle }
+					  clientFnc		= { this.doAll } />
 		);
 	}	//	render()
 } //  class App

@@ -15,20 +15,79 @@ class AppContent extends React.Component {
 		this.state = {
 			frames: [],             //  PEs, VPs (what else?) to render
 		};
-		
+
+		this.eleId = 'rr-app-content';
+
 		this.frames = {};			//	PEs, VPs (what else?) code/interfaces.
 
+		this.addFrame 	= this.addFrame.bind ( this );
+		this.addFrames	= this.addFrames.bind ( this );
 		this.doAll 		= this.doAll.bind ( this );
 
 	}   //  constructor()
 
+	addFrame ( o ) {
+		let frame = null, fa = [];
+		frame = <Frame key 				= { o.frameId }
+					   frameName		= { o.frameName }
+					   frameId 			= { o.frameId }
+					   paneId			= { o.paneId }
+					   appFrameFnc 		= { this.props.appFrameFnc } 
+					   appFrameContent	= { this.doAll }
+					   left 			= { o.left }
+					   top				= { o.top }
+					   width 			= { o.width }
+					   height			= { o.height }
+					   iconized			= { o.iconized }
+					   clientFnc		= { this.props.clientFnc } />;
+
+		this.frames[o.frameId] = { frame: 		frame,
+								   ccEleId:		o.ccEleId,
+								   frameFnc:	null,
+								   iconSlot:	null };
+
+		for ( var id in this.frames ) {
+			fa.push ( this.frames[id].frame ); }
+
+		this.setState ( { frames: fa } );
+
+		return o.frameId;
+	}	//	addFrame()
+
+	addFrames ( a ) {
+		let frame = null, fa = [];
+		for ( let i = 0; i < a.length; i++ ) {
+			let o = a[i];
+			frame = <Frame key 				= { o.frameId }
+						   frameName		= { o.frameName }
+						   frameId 			= { o.frameId }
+						   paneId			= { o.paneId }
+						   appFrameFnc 		= { this.props.appFrameFnc } 
+						   appFrameContent	= { this.doAll }
+						   left 			= { o.left }
+						   top				= { o.top }
+						   width 			= { o.width }
+						   height			= { o.height }
+						   iconized			= { o.iconized }
+						   clientFnc		= { this.props.clientFnc } />;
+			this.frames[o.frameId] = { frame: 		frame,
+									   ccEleId:		o.ccEleId,
+									   frameFnc:	null,
+									   iconSlot:	null };
+			fa.push ( frame );
+		}	//	for ( ... )
+
+		this.setState ( { frames: fa } );
+	}	//	addFrames()
+
 	doAll ( o ) {
-		const sW = 'AppContent doAll()'
-		let frame = null;
+		let sW = 'AppContent doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
+		diag ( [1, 2], sW  );
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'frame' ) {
-				diag ( [1], sW + ': set-call-down to frame' );
-				frame = this.frames[o.frameId];
+				let frame = this.frames[o.frameId];
 				if ( ! frame ) {
 					console.log ( sW + ' frame of frameId ' + o.frameId 
 									 + ' not found' );
@@ -37,8 +96,7 @@ class AppContent extends React.Component {
 				return;
 			}
 			if ( o.to === 'client-content' ) {
-				diag ( [1, 2], sW + ': set-call-down to client-content' );
-				frame = this.frames[o.frameId];
+				let frame = this.frames[o.frameId];
 				frame.frameFnc ( o )
 				return;
 			}
@@ -50,34 +108,30 @@ class AppContent extends React.Component {
 					 paneId:	getPaneId() };
 		}
 		if ( o.do === 'add-frame' ) {
-			diag ( [1], sW + ': add-frame' );
-			let fa = [];
-			frame = <Frame key 				= { o.frameId }
-						   frameId 		 	= { o.frameId }
-						   paneId			= { o.paneId }
-						   appFrameFnc 	 	= { this.props.appFrameFnc } 
-						   appFrameContent 	= { this.doAll }
-						   left 			= { o.left }
-						   top				= { o.top }
-						   width 			= { o.width }
-						   height			= { o.height }
-
-						// contentStyle		= { o.parentStyle }
-						// ccEleId			= { o.ccEleId }
-						// clientContent	= { o.content } 
-							 
-						   clientFnc		= { this.props.clientFnc } />;
-
-			this.frames[o.frameId] = { frame: 		frame,
-									   ccEleId:		o.ccEleId,
-									   frameFnc:	null };
-
-			for ( var id in this.frames ) {
-				fa.push ( this.frames[id].frame ); }
-
-			this.setState ( { frames: fa } );
-
-			return o.frameId;
+			return this.addFrame ( o );
+		}
+		if ( o.do === 'add-frames' ) {
+			this.addFrames ( o.frames );
+		}
+		if ( o.do === 'get-state' ) {
+			let state = {}
+			for ( let frameId in this.frames ) {
+				let frm = this.frames[frameId];
+				state[frameId] = {
+					frame:		frm.frameFnc ( o ),
+					iconSlot:	Object.assign ( {}, frm.iconSlot ) } }
+			return state;
+		}
+	//	if ( o.do === 'set-state' ) {
+	//		for ( let frameId in o.state ) {
+	//			let frm = o.state[frameId].frame;
+	//			this.addFrame ( )
+	//		}
+	//	}
+	//	In app.
+		if ( o.do === 'clear' ) {
+			this.frames = {};
+			this.setState ( { frames: [] } );
 		}
 		if ( o.do === 'ensure-frame-z-is-top' ) {
 			//	Put frame o.frameId last to be rendered.
@@ -143,7 +197,8 @@ class AppContent extends React.Component {
 		const sW = 'AppContent render()';
 		diag ( [1], sW );
 		return (
-			<div className = "rr-app-content">
+			<div id 		= { this.eleId }
+				 className 	= "rr-app-content">
 				<div className = "rr-mird-container">
 					<span className = "rr-mird-span">
 						- minimal impedance robot development -
@@ -163,6 +218,7 @@ class AppContent extends React.Component {
 								 fnc:	this.props.appFrameFnc } );
 		this.props.clientFnc ( { do: 	'set-call-down',
 								 to: 	'app-content',
+								 eleId:	this.eleId,
 								 fnc:	this.doAll } );
 	}	//	componentDidMount()
 

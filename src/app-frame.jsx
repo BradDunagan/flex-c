@@ -134,8 +134,10 @@ class AppFrame extends Component {
 			<div className		= 'rr-app-frame'
 				 onMouseMove	= { this.mouseMove } 
 				 onMouseUp		= { this.mouseUp } >
-				<AppHeader clientFnc   = { this.props.clientFnc }
-						   appFrameFnc = { this.doAll } />
+				<AppHeader appTitle			= { this.props.appTitle }
+						   appTitleClick	= { this.props.appTitleClick }
+						   clientFnc   		= { this.props.clientFnc }
+						   appFrameFnc 		= { this.doAll } />
 				<AppContent clientFnc 	= { this.props.clientFnc }
 							appFrameFnc = { this.doAll } />
 				<AppFooter />

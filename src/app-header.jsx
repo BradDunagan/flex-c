@@ -18,12 +18,24 @@ class AppHeader extends React.Component {
 class AppHeaderTitle extends React.Component {
 	constructor ( props ) {
 		super ( props );
+
+		this.doAll			= this.doAll.bind ( this );
 	}
+
+	doAll ( o ) {
+	//	if ( o.do === 'menu-item' ) {
+	//		if ( o.menuItemText === 'New Frame' ) {
+	//			this.nameFrame();
+	//			return; }
+	//		return;
+	//	}
+	}	//	doAll()
 
 	render() {
 		return (
-			<div className = "rr-app-header-title">
-				Robot Records
+			<div className	= "rr-app-header-title"
+				 onClick	= { this.props.appTitleClick } >
+				{ this.props.appTitle }
 			</div>
 		)
 	}
@@ -87,10 +99,17 @@ class AppHeaderMenuBar extends React.Component {
 			<div id 		= "rr-app-header-menu-bar"
 				 className 	= "rr-app-header-menu-bar" >
 				<AppHeaderMenuBarItem eleId		  = { 'rr-ahmbi-1' }
-									  text 		  =	{ 'New Process' } 
+									  text 		  =	{ 'New Frame' } 
 									  clientFnc   = { this.props.clientFnc } />
-				<AppHeaderMenuBarItem eleId		  = { 'rr-ahmbi-2' }
+		{ /* 		<AppHeaderMenuBarItem eleId		  = { 'rr-ahmbi-2' }
 									  text 		  =	{ 'New Viewport' } 
+									  clientFnc   = { this.props.clientFnc } />
+		 */ }
+				<AppHeaderMenuBarItem eleId		  = { 'rr-ahmbi-3' }
+									  text 		  =	{ 'Save Layout' } 
+									  clientFnc   = { this.props.clientFnc } />
+				<AppHeaderMenuBarItem eleId		  = { 'rr-ahmbi-4' }
+									  text 		  =	{ 'Load Layout' } 
 									  clientFnc   = { this.props.clientFnc } />
 			</div>
 		)
@@ -172,7 +191,8 @@ class AppHeader extends React.Component {
 	render() {
 		return ( 
 			<div className = "rr-app-header">
-				<AppHeaderTitle />
+				<AppHeaderTitle appTitle 	  = { this.props.appTitle }
+								appTitleClick = { this.props.appTitleClick } />
 				<AppHeaderMenuBar clientFnc   = { this.props.clientFnc }
 								  appFrameFnc = { this.props.appFrameFnc } />
 				<AppHeaderPID />

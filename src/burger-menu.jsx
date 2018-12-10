@@ -42,11 +42,15 @@ class BurgerMenu extends Component {
 		};
 	}	//	constructor
 
-	click ( ev ) {
+	click ( i, ev ) {
 		let sW = 'BurgerMenu click()';
 		console.log ( sW + '  ' + ev.target.innerText );
 		ev.stopPropagation();
 		this.props.screenFnc ( { do: 'menu-dismiss' } );
+		let item = this.props.items[i];
+		if ( item.fnc ) {
+			item.fnc ( ev ); 
+			return; }
 		this.props.upFnc ( { do: 			this.props.ctx.after,
 							 menuItemText:	ev.target.innerText } );
 	}	//	click()
@@ -84,7 +88,7 @@ class BurgerMenu extends Component {
 			listItems.push ( 
 				<li key		= { i }
 					idx		= { i }
-					onClick	= { this.click } >
+					onClick	= { this.click.bind ( this, i ) } >
 					{ mi.text }
 				</li> );
 		}

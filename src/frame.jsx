@@ -49,6 +49,8 @@ class Frame extends React.Component {
 
 		this.zTop				= this.zTop.bind ( this );
 		this.mouseDown			= this.mouseDown.bind ( this );
+		this.isHeaderVisible	= this.isHeaderVisible.bind ( this );
+		this.isFooterVisible	= this.isFooterVisible.bind ( this );
 		this.burgerClick		= this.burgerClick.bind ( this );
 		this.iconize2			= this.iconize2.bind ( this );
 		this.iconize 			= this.iconize.bind ( this );
@@ -58,24 +60,57 @@ class Frame extends React.Component {
 		this.nameFrameName		= this.nameFrameName.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
-		this.state = {
-			frameName:	'Frame-' + props.frameId,
-			titleBar:
-				<TransientTitleBar frameId		= { props.frameId }
-								   frameEleId	= { this.eleId }
-								   appFnc 		= { this.appFnc }
-								   frameFnc		= { this.doAll }
-								   rootPaneFnc	= { null } />,
-			iconized:	null,
-			style: {
-				left:       props.left,
-				top:        props.top,
-				width:      props.width,
-				height:     props.height,
-			},
-			burgerMenu: null,
-			contentRestoreIncomplete:	false
-		};
+		/*	From persistence - as an icon -
+		*/
+		if ( props.iconized ) {
+			let icon = props.iconized;
+			this.state = {
+				frameName:	  props.frameName 
+							? props.frameName
+							: 'Paneless Frame - ' + props.frameId,
+				titleBar:	null,
+				iconized: {
+					hdrVisible:		icon.hdrVisible,
+					ftrVisible:		icon.ftrVisible,
+					style: {
+						left:		icon.style.left,
+						top: 		icon.style.top,
+						width:		icon.style.width,
+						height:		icon.style.height },
+					iconName: { visibility: 'visible' } }, 
+				style: {
+					left:       props.left,
+					top:        props.top,
+					width:      props.width,
+					height:     props.height,
+				},
+				burgerMenu: null,
+				contentRestoreIncomplete:	false
+			}
+		} else {
+			this.state = {
+				frameName:	  props.frameName 
+							? props.frameName
+							: 'Paneless Frame - ' + props.frameId,
+				titleBar:
+					<TransientTitleBar frameId		= { props.frameId }
+									   frameEleId	= { this.eleId }
+									   appFnc 		= { this.appFnc }
+									   frameFnc		= { this.doAll }
+									   rootPaneFnc	= { null } />,
+				iconized:	null,
+				style: {
+					left:       props.left,
+					top:        props.top,
+					width:      props.width,
+					height:     props.height,
+				},
+				burgerMenu: null,
+				contentRestoreIncomplete:	false
+			};
+		}
+
+
 
 		this.iconSlot		= null;
 		this.contentState 	= null;
@@ -98,6 +133,20 @@ class Frame extends React.Component {
 		this.zTop();
 	}	//	mouseDown()
 
+	isHeaderVisible() {
+		let isHdrVisible = false;
+		if ( this.headerFnc ) {
+			isHdrVisible = this.headerFnc ( { do: 'is-visible' } ); }
+		return isHdrVisible;
+	}	//	isHeaderVisible()
+
+	isFooterVisible() {
+		let isFtrVisible = false;
+		if ( this.footerFnc ) {
+			isFtrVisible = this.footerFnc ( { do: 'is-visible' } ); }
+		return isFtrVisible;
+	}	//	isFooterVisible()
+
 	burgerClick() {
 		let sW = 'Frame burgerClick()';
 	//	console.log ( sW );
@@ -108,26 +157,15 @@ class Frame extends React.Component {
 	//					style = {{ left:	r.x + 'px',
 	//							   top: 	r.y + 'px' }} />
 	//	} );
-		let isHdrVisible = false;
-		if ( this.headerFnc ) {
-			isHdrVisible = this.headerFnc ( { do: 'is-visible' } ); }
-		let itemTextHdr = isHdrVisible ? 'Hide Header' : 'Show Header';
-		let isFtrVisible = false;
-		if ( this.footerFnc ) {
-			isFtrVisible = this.footerFnc ( { do: 'is-visible' } ); }
-		let itemTextFtr = isFtrVisible ? 'Hide Footer' : 'Show Footer';
+		let itemTextHdr = this.isHeaderVisible() ? 'Hide Header' 
+												 : 'Show Header';
+		let itemTextFtr = this.isFooterVisible() ? 'Hide Footer' 
+												 : 'Show Footer';
 		this.appFnc ( { 
 			do: 		'show-menu',
 			menuEleId:	this.eleId + '-burger-menu',
 			menuX:		r.x,
 			menuY:		r.y,
-		//	menuItems:	[ { type: 'item', 		text: 'Tabs' },
-		//				  { type: 'item', 		text: 'UDUI' },
-		//				  { type: 'item', 		text: 'Viewport' },
-		//				  { type: 'item', 		text: 'Process' },
-		//				  { type: 'item', 		text: 'Diagnostics' },
-		//				  { type: 'item', 		text: 'Values' },
-		//				  { type: 'item', 		text: 'Stdout' } ],
 			menuItems:	[ { type: 'item', 		text: 'Frame Name ...' },
 						  { type: 'item', 		text: itemTextHdr },
 						  { type: 'item', 		text: itemTextFtr } ],
@@ -137,13 +175,18 @@ class Frame extends React.Component {
 	}	//	burgerClick()
 
 	iconize2() {
+		let self = this;
 		window.setTimeout ( () => {
-			this.setState ( { iconized: { 
+			let hdrVisible = self.state.iconized.hdrVisible;
+			let ftrVisible = self.state.iconized.ftrVisible;
+			self.setState ( { iconized: { 
+				hdrVisible:	hdrVisible,
+				ftrVisible:	ftrVisible,
 				style: {
 				//	left:		'20px',
 				//	top: 		'20px',
-					left:		this.iconSlot.x + 'px',
-					top: 		this.iconSlot.y + 'px',
+					left:		self.iconSlot.x + 'px',
+					top: 		self.iconSlot.y + 'px',
 					width:		'50px',
 					height:		'60px',
 					transitionProperty: 	'left, top, width, height',
@@ -152,7 +195,7 @@ class Frame extends React.Component {
 					visibility: 	'hidden' },
 				titleBar: null,
 			} } );
-			this.iconSlot = null;
+			self.iconSlot = null;
 		}, 50 );
 	}	//	iconize2()
 
@@ -164,6 +207,8 @@ class Frame extends React.Component {
 		this.contentState = this.rootPaneFnc ( { do: 'get-state' } );
 		this.setState ( { titleBar: null,
 						  iconized: { 
+			hdrVisible:		this.isHeaderVisible(),
+			ftrVisible:		this.isFooterVisible(),
 			style: {
 				left:		this.state.style.left,
 				top: 		this.state.style.top,
@@ -198,12 +243,15 @@ class Frame extends React.Component {
 		//	visiblity on the event that indicates one of the transitions 
 		//	to icon is ended.
 		if ( this.state.iconized.iconName.visibility !== 'visible' ) {
+			let icon = this.state.iconized;
 			this.setState ( { iconized: {
+				hdrVisible:		icon.hdrVisible,
+				ftrVisible:		icon.ftrVisible,
 				style: {
-					left:		this.state.iconized.style.left,
-					top: 		this.state.iconized.style.top,
-					width:		this.state.iconized.style.width,
-					height:		this.state.iconized.style.height,
+					left:		icon.style.left,
+					top: 		icon.style.top,
+					width:		icon.style.width,
+					height:		icon.style.height,
 					transitionProperty: 	'left, top, width, height',
 					transitionDuration:		'200ms' },
 				iconName: { visibility: 'visible' } } 
@@ -216,6 +264,9 @@ class Frame extends React.Component {
 		diagsFlush();
 		diagsPrint ( sW, 2, 2000 );
 		diag ( [2], sW );
+		let iconized = null;
+		if ( this.state.iconized ) {
+			iconized = Object.assign ( {}, this.state.iconized ); }
 		//	First, transition to the frame's position and size.
 		let style = this.state.iconized.style;
 		this.setState ( { iconized: { 
@@ -231,10 +282,20 @@ class Frame extends React.Component {
 			}
 		} } );
 		//	Now, after a delay, restore the frame.
+		let self = this;
 		window.setTimeout ( () => {
-			this.setState ( { iconized: 				null,
-							  contentRestoreIncomplete:	true } );
-			this.zTop();
+			self.setState ( { iconized: 				null,
+							  contentRestoreIncomplete:	true }, () => {
+				if ( iconized ) {
+					if ( self.headerFnc ) {
+						self.headerFnc ( { 
+							do: iconized.hdrVisible ? 'show' : 'hide' } ); }
+					if ( self.footerFnc ) {
+						self.footerFnc ( { 
+							do: iconized.ftrVisible ? 'show' : 'hide' } ); }
+				}
+			} );
+			self.zTop();
 		}, 200 );
 	}	//	clickIcon()
 
@@ -357,21 +418,34 @@ class Frame extends React.Component {
 			this.iconize ( o );
 			return;
 		}
+		if ( o.do === 'get-state' ) {
+			let assign = Object.assign;
+			if ( this.state.iconized ) {
+				return {
+					frameName:	this.state.frameName,
+					frameId:	this.props.frameId,
+					paneId:		this.props.paneId,
+					style:		assign ( {}, this.state.style ),
+					iconized:	assign ( {}, this.state.iconized ) }; }
+			return {
+				frameName:	this.state.frameName,
+				frameId:	this.props.frameId,
+				paneId:		this.props.paneId,
+				style:	  	assign ( {}, this.state.style ) };
+		}
 		if ( o.do === 'split-horz' ) {
 			if ( this.rootPaneFnc ) {
-				this.rootPaneFnc ( o );
-			}
+				this.rootPaneFnc ( o );	}
 			return;
 		}
 		if ( o.do === 'split-vert' ) {
 			if ( this.rootPaneFnc ) {
-				this.rootPaneFnc ( o );
-			}
+				this.rootPaneFnc ( o ); }
 			return;
 		}
 		if ( o.do === 'content-split-horz' ) {
 			if ( this.titleBarFnc ) {
-				this.titleBarFnc ( o ) }
+				this.titleBarFnc ( o ); }
 			return;
 		}
 	//	if ( o.do === 'content-split-drag' ) {

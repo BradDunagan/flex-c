@@ -429,14 +429,14 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 
 .rr-burger-menu ul {
-	margin:				2px 2px 0px 2px;
+	margin:				2px 4px 0px 8px;
 	padding:			0px;
 }
 
 .rr-burger-menu ul li {
 	list-style-type:	none;
 	text-align:			left;
-	margin-bottom:		2px;
+	margin-bottom:		4px;
 	cursor:				pointer;
 }
 
