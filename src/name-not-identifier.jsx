@@ -64,6 +64,7 @@ class NameNotIdentifier extends React.Component {
 						Name:
 					</div>
 					<input className 	= "rr-pe-dlg-name-input"
+						   spellCheck	= { false }
 						   value		= { this.nameText }
 						   onKeyPress 	= { this.keypress }
 						   onChange 	= { this.change }

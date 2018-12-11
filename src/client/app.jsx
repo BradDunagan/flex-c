@@ -17,8 +17,10 @@ class App extends Component {
 	constructor ( props ) {
 		super ( props );
 
+		this.definePaneContent	= this.definePaneContent.bind ( this );
+		this.defineInstall		= this.defineInstall.bind ( this );
 		this.addFrame			= this.addFrame.bind ( this );
-		this.addFrames			= this.addFrames.bind ( this );
+		this.restoreFrames		= this.restoreFrames.bind ( this );
 		this.setCallDown		= this.setCallDown.bind ( this );
 		this.fixPaneId			= this.fixPaneId.bind ( this );
 		this.menuItem			= this.menuItem.bind ( this );
@@ -26,7 +28,6 @@ class App extends Component {
 		this.loadState			= this.loadState.bind ( this );
 		this.saveApp			= this.saveApp.bind ( this );
 		this.loadApp			= this.loadApp.bind ( this );
-		this.definePaneContent	= this.definePaneContent.bind ( this );
 		this.newFrame			= this.newFrame.bind ( this );
 		this.clearLayout		= this.clearLayout.bind ( this );
 		this.clickAppTitle		= this.clickAppTitle.bind ( this );
@@ -36,7 +37,7 @@ class App extends Component {
 		this.appContentEleId = '';
 
 	//	this.newEleIds = [];		//	For initializing new content.
-	//	this.content = {};			//	Content in each pane. Key is eleId.
+		this.frames = {};		//	Frames' functions. Key is freameId.
 		this.content = {};		//	Content in pane. Key is paneId. This
 								//	key must be "fixed" when, for example,
 								//	a pane is split because the content 
@@ -45,18 +46,74 @@ class App extends Component {
 
 	}	//	constructor()
 
+//	definePaneContent ( o, initialized ) {
+//	definePaneContent ( o, paneId ) {
+	definePaneContent ( o, paneId, initialized ) {
+		if ( ! paneId ) {
+			paneId = o.paneId; }
+		const sW = 'App definePaneContent()  paneId ' + paneId;
+		diag ( [1, 2, 3], sW );
+		if ( this.content[paneId] ) {
+			diag ( [], sW + ' ERROR: content is already defined' );
+			return; }
+		let ccEleId = 'rr-cc-' + ++lastCCId;
+		this.content[paneId] = { 
+			frameId:		o.frameId,
+			ccEleId:		ccEleId,
+			paneContentFnc:	o.paneContentFnc ? o.paneContentFnc : null,
+		//	initialized:	false,
+			initialized:	initialized ? initialized : false,
+			install:		null,
+			contentFnc:		null,
+			state:			null };
+		return this.content[paneId];
+	}	//	definePaneContent()
+
+	defineInstall ( typeName, frameId, paneId, ccEleId ) {
+		const sW = 'App defineInstall()  frameId ' + frameId
+									+ '  paneId ' + paneId;
+		diag ( [1, 2, 3], sW );
+	//	if ( ! typeName ) {
+	//		typeName = 'ContentExample1'; }
+	//	switch ( typeName ) {
+	//		case 'ContentExample1':
+	//		case 'Process':
+	//		case 'Viewport':
+	//		case 'BPW':
+	//		default:
+	//	}
+		return {
+			parentStyle:	{ 
+				position:	'relative',
+				overflowY:	'auto' },
+			content: 		(
+				<ContentExample1 
+					frameId			= { frameId }
+					paneId			= { paneId }
+					eleId			= { ccEleId }
+					clientAppFnc 	= { this.doAll }
+					appFrameFnc 	= { this.appFrameFnc }
+					appContentFnc	= { this.appContentFnc } /> ) };
+	}	//	defineInstall()
+	
 	addFrame ( o ) {
 		const sW = 'App addFrame()';
 		diagsFlush();
 		diagsPrint ( sW, 1, 2000 );
 		diag ( [1], sW );
+		//	New frame. The frame initially has one pane for its entire
+		//	content.
 		let ids = 	  (o && o.frameId && o.paneId) 
 					? { frameId: 	o.frameId,
 						paneId:		o.paneId }
 					: this.appContentFnc ( { do: 'get-new-frame-id' } );
 
+		this.frames[ids.frameId] = {};
+
 		this.definePaneContent ( { frameId: ids.frameId,
-								   paneId:	ids.paneId } );
+								   paneId:	ids.paneId }, 0, false );
+
+		//	We don't define the install of the pane's content here.
 
 		this.appContentFnc ( {
 			do:				'add-frame',
@@ -72,58 +129,51 @@ class App extends Component {
 
 	}	//	addFrame()
 
-	addFrames ( a, c ) {
-		const sW = 'App addFrames()';
+	restoreFrames ( pf, pc ) { 	//	Persistent-Frames, Persistent-Content
+		const sW = 'App restoreFrames()';
 	//	diagsFlush();
 	//	diagsPrint ( sW, 1, 2000 );
 	//	diag ( [1], sW );
-
+		this.frames = {};
 		let frames = [];
-		for ( let i = 0; i < a.length; i++ ) {
-			let o = a[i];
-			let ids = 	  (o && o.frameId && o.paneId) 
-						? { frameId: 	o.frameId,
-							paneId:		o.paneId }
-						: this.appContentFnc ( { do: 'get-new-frame-id' } );
+		for ( let i = 0; i < pf.length; i++ ) {
+			let o = pf[i];
+			this.frames[o.frameId] = {};
+			let pcPane = pc[o.paneId];
+		//	let c  = this.definePaneContent ( o );
+			let c  = this.definePaneContent ( o, 0, pcPane.initialized );
+			let tn = pcPane.typeName;
+			if ( tn ) {
+				c.install = this.defineInstall ( tn, o.frameId, 
+													 o.paneId, c.ccEleId ); }
+			c.state = pcPane.state;
+			frames.push ( o );
 
-			let content = this.definePaneContent ( { frameId:	ids.frameId,
-									   				 paneId:	ids.paneId } );
-			if ( c[ids.paneId].install ) {
-				content.install = {
-					parentStyle:	{ 
-						position:	'relative',
-						overflowY:	'auto' },
-					content: 		(
-						<ContentExample1 
-							frameId			= { o.frameId }
-							paneId			= { o.paneId }
-							eleId			= { content.ccEleId }
-							clientAppFnc 	= { this.doAll }
-							appFrameFnc 	= { this.appFrameFnc }
-							appContentFnc	= { this.appContentFnc } /> ) };
-			}
-			content.state = c[ids.paneId].state;
-
-			frames.push ( {
-				frameName:		(o && o.frameName) ? o.frameName : null,
-				frameId:		ids.frameId,
-				paneId:			ids.paneId,
-				left:			(o && o.left)   ? o.left   : '40px',
-				top:			(o && o.top)    ? o.top    : '20px',
-				width:			(o && o.width)  ? o.width  : '400px',
-				height:			(o && o.height) ? o.height : '400px',
-				iconized:		(o && o.iconized) ? o.iconized : null,
-			} );
+			//	Define the content of frame's main pane's subpanes (of splits).
+			for ( let id in pc ) {
+				let paneId = Number.parseInt ( id );
+				if ( paneId === o.paneId ) {
+					continue; }
+				pcPane = pc[paneId];
+				if ( pcPane.frameId !== o.frameId ) {
+					continue; }
+				c  = this.definePaneContent ( o, paneId, pcPane.initialized );
+				tn = pcPane.typeName;
+				if ( tn ) {
+					c.install = this.defineInstall ( tn, 
+													 o.frameId, 
+													 paneId, c.ccEleId ); }
+				c.state = pcPane.state;
+			}	//	for ( paneId ... )
 		}	//	for ( ... )
 
 		this.appContentFnc ( { do:		'add-frames',
 							   frames:	frames } );
 
-	}	//	addFrames()
+	}	//	restoreFrames()
 
 	setCallDown ( o ) {
 		let sW = 'App setCallDown() ' + o.to;
-		diag ( [1, 2, 3], sW );
 		if ( o.to === 'app-frame' ) {
 			this.appFrameFnc = o.fnc;
 			return; }
@@ -138,6 +188,9 @@ class App extends Component {
 			return;
 		}
 		if ( o.to === 'pane-content' ) {
+			//	A pane has just been mounted. 
+			//	Getting the pane's content function and installing the client 
+			//	specific content (if it has been defined).
 			let content = this.content[o.paneId];
 			if ( ! content ) {
 				diag ( [], sW + ' set-call-down to pane-content'
@@ -145,10 +198,10 @@ class App extends Component {
 							  + ' (' + o.paneId + ')' );
 				return; }
 			content.paneContentFnc = o.fnc;
-			if ( content.install ) {
+			if ( content.install ) {			//	Client content defined?
 				content.paneContentFnc ( Object.assign ( 
-					{ do: 'install-client-content' }, 
-					content.install ) ); }
+					{ do: 'install-client-content' }, content.install ) );
+				return; }
 			return;
 		}
 		if ( o.to === 'client-content' ) {
@@ -160,12 +213,25 @@ class App extends Component {
 							  + ' (' + o.paneId + ')' );
 				return; }
 			content.contentFnc = o.fnc;
+			if ( content.state && content.state.ccState ) {
+				content.contentFnc ( { do: 		'set-state',
+									   state:	content.state.ccState } );
+				return;	}
 			if ( ! content.initialized ) {
 				content.contentFnc ( { do: 'init-new' } );
 				content.initialized = true;
 			}
 			return;
 		}
+		if ( o.to === 'frame' ) {
+			let f = this.frames[o.frameId];
+			if ( ! f ) {
+				f = this.frames[o.frameId] = {}; }
+			f.frameFnc = o.frameFnc;
+			let c = this.content[o.paneId];
+			if ( c.state && (c.state.splitHorz || c.state.splitVert) ) {
+				f.frameFnc ( { do: 'set-state' } ); }
+			return; }
 	}	//	setCallDown()
 
 	fixPaneId ( o ) {
@@ -182,13 +248,14 @@ class App extends Component {
 			let c = content.install.content;
 			//	Note that the component name is in c.type.name which in this
 			//	case is (for now) assumed to be ContentExample1.
-			content.install.content = ( <ContentExample1 
-				frameId			= { c.props.frameId }
-				paneId			= { o.newPaneId }
-				eleId			= { content.ccEleId }
-				clientAppFnc 	= { this.doAll }
-				appFrameFnc 	= { this.appFrameFnc }
-				appContentFnc	= { this.appContentFnc } /> ) }
+			content.install.content = ( 
+				<ContentExample1 
+					frameId			= { c.props.frameId }
+					paneId			= { o.newPaneId }
+					eleId			= { content.ccEleId }
+					clientAppFnc 	= { this.doAll }
+					appFrameFnc 	= { this.appFrameFnc }
+					appContentFnc	= { this.appContentFnc } /> ) }
 
 		if ( o.reason === 'split' ) {
 			//	The current pane is now split.  We need to maintain a content
@@ -200,34 +267,21 @@ class App extends Component {
 	menuItem ( o ) {
 		let sW = 'App menuItem() ' + o.menuItemText;
 		diag ( [1, 2, 3], sW );
+
+		//	Probably a menu item to set a Process or Viewport (something client
+		//	specific) in a new pane.
+
 		//	Install (uninitialized) client content in a vacant pane.
+		//
 		let content = this.content[o.paneId];
 		if ( ! content ) {
-		//	let ccEleId = 'rr-cc-' + ++lastCCId;
-		//	content = this.content[o.paneId] = {
-		//		frameId:		o.frameId,
-		//		ccEleId:		ccEleId,
-		//		paneContentFnc:	o.paneContentFnc,
-		//		initialized:	false,
-		//		install:		null,
-		//		contentFnc:		null }; 
-			content = this.definePaneContent ( o ); }
-		content.install = {
-			parentStyle:	{ 
-				position:	'relative',
-				overflowY:	'auto' },
-			content: 		(
-				<ContentExample1 
-					frameId			= { o.frameId }
-					paneId			= { o.paneId }
-					eleId			= { content.ccEleId }
-					clientAppFnc 	= { this.doAll }
-					appFrameFnc 	= { this.appFrameFnc }
-					appContentFnc	= { this.appContentFnc } /> ) };
+			content = this.definePaneContent ( o, 0, false ); }
+		content.install = this.defineInstall ( null, o.frameId, 
+													 o.paneId, 
+													 content.ccEleId );
 
 		content.paneContentFnc ( Object.assign ( 
-			{ do: 'install-client-content' }, 
-			content.install ) );
+			{ do: 'install-client-content' }, content.install ) );
 	}	//	menuItem()
 
 	storeState ( o ) {
@@ -259,8 +313,17 @@ class App extends Component {
 	saveApp ( o ) {
 		const sW = 'App saveApp()';
 		diag ( [1, 2, 3], sW );
-		let state = this.appContentFnc ( { do: 'get-state' } )
-		state.content = this.content;
+		let state = this.appContentFnc ( { do: 'get-state' } );
+		let c = state.content = Object.assign ( {}, this.content );
+		for ( let paneId in c ) {
+			let pc = c[paneId];
+			if ( pc.install ) {
+				pc.typeName = pc.install.content.type.name; }
+			else {
+				pc.typeName = null; }
+			
+			delete pc.install;
+		}
 		db.addLayout ( { SystemID: 		0,
 						 UserID:		0,
 						 LayoutName:	'test',
@@ -269,18 +332,22 @@ class App extends Component {
 
 	async loadApp ( o ) {
 		const sW = 'App loadApp()';
-		diag ( [1, 2, 3], sW );
+		diagsFlush();
+		diagsPrint ( sW, 1, 2000 );
+		diag ( [1], sW );
 		this.appContentFnc ( { do: 'clear' } );
 		let record = await db.loadLayout ( [0, 0, 'test'] );
 		let state = JSON.parse ( record.json );
-	//	this.content = state.content;
-	//	delete state.content;
+		this.appContentFnc ( { 
+			do: 	'set-state',	//	This 'set-state' command only restores 
+			state:	state } );		//	frameId and paneId counters.
+		//	Here we restore the frames and panes.
 		this.content = {};
 		let frames = [];
-		for ( let frameId in state ) {
+		for ( let frameId in state.frames ) {
 			if ( frameId === 'content' ) {
 				continue; }
-			let frm = state[frameId].frame;
+			let frm = state.frames[frameId].frame;
 			frames.push ( {
 				frameName:	frm.frameName,
 				frameId:	frm.frameId,
@@ -290,29 +357,9 @@ class App extends Component {
 				width:		frm.style.width,
 				height:		frm.style.height,
 				iconized:	frm.iconized ? frm.iconized : null,
-			} );
-		}
-
-		this.addFrames ( frames, state.content );
+			} ); }
+		this.restoreFrames ( frames, state.content );
 	}	//	loadApp():
-
-	definePaneContent ( o ) {
-		const sW = 'App definePaneContent()  paneId ' + o.paneId;
-		diag ( [1, 2, 3], sW );
-		if ( this.content[o.paneId] ) {
-			diag ( [], sW + ' ERROR: content is already defined' );
-			return; }
-		let ccEleId = 'rr-cc-' + ++lastCCId;
-		this.content[o.paneId] = { 
-			frameId:		o.frameId,
-			ccEleId:		ccEleId,
-			paneContentFnc:	o.paneContentFnc ? o.paneContentFnc : null,
-			initialized:	false,
-			install:		null,
-			contentFnc:		null,
-			state:			null };
-		return this.content[o.paneId];
-	}	//	definePaneContent()
 
 	newFrame ( ev ) {
 		const sW = 'App newFrame()';
@@ -323,6 +370,7 @@ class App extends Component {
 	clearLayout ( ev ) {
 		const sW = 'App clearLayout()';
 		console.log ( sW );
+		this.frames = {};
 		this.content = {};
 		this.appContentFnc ( { do: 'clear' } );
 	}	//	clearLayout()
@@ -357,6 +405,8 @@ class App extends Component {
 
 	doAll ( o ) {
 		let sW = 'App doAll() ' + o.do;
+		if ( o.to ) {
+			sW += ' to ' + o.to; }
 		diag ( [1, 2, 3], sW );
 		switch ( o.do ) {
 			case 'set-call-down':
@@ -397,7 +447,7 @@ class App extends Component {
 			case 'load-state':
 				return this.loadState ( o );
 			case 'define-pane-content':
-				this.definePaneContent ( o );
+				this.definePaneContent ( o, 0, false );
 				break;
 			default:
 				diag ( [], sW + ' ERROR: unrecognized command ' + o.do );

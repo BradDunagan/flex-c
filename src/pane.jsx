@@ -19,6 +19,14 @@ function getPaneId() {
 	return ++lastPaneId;
 }
 
+function getLastPaneId() {
+	return lastPaneId;
+}
+
+function setLastPaneId ( paneId ) {
+	lastPaneId = paneId;
+}
+
 // Helper function determines which prefixes of CSS calc we need.
 // We only need to do this once on startup, when this anonymous function is called.
 //
@@ -207,8 +215,8 @@ class Pane extends React.Component {
 		sp.pe = document.getElementById ( this.contentEleId );
 
 		//  Copy the current contents.
-		sp.pet = sp.pe.textContent.trim()
-		sp.pec = Array.from ( sp.pe.children );
+	//	sp.pet = sp.pe.textContent.trim()
+	//	sp.pec = Array.from ( sp.pe.children );
 
 		//  Delete the current contents.
 		sp.pe.textContent = '';
@@ -255,8 +263,8 @@ class Pane extends React.Component {
 				left: {
 					eleId: 			this.eleId + '-lft-' + lftPaneId,
 					class: 			'split split-horizontal pane',
-					pet: 			sp.pet,
-					pec: 			sp.pec,
+				//	pet: 			sp.pet,
+				//	pec: 			sp.pec,
 					paneId:			lftPaneId,
 					paneFnc: 		null,
 				//	contentStyle:	this.state.contentStyle,
@@ -325,8 +333,8 @@ class Pane extends React.Component {
 				top: {
 					eleId: 			this.eleId + '-top-' + topPaneId,
 					class: 			'split split-vertical pane',
-					pet: 			sp.pet,
-					pec: 			sp.pec,
+				//	pet: 			sp.pet,
+				//	pec: 			sp.pec,
 					paneId:			topPaneId,
 					paneFnc: 		null,
 				//	contentStyle:	this.state.contentStyle,
@@ -615,10 +623,16 @@ class Pane extends React.Component {
 				state.tabsState = this.tabsFnc ( o );
 			} else {
 				state.tabsState = false; }
-			state.eleData = Object.assign ( {}, this.eleData );
-			let d = state.eleData[pe.id];
-			if ( d ) {
-				d.split.sizes = d.split.instance.getSizes(); }
+		//	state.eleData = Object.assign ( {}, this.eleData );
+		//	let d = state.eleData[pe.id];
+		//	if ( d ) {
+		//		d.split.sizes = d.split.instance.getSizes(); }
+			state.eleData = {};
+			let d = this.eleData[pe.id];
+			if ( d && d.split ) {
+				state.eleData.splitSizes = d.split.instance.getSizes(); }
+			else {
+				state.eleData.splitSizes = null; }
 
 		//	return state;
 			this.props.clientFnc ( { do: 		'store-state',
@@ -660,8 +674,12 @@ class Pane extends React.Component {
 				delete state.ccState;
 			}
 			
-			this.eleData = Object.assign ( {}, state.eleData );
-			delete state.eleData;
+		//	this.eleData = Object.assign ( {}, state.eleData );
+		//	delete state.eleData;
+			let d = this.eleData[this.eleId] = {};
+			if ( state.eleData.splitSizes ) {
+				d.splitSizes = state.eleData.splitSizes; }
+
 			let tabsState = state.tabsState;
 			delete state.tabsState;
 			let self = this;
@@ -982,8 +1000,10 @@ class Pane extends React.Component {
 
 			//	Add the gutter <div>.
 			let d = this.eleData[pe.id];
-			if ( d && d.split && d.split.sizes )
-				sh.opts.sizes = d.split.sizes;
+		//	if ( d && d.split && d.split.sizes )
+		//		sh.opts.sizes = d.split.sizes;
+			if ( d && d.splitSizes )
+				sh.opts.sizes = d.splitSizes;
 			let split = Split ( ['#' + sh.left.eleId, 
 								 '#' + sh.right.eleId], 
 								sh.opts );
@@ -1038,8 +1058,10 @@ class Pane extends React.Component {
 
 			//	Add the gutter <div>.
 			let d = this.eleData[pe.id];
-			if ( d && d.split && d.split.sizes )
-				sv.opts.sizes = d.split.sizes;
+		//	if ( d && d.split && d.split.sizes )
+		//		sv.opts.sizes = d.split.sizes;
+			if ( d && d.splitSizes )
+				sv.opts.sizes = d.splitSizes;
 			let split = Split ( ['#' + sv.top.eleId, 
 								 '#' + sv.bottom.eleId], 
 								sv.opts );
@@ -1100,4 +1122,4 @@ class Pane extends React.Component {
 
 }   //  class Pane
 
-export { Pane as default, getPaneId };
+export { Pane as default, getPaneId, getLastPaneId, setLastPaneId };

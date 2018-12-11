@@ -420,6 +420,7 @@ class Frame extends React.Component {
 		}
 		if ( o.do === 'get-state' ) {
 			let assign = Object.assign;
+			this.rootPaneFnc ( o );		//	update pane's state in app store
 			if ( this.state.iconized ) {
 				return {
 					frameName:	this.state.frameName,
@@ -432,6 +433,10 @@ class Frame extends React.Component {
 				frameId:	this.props.frameId,
 				paneId:		this.props.paneId,
 				style:	  	assign ( {}, this.state.style ) };
+		}
+		if ( o.do === 'set-state' ) {
+			this.rootPaneFnc ( o );		//	get state from app store
+			return;
 		}
 		if ( o.do === 'split-horz' ) {
 			if ( this.rootPaneFnc ) {
@@ -566,6 +571,12 @@ class Frame extends React.Component {
 	componentDidMount() {
 		const sW = this.props.frameId + ' Frame componentDidMount()';
 		diag ( [1, 2], sW );
+
+		this.props.clientFnc ( { do: 		'set-call-down',
+								 to:		'frame',
+								 frameId:	this.props.frameId,
+								 paneId:	this.props.paneId,
+								 frameFnc:	this.doAll } );
 
 		this.props.appFrameContent ( { do: 			'set-call-down',
 									   to:			'frame',

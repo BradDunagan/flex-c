@@ -49,9 +49,10 @@ class FrameIconize extends Component {
 	render() {
 		let sW = this.props.frameId + ' FrameIconize render()';
 		diag ( [4], sW );
+		let cn = this.props.class ? this.props.class : "frame-iconize";
 		return (
 			<img id			= { this.eleId }
-				 className	= "frame-iconize"
+				 className	= { cn }
 				 src		= "/images/frame_iconize_lite_18x18.png" 
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }

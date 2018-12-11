@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import Frame			from './frame';
-import { getPaneId }	from './pane';
+import { getPaneId, getLastPaneId, setLastPaneId }	from './pane';
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';
 
@@ -114,21 +114,22 @@ class AppContent extends React.Component {
 			this.addFrames ( o.frames );
 		}
 		if ( o.do === 'get-state' ) {
-			let state = {}
+			let state = { lastFrameId: 	lastFrameId,
+						  lastPaneId:	getLastPaneId(),
+						  frames:		{} };
 			for ( let frameId in this.frames ) {
 				let frm = this.frames[frameId];
-				state[frameId] = {
+				state.frames[frameId] = {
 					frame:		frm.frameFnc ( o ),
 					iconSlot:	Object.assign ( {}, frm.iconSlot ) } }
 			return state;
 		}
-	//	if ( o.do === 'set-state' ) {
-	//		for ( let frameId in o.state ) {
-	//			let frm = o.state[frameId].frame;
-	//			this.addFrame ( )
-	//		}
-	//	}
-	//	In app.
+		if ( o.do === 'set-state' ) {
+			lastFrameId = o.state.lastFrameId;
+			setLastPaneId ( o.state.lastPaneId );
+			//	The rest is done by the app.
+			return;
+		}
 		if ( o.do === 'clear' ) {
 			this.frames = {};
 			this.setState ( { frames: [] } );
@@ -201,7 +202,8 @@ class AppContent extends React.Component {
 				 className 	= "rr-app-content">
 				<div className = "rr-mird-container">
 					<span className = "rr-mird-span">
-						- minimal impedance robot development -
+						<p>- robots work better with more data -</p>
+						<p>- minimal impedance robot development -</p>
 					</span>
 				{this.state.frames}
 				</div>

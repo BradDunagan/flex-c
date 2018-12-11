@@ -105,7 +105,8 @@ Absolute positioning elements within scrollable div
 https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-scrollable-div 
 */
 .rr-app-content {
-	background-color:	cadetblue;
+/*	background-color:	cadetblue;							*/
+	background-color:	white;
 	flex: 1 1 		auto;
 	border-top:     solid 1px lightsteelblue;
 	border-bottom:  solid 1px lightsteelblue;
@@ -124,9 +125,15 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 .rr-mird-span {
 	color:          lightgray;
-	font-family: 	source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-					monospace;
+/*	font-family: 	source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+					monospace;												*/
+/*	font-family:    sans-serif, 'Roboto';									*/
 	letter-spacing: 1px;
+	cursor:			default;
+}
+
+.rr-mird-span p {
+	margin:			0px;
 }
 
 .rr-app-footer {
@@ -168,19 +175,50 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	min-height:         18px;
 	border-bottom:      solid 1px black;
 */
+	display:			flex;
+	flex-direction:		row;
 	width:				100%;
 	height:				18px;
 	border-bottom:      solid 1px gray;
+	overflow-x: 		hidden;
+}
+
+.frame-title-bar-burger-menu {
+	width: 			18px;
+	flex:			0 1 auto;
+	left:			1px;
+	top: 			0px;
+	cursor: 		pointer;
 }
 
 .rr-frame-title {
-	position: 			absolute;
-	left:				32px;
-	top: 				1px;
+	flex: 				1 1 auto;
+	overflow-x: 		hidden;
+	text-align: 		left;
+	text-overflow: 		ellipsis;
+	white-space: 		nowrap;
+	padding-left: 		5px;
+	margin-right: 		5px;
+	margin-top: 		1px;
 	font-family:		sans-serif, 'Roboto';
 	font-size:			14px;
 	cursor:				inherit;
 }
+
+.frame-title-bar-iconize {
+	margin-right:	4px;
+	width: 			18px;
+	flex:			0 1 auto;
+	cursor: 		pointer;
+}
+
+.frame-title-bar-destroy {
+	margin-right:	2px;
+	width: 			18px;
+	flex:			0 1 auto;
+	cursor: 		pointer;
+}
+
 
 .rr-pe-frame-content {
 	display:            flex;

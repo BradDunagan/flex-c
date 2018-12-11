@@ -49,9 +49,10 @@ class FrameBurgerMenu extends Component {
 	render() {
 		let sW = this.props.frameId + ' FrameBurgerMenu render()';
 		diag ( [4], sW );
+		let cn = this.props.class ? this.props.class : "frame-burger-menu";
 		return (
 			<img id			= { this.eleId }
-				 className	= "frame-burger-menu"
+				 className	= { cn }
 				 src		= "/images/burger_lite_18x18.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }

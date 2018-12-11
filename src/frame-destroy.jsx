@@ -48,9 +48,10 @@ class FrameDestroy extends Component {
 	render() {
 		let sW = this.props.frameId + ' FrameDestroy render()';
 		diag ( [4], sW );
+		let cn = this.props.class ? this.props.class : "frame-destroy";
 		return (
 			<img id			= { this.eleId }
-				 className	= "frame-destroy"
+				 className	= { cn }
 				 src		= "/images/frame_destroy_lite_18x18.png" 
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }

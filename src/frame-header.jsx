@@ -41,15 +41,18 @@ class FrameHeader extends React.Component {
 		return (
 			<div className	= "rr-pe-frame-title-bar"
 				 style		= { this.state.style } >
-				<FrameBurgerMenu frameId	= { this.props.frameId }
+				<FrameBurgerMenu class		= "frame-title-bar-burger-menu"
+								 frameId	= { this.props.frameId }
 								 frameFnc 	= { this.props.frameFnc } />
 				<FrameTitle frameId		= { this.props.frameId }
 							titleText	= { this.props.frameName }
 							frameFnc	= { this.props.frameFnc } />
-				<FrameDestroy frameId		= { this.props.frameId }
-							  frameFnc 		= { this.props.frameFnc } />
-				<FrameIconize frameId		= { this.props.frameId }
-							  frameFnc 		= { this.props.frameFnc } />
+				<FrameIconize class 	= "frame-title-bar-iconize"
+							  frameId	= { this.props.frameId }
+							  frameFnc 	= { this.props.frameFnc } />
+				<FrameDestroy class 	= "frame-title-bar-destroy"
+							  frameId	= { this.props.frameId }
+							  frameFnc 	= { this.props.frameFnc } />
 			</div>
 		);
 	}	//  render()

@@ -38,8 +38,7 @@ class AppDialog extends React.Component {
 //				);
 			case 'dlg-name':
 				return (
-					<div className	= "rr-app-screen-dialog"
-						 onClick	= { this.click } >
+					<div className	= "rr-app-screen-dialog" >
 						<DlgName appFrameFnc =	{ this.props.upFncAppFrame }
 								 upFnc = 		{ this.props.upFnc }
 								 ctx = 			{ this.props.ctx }/>
