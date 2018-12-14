@@ -4,11 +4,11 @@
 
 */
 
-import React		from 'react';
+import React			from 'react';
 
-import PaneContent	from './pane-content';
-import { ButtonBar, nextBtnBarId } 		from './button-bar';
-import Split 		from 'split.js'
+import PaneContent		from './pane-content';
+import PaneButtenBar 	from './pane-button-bar';
+import Split 			from 'split.js'
 
 import {diag, diagsFlush, diagsPrint} 	from './diags';
 
@@ -61,8 +61,6 @@ class Pane extends React.Component {
 		}
 		
 		this.contentEleId		= this.eleId + '-content';
-		this.buttonBarId		= 0;
-		this.buttonBarEleId 	= this.eleId + '-button-bar';
 
 		this.burgerClick			= this.burgerClick.bind ( this );
 		this.myElementStyleFnc		= this.myElementStyleFnc.bind ( this );
@@ -75,7 +73,6 @@ class Pane extends React.Component {
 		this.propagateDown_SizeOp 	= this.propagateDown_SizeOp.bind ( this );
 		this.doAll 					= this.doAll.bind ( this );
 
-		this.sizeButtonBar			= this.sizeButtonBar.bind ( this );
 
 		this.state = {
 			style: props.tabId ? props.style : {
@@ -94,8 +91,6 @@ class Pane extends React.Component {
 			tabs:			props.tabs ? true : false,
 		};
 
-	//	this.width = 0;
-		this.buttonBarFnc	= null;
 		this.tabsFnc 		= null;
 	//	this.tabPagesFnc	= null;
 		this.tabPagePanes	= {};		//	keyed by tab ID
@@ -131,9 +126,6 @@ class Pane extends React.Component {
 									   to:			'tab-page-pane',
 									   tabId:		this.props.tabId,
 									   tabPaneFnc:	this.doAll } ); }
-			if ( ! this.props.atFrameTop ) {
-				this.buttonBarId = nextBtnBarId();
-			}
 		}
 	}	//  constructor()
 
@@ -230,11 +222,7 @@ class Pane extends React.Component {
 		diagsPrint ( sW, [2, 3], 2000 );
 		diag ( 2, sW );
 
-		if ( this.props.atFrameTop && this.buttonBarFnc ) {
-		//	this.props.frameFnc ( { do: 		'remove-pane-btn-bar',
-		//							bbEleId:	this.buttonBarEleId } );
-		//	Done in PaneButtonBarsContainer.
-			this.buttonBarEleId = null; }
+		this.props.frameFnc ( { do: 'hide-transient-header' } );
 
 		this.doAll ( { do: 'get-state' } );
 
@@ -246,7 +234,8 @@ class Pane extends React.Component {
 			do:			'fix-pane-id',
 			curPaneId:	this.props.paneId,
 			newPaneId:	lftPaneId,
-			reason:		'split'
+			reason:		'split',
+			frameId:	this.props.frameId
 		} );
 		this.props.clientFnc ( {
 			do:			'define-pane-content',
@@ -292,8 +281,6 @@ class Pane extends React.Component {
 				},
 				incomplete: 	true }
 		} );
-
-		this.buttonBarFnc = null;
 	}	//	splitHorz()
 
 	splitVert ( o ) {
@@ -301,6 +288,8 @@ class Pane extends React.Component {
 		diagsFlush();
 		diagsPrint ( sW, [2, 3], 2000 );
 		diag ( 2, sW );
+
+		this.props.frameFnc ( { do: 'hide-transient-header' } );
 
 		this.doAll ( { do: 'get-state' } );
 
@@ -312,7 +301,8 @@ class Pane extends React.Component {
 			do:			'fix-pane-id',
 			curPaneId:	this.props.paneId,
 			newPaneId:	topPaneId,
-			reason:		'split'
+			reason:		'split',
+			frameId:	this.props.frameId
 		} );
 		this.props.clientFnc ( {
 			do:			'define-pane-content',
@@ -366,7 +356,6 @@ class Pane extends React.Component {
 				incomplete: 	true, }
 		} );
 
-		this.buttonBarFnc = null;
 	//	this.ccEleId	  = null;
 	}	//	splitVert()
 
@@ -456,10 +445,6 @@ class Pane extends React.Component {
 			if ( o.to === 'tab-page-pane' ) {
 				this.tabPagePanes[o.tabId] = { paneFnc:	o.tabPaneFnc };
 			}
-			if ( o.to === 'button-bar' ) {
-				this.buttonBarFnc 	= o.bbFnc; 
-				this.buttonBarEleId = o.bbEleId;
-			}
 			if ( o.to === 'client-content' ) {
 				if ( o.paneId === this.props.paneId ) {
 					this.ccFnc = o.fnc; 		//	Client Content
@@ -519,10 +504,6 @@ class Pane extends React.Component {
 				return;
 			}
 		}	//	if ( o.do === 'set-call-down-correct' ) 
-	//	if ( o.do === 'button-bar-call-down' ) {
-	//		this.buttonBarFnc = o.buttonBarFnc;
-	//		return;
-	//	}
 		if ( o.do === 'pane-burger-click' ) {
 			if ( this.ccFnc ) {
 				this.ccFnc ( { do: 			o.do,
@@ -577,22 +558,10 @@ class Pane extends React.Component {
 				o.visitedPanes[this.props.paneId] = true; }
 
 		//	this.width += o.dX;
-			if ( this.props.tabId ) {
-			//	this.sizeByTabPage ( o );
-				this.sizeButtonBar(); }
-			this.sizeButtonBar();
 			this.propagateDown_SizeOp ( o );
 			return;
 		}
 		if ( o.do === 'splitter-dragged' ) {
-			this.sizeButtonBar();
-		//	let cs = this.state.containerStyle;
-		//	if ( cs ) {
-		//		let e  = document.getElementById ( this.eleId );
-		//		let pe = e.parentElement;
-		//		this.setState ( { containerStyle: { 
-		//			width: '100%', 
-		//			height: pe.offsetHeight + 'px' } } ); }
 			this.propagateDown_SizeOp ( o );
 			return;
 		}
@@ -764,8 +733,6 @@ class Pane extends React.Component {
 						  frameFnc		= { this.props.frameFnc } 
 						  parentFnc 	= { this.doAll } 
 						  atFrameTop	= { this.props.atFrameTop }
-					//	  contentStyle	= { lft.contentStyle }
-					//	  clientContent	= { lft.clientContent } />
 						  clientFnc		= { this.props.clientFnc } />
 					<Pane frameId 		= { this.props.frameId }
 					   	  paneId		= { rgt.paneId }
@@ -775,8 +742,6 @@ class Pane extends React.Component {
 						  frameFnc		= { this.props.frameFnc } 
 						  parentFnc 	= { this.doAll } 
 						  atFrameTop	= { this.props.atFrameTop } 
-					//	  contentStyle	= { rgt.contentStyle } 
-					//	  clientContent	= { rgt.clientContent } />
 						  clientFnc		= { this.props.clientFnc } />
 				</div>
 			); }
@@ -799,9 +764,6 @@ class Pane extends React.Component {
 							  frameFnc		= { this.props.frameFnc } 
 							  parentFnc 	= { this.doAll } 
 							  atFrameTop	= { this.props.atFrameTop }
-						//	  contentStyle	= { top.contentStyle }
-						//	  ccEleId		= { top.ccEleId }
-						//	  clientContent	= { top.clientContent } 
 							  clientFnc		= { this.props.clientFnc } />
 						<Pane frameId 		= { this.props.frameId }
 					   	  	  paneId		= { bot.paneId }
@@ -811,8 +773,6 @@ class Pane extends React.Component {
 							  frameFnc		= { this.props.frameFnc } 
 							  parentFnc 	= { this.doAll } 
 							  atFrameTop	= { false } 
-						//	  contentStyle	= { bot.contentStyle }
-						//	  clientContent	= { bot.clientContent } 
 							  clientFnc		= { this.props.clientFnc } />
 					</div>
 				</div>
@@ -851,6 +811,10 @@ class Pane extends React.Component {
 								//	 style	 = { this.state.contentStyle }
 								//	 content = { this.state.clientContent } 
 									 clientFnc	= { this.props.clientFnc } />
+						<PaneButtenBar atFrameTop	= { this.props.atFrameTop } 
+									   bbId			= { this.props.paneId }
+									   paneFnc		= { this.doAll } 
+									   frameFnc 	= { this.props.frameFnc } />
 					</div>
 				); 
 			} else {
@@ -882,14 +846,11 @@ class Pane extends React.Component {
 					   	  	  		 paneId		= { this.props.paneId }
 					  				 paneFnc	= { this.doAll }
 									 frameFnc 	= { this.props.frameFnc } 
-								//	 style	 = { this.state.contentStyle }
-								//	 content = { this.state.clientContent }
 									 clientFnc	= { this.props.clientFnc } />
-						<ButtonBar bbId				= { this.buttonBarId }
-								   eleId			= { this.buttonBarEleId }
-								   containerFnc		= { null }
-								   paneFnc			= { this.doAll }
-								   isForRootPane	= { false } />
+						<PaneButtenBar atFrameTop	= { this.props.atFrameTop } 
+									   bbId			= { this.props.paneId }
+									   paneFnc		= { this.doAll } 
+									   frameFnc 	= { this.props.frameFnc } />
 					</div>
 				); 
 			}
@@ -902,6 +863,7 @@ class Pane extends React.Component {
 					className 	= { this.class }
 					style 		= { this.state.style } >
 					<PaneContent eleId 		= { this.contentEleId } 
+								 atFrameTop	= { this.props.atFrameTop }
 								 peId		= { this.props.peId }
 								 frameId 	= { this.props.frameId }
 					   	  	  	 paneId		= { this.props.paneId }
@@ -912,22 +874,6 @@ class Pane extends React.Component {
 				</div>
 			);
 		}
-	//	console.log ( 'Pane render()' );
-		/*
-		return (
-			<div id 		= { this.eleId }
-				 className 	= { this.class }
-				 style 		= { this.state.style } >
-				<PaneContent eleId 		= { this.contentEleId } 
-							 peId		= { this.props.peId }
-							 paneFnc	= { this.doAll }
-							 frameFnc 	= { this.props.frameFnc } />
-				<ButtonBar eleId		= { this.buttonBarEleId }
-						   containerFnc	= { null }
-						   paneFnc		= { this.doAll } />
-			</div>
-		);
-		*/
 		diag ( [1, 2], sW + ' no split, no parent');
 		return (
 			<div id 		= { this.eleId }
@@ -939,30 +885,14 @@ class Pane extends React.Component {
 					   	  	 paneId		= { this.props.paneId }
 							 paneFnc	= { this.doAll }
 							 frameFnc 	= { this.props.frameFnc } 
-
-						//	 style		= { this.state.contentStyle }
-						//	 content	= { this.state.clientContent } 
-							 
 							 clientFnc	= { this.props.clientFnc } />
+				<PaneButtenBar atFrameTop	= { this.props.atFrameTop } 
+							   bbId			= { this.props.paneId }
+							   paneFnc		= { this.doAll } 
+							   frameFnc 	= { this.props.frameFnc } />
 			</div>
 		);
 	}   //  render()
-
-	sizeButtonBar() {
-		if ( ! this.props.atFrameTop ) {
-			let e  = document.getElementById ( this.eleId );
-			let bb = document.getElementById ( this.buttonBarEleId );
-			if ( e && bb ) {
-			//	console.log ( 'e && bb' );
-				bb.style.width = e.offsetWidth + 'px'; }
-		} else {
-			if ( this.buttonBarFnc ) {
-				let pe = document.getElementById ( this.eleId );
-				this.buttonBarFnc ( { do: 		'set-left-and-width',
-									  left: 	pe.offsetLeft,
-									  width:	pe.offsetWidth } ); }
-		}
-	}	//	sizeButtonBar()
 
 	componentDidMount() {
 		const sW = 'Pane ' + this.props.paneId + ' componentDidMount()';
@@ -972,36 +902,23 @@ class Pane extends React.Component {
 			this.props.frameFnc ( { do:		'set-call-down',
 									to:		'root-pane',
 									fnc:	this.doAll } ); }
-
-		this.sizeButtonBar();
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
 		const sW = 'Pane ' + this.props.paneId + '  componentDidUpdate()';
 		diag ( [1, 2], sW );
-		this.sizeButtonBar(); 
-	//	if ( this.sized ) {
-	//		this.sized = false;
-	//		this.sizeButtonBar(); }
 		let sh = this.state.splitHorz;
 		if ( sh && sh.incomplete ) {
 			let pe = document.getElementById ( this.eleId );
 
 			//  Put the copied contents in the left <div>.
 			let lft = document.getElementById ( sh.left.eleId );
-		//	let lftContent = lft.children[0];
-		//	lftContent.textContent = sh.left.pet;						//	Do not destroy button bar.
-		//	sh.left.pec.forEach ( e => lftContent.appendChild ( e ) );
 
 			//	Some content in the right side pane.
 			let rgt = document.getElementById ( sh.right.eleId );
-		//	let rgtContent = rgt.children[0];
-		//	rgtContent.textContent = 'side pane';						//	Do not destroy button bar.
 
 			//	Add the gutter <div>.
 			let d = this.eleData[pe.id];
-		//	if ( d && d.split && d.split.sizes )
-		//		sh.opts.sizes = d.split.sizes;
 			if ( d && d.splitSizes )
 				sh.opts.sizes = d.splitSizes;
 			let split = Split ( ['#' + sh.left.eleId, 
@@ -1015,30 +932,22 @@ class Pane extends React.Component {
 
 			this.propagateDown_SizeOp ( { do: 'splitter-dragged' } );
 
-		//	if ( sh.left.contentState ) {
-		//		sh.left.paneFnc ( { do: 	'set-state',
-		//							state:	sh.left.contentState } );
-		//		delete sh.left.contentState; }
 			sh.left.paneFnc ( { do:	'set-state'} )
 
-		//	if ( sh.right.contentState ) {
-		//		sh.right.paneFnc ( { do: 	'set-state',
-		//							 state:	sh.right.contentState } );
-		//		delete sh.right.contentState; }
 			sh.right.paneFnc ( { do:	'set-state'} )
 
-			if ( this.props.atFrameTop ) {
-				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
-									  	paneEleId:	sh.left.eleId,
-										paneFnc:	sh.left.paneFnc,
-										paneLeft:	lft.offsetLeft,
-										paneWidth:	lft.offsetWidth } );
-				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
-									  	paneEleId:	sh.right.eleId,
-										paneFnc:	sh.right.paneFnc,
-										paneLeft:	rgt.offsetLeft,
-										paneWidth:	rgt.offsetWidth } );
-			}
+		//	if ( this.props.atFrameTop ) {
+		//		this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+		//							  	paneEleId:	sh.left.eleId,
+		//								paneFnc:	sh.left.paneFnc,
+		//								paneLeft:	lft.offsetLeft,
+		//								paneWidth:	lft.offsetWidth } );
+		//		this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+		//							  	paneEleId:	sh.right.eleId,
+		//								paneFnc:	sh.right.paneFnc,
+		//								paneLeft:	rgt.offsetLeft,
+		//								paneWidth:	rgt.offsetWidth } );
+		//	}
 			sh.incomplete = false
 		}
 		let sv = this.state.splitVert;
@@ -1047,19 +956,12 @@ class Pane extends React.Component {
 
 			//  Put the copied contents in the top <div>.
 			let top = document.getElementById ( sv.top.eleId );
-		//	let topContent = top.children[0];
-		//	topContent.textContent = sv.top.pet;
-		//	sv.top.pec.forEach ( e => topContent.appendChild ( e ) );
 
 			//	Some content in the bottom side pane.
 			let bot = document.getElementById ( sv.bottom.eleId );
-		//	let botContent = bot.children[0];
-		//	botContent.textContent = 'lower pane';
 
 			//	Add the gutter <div>.
 			let d = this.eleData[pe.id];
-		//	if ( d && d.split && d.split.sizes )
-		//		sv.opts.sizes = d.split.sizes;
 			if ( d && d.splitSizes )
 				sv.opts.sizes = d.splitSizes;
 			let split = Split ( ['#' + sv.top.eleId, 
@@ -1072,34 +974,17 @@ class Pane extends React.Component {
 			this.eleData[pe.id].split = { instance: split };
 
 			this.propagateDown_SizeOp ( { do: 'splitter-dragged' } );
-
-		//	let topSplit = false;
-		//	if ( sv.top.contentState ) {
-		//	//	topSplit = true;
-		//	//	sv.top.paneFnc ( { do:		'set-state',
-		//	//					   state:	sv.top.contentState } );
-		//		topSplit = sv.top.paneFnc ( { do:	 'set-state',
-		//									  state: sv.top.contentState } );
-		//		delete sv.top.contentState; }
-
-		//	let state = this.props.clientFnc ( { do: 		'load-state',
-		//										 paneId:	sv.top.paneId } );
 			let topSplit = sv.top.paneFnc ( { do:	'set-state'} )
-
-		//	if ( sv.bottom.contentState ) {
-		//		sv.bottom.paneFnc ( { do:		'set-state',
-		//							  state:	sv.bottom.contentState } );
-		//		delete sv.bottom.contentState; }
 
 			sv.bottom.paneFnc ( { do:	'set-state'} )
 
-			if ( this.props.atFrameTop && ! topSplit ) {
-				this.props.frameFnc ( { do: 		'add-pane-btn-bar',
-									  	paneEleId:	sv.top.eleId,
-										paneFnc:	sv.top.paneFnc,
-										paneLeft:	top.offsetLeft,
-										paneWidth:	top.offsetWidth } );
-			}
+		//	if ( this.props.atFrameTop && ! topSplit ) {
+		//		this.props.frameFnc ( { do: 		'add-pane-btn-bar',
+		//							  	paneEleId:	sv.top.eleId,
+		//								paneFnc:	sv.top.paneFnc,
+		//								paneLeft:	top.offsetLeft,
+		//								paneWidth:	top.offsetWidth } );
+		//	}
 
 			sv.incomplete = false
 		}

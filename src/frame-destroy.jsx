@@ -52,7 +52,7 @@ class FrameDestroy extends Component {
 		return (
 			<img id			= { this.eleId }
 				 className	= { cn }
-				 src		= "/images/frame_destroy_lite_18x18.png" 
+				 src		= "/images/gimp_e.png" 
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

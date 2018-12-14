@@ -62,7 +62,7 @@ class BtnSplitVert extends Component {
 			<img id			= { this.props.eleId }
 				 className	= "btn-split-vert"
 				 style		= { this.props.style }
-				 src		= "/images/split_vert_lite_18x18.png"
+				 src		= "/images/gimp_g.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

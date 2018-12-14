@@ -49,12 +49,13 @@ class PaneContent extends React.Component {
 			return (
 				<div id 		= { this.props.eleId }
 					 className 	= 'pane-content' >
-					<Tabs eleId 	= { this.props.eleId + '-tabs' } 
-						  frameId 	= { this.props.frameId }
-					   	  paneId	= { this.props.paneId }
-						  paneFnc	= { this.props.paneFnc }
-						  frameFnc	= { this.props.frameFnc }
-						  clientFnc	= { this.props.clientFnc } />
+					<Tabs eleId 		= { this.props.eleId + '-tabs' } 
+						  atFrameTop	= { this.props.atFrameTop }
+						  frameId 		= { this.props.frameId }
+					   	  paneId		= { this.props.paneId }
+						  paneFnc		= { this.props.paneFnc }
+						  frameFnc		= { this.props.frameFnc }
+						  clientFnc		= { this.props.clientFnc } />
 				</div>
 			);
 		}

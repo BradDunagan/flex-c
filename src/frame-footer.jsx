@@ -11,7 +11,7 @@ class FrameFooter extends React.Component {
 	constructor ( props ) {
 		super ( props );
 		this.state = {
-			style:	{ display:		'none' }
+			style:	props.visible ? null : { display: 'none' }
 		};
 
 		this.doAll		= this.doAll.bind ( this );
@@ -19,11 +19,11 @@ class FrameFooter extends React.Component {
 
 	doAll ( o ) {
 		if ( o.do === 'is-visible' ) {
-			if ( ! this.state.style.display ) {
+			if ( ! (this.state.style && this.state.style.display) ) {
 				return true; }
 			return this.state.style.display !== 'none'; }
 		if ( o.do === 'show' ) {
-			this.setState ( { style: {} } );
+			this.setState ( { style: null } );
 			return;	}
 		if ( o.do === 'hide' ) {
 			this.setState ( { style: { display: 'none' } } );

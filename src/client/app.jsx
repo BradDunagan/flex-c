@@ -30,6 +30,7 @@ class App extends Component {
 		this.loadApp			= this.loadApp.bind ( this );
 		this.newFrame			= this.newFrame.bind ( this );
 		this.clearLayout		= this.clearLayout.bind ( this );
+		this.showAppTitleMenu	= this.showAppTitleMenu.bind ( this ):
 		this.clickAppTitle		= this.clickAppTitle.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
@@ -117,6 +118,8 @@ class App extends Component {
 
 		this.appContentFnc ( {
 			do:				'add-frame',
+			hdrVisible:		(o && o.hdrVisible) ? o.hdrVisible : true,
+			ftrVisible:		(o && o.ftrVisible) ? o.ftrVisible : true,
 			frameName:		(o && o.frameName) ? o.frameName : null,
 			frameId:		ids.frameId,
 			paneId:			ids.paneId,
@@ -131,16 +134,13 @@ class App extends Component {
 
 	restoreFrames ( pf, pc ) { 	//	Persistent-Frames, Persistent-Content
 		const sW = 'App restoreFrames()';
-	//	diagsFlush();
-	//	diagsPrint ( sW, 1, 2000 );
-	//	diag ( [1], sW );
+		diag ( [1], sW );
 		this.frames = {};
 		let frames = [];
 		for ( let i = 0; i < pf.length; i++ ) {
 			let o = pf[i];
 			this.frames[o.frameId] = {};
 			let pcPane = pc[o.paneId];
-		//	let c  = this.definePaneContent ( o );
 			let c  = this.definePaneContent ( o, 0, pcPane.initialized );
 			let tn = pcPane.typeName;
 			if ( tn ) {
@@ -228,6 +228,8 @@ class App extends Component {
 			if ( ! f ) {
 				f = this.frames[o.frameId] = {}; }
 			f.frameFnc = o.frameFnc;
+			if ( o.iconized ) {
+				return; }
 			let c = this.content[o.paneId];
 			if ( c.state && (c.state.splitHorz || c.state.splitVert) ) {
 				f.frameFnc ( { do: 'set-state' } ); }
@@ -261,7 +263,8 @@ class App extends Component {
 			//	The current pane is now split.  We need to maintain a content
 			//	object for that pane - even though it no longer has "content"
 			//	it will still have state. The state will be set later.
-			this.content[o.curPaneId] = { state: null }; }
+			this.content[o.curPaneId] = { frameId:	o.frameId,
+										  state: 	null }; }
 	}	//	fixPaneId()
 
 	menuItem ( o ) {
@@ -312,7 +315,9 @@ class App extends Component {
 
 	saveApp ( o ) {
 		const sW = 'App saveApp()';
-		diag ( [1, 2, 3], sW );
+		diagsFlush();
+		diagsPrint ( sW, 1, 2000 );
+		diag ( [1], sW );
 		let state = this.appContentFnc ( { do: 'get-state' } );
 		let c = state.content = Object.assign ( {}, this.content );
 		for ( let paneId in c ) {
@@ -324,10 +329,19 @@ class App extends Component {
 			
 			delete pc.install;
 		}
-		db.addLayout ( { SystemID: 		0,
-						 UserID:		0,
-						 LayoutName:	'test',
-						 json:			JSON.stringify ( state ) } );
+		try {
+			db.updateLayout ( { SystemID: 	0,
+								UserID:		0,
+								LayoutName:	'test',
+								json:		JSON.stringify ( state ) } );
+		}
+		catch ( e ) {
+			console.log ( sW + ' ERROR: ' + e );
+		//	db.addLayout ( { SystemID: 	0,
+		//					UserID:		0,
+		//					LayoutName:	'test',
+		//					json:		JSON.stringify ( state ) } );
+		}
 	}	//	saveApp():
 
 	async loadApp ( o ) {
@@ -349,6 +363,8 @@ class App extends Component {
 				continue; }
 			let frm = state.frames[frameId].frame;
 			frames.push ( {
+				hdrVisible:	frm.hdrVisible,
+				ftrVisible:	frm.ftrVisible,
 				frameName:	frm.frameName,
 				frameId:	frm.frameId,
 				paneId:		frm.paneId,
@@ -375,8 +391,8 @@ class App extends Component {
 		this.appContentFnc ( { do: 'clear' } );
 	}	//	clearLayout()
 
-	clickAppTitle ( ev ) {
-		const sW = 'App clickAppTitle()';
+	showAppTitleMenu() {
+		const sW = 'App showAppTitleMenu()';
 		diag ( [1, 2, 3], sW );
 
 		let ce = document.getElementById ( this.appContentEleId );
@@ -399,7 +415,12 @@ class App extends Component {
 			upFnc:		this.doAll,
 			ctx:		{ after:	'menu-item' }
 		} );
+	}	//	showAppTitleMenu()
 
+	clickAppTitle ( ev ) {
+		const sW = 'App clickAppTitle()';
+		diag ( [1, 2, 3], sW );
+		this.showAppTitleMenu();
 	}	//	clickAppTitle()
 
 
@@ -411,6 +432,9 @@ class App extends Component {
 		switch ( o.do ) {
 			case 'set-call-down':
 				this.setCallDown ( o );
+				break;
+			case 'focus-app-title':
+				this.showAppTitleMenu();
 				break;
 			case 'fix-pane-id':
 				this.fixPaneId ( o );

@@ -67,7 +67,7 @@ class BtnSplitHorz extends Component {
 			<img id			= { this.props.eleId }
 				 className	= "btn-split-horz"
 				 style		= { this.props.style }
-				 src		= "/images/split_horz_lite_18x18.png"
+				 src		= "/images/gimp_f.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

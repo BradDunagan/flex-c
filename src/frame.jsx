@@ -22,12 +22,12 @@ Also -
 import React			from 'react';
 
 import FrameHeader			from './frame-header';
+import FrameTransientHeader	from './frame-transient-header';
 import Pane					from './pane';
 import FrameFooter			from './frame-footer';
 /*
 import TitleBar 			from './title-bar'
 */
-import TransientTitleBar	from './frame-transient-title-bar';
 import Sizer 				from './sizer'
 import BurgerMenu			from './burger-menu';
 
@@ -45,11 +45,14 @@ class Frame extends React.Component {
 		this.headerFnc	= null;
 		this.footerFnc	= null;
 		this.rootPaneFnc	= null;
-		this.titleBarFnc	= null;
 
 		this.zTop				= this.zTop.bind ( this );
 		this.mouseDown			= this.mouseDown.bind ( this );
 		this.isHeaderVisible	= this.isHeaderVisible.bind ( this );
+		this.isTransientHeaderVisible = 
+			this.isTransientHeaderVisible.bind ( this );
+		this.getTransientHeaderStatus =
+			this.getTransientHeaderStatus.bind ( this );
 		this.isFooterVisible	= this.isFooterVisible.bind ( this );
 		this.burgerClick		= this.burgerClick.bind ( this );
 		this.iconize2			= this.iconize2.bind ( this );
@@ -68,7 +71,7 @@ class Frame extends React.Component {
 				frameName:	  props.frameName 
 							? props.frameName
 							: 'Paneless Frame - ' + props.frameId,
-				titleBar:	null,
+			//	titleBar:	null,
 				iconized: {
 					hdrVisible:		icon.hdrVisible,
 					ftrVisible:		icon.ftrVisible,
@@ -84,20 +87,27 @@ class Frame extends React.Component {
 					width:      props.width,
 					height:     props.height,
 				},
-				burgerMenu: null,
 				contentRestoreIncomplete:	false
+			};
+			if ( icon.hdrVisible ) {
+				this.state.normalHeader = ( 
+					<FrameHeader frameId 	= { this.props.frameId }
+							 	 frameName	= { this.state.frameName }
+								 frameFnc	= { this.doAll } /> );
+				this.state.transientHeader = null;
+			}
+			else {
+				this.state.normalHeader = null;
+				this.state.transientHeader = (
+					<FrameTransientHeader frameId 	= { this.props.frameId }
+							 	 		  frameName	= { this.state.frameName }
+								 		  frameFnc	= { this.doAll } /> );
 			}
 		} else {
 			this.state = {
 				frameName:	  props.frameName 
 							? props.frameName
 							: 'Paneless Frame - ' + props.frameId,
-				titleBar:
-					<TransientTitleBar frameId		= { props.frameId }
-									   frameEleId	= { this.eleId }
-									   appFnc 		= { this.appFnc }
-									   frameFnc		= { this.doAll }
-									   rootPaneFnc	= { null } />,
 				iconized:	null,
 				style: {
 					left:       props.left,
@@ -105,15 +115,31 @@ class Frame extends React.Component {
 					width:      props.width,
 					height:     props.height,
 				},
-				burgerMenu: null,
+				ftrVisible:		props.ftrVisible,
 				contentRestoreIncomplete:	false
 			};
+			if ( props.hdrVisible ) {
+				this.state.normalHeader = ( 
+					<FrameHeader frameId 	= { this.props.frameId }
+							 	 frameName	= { this.state.frameName }
+								 frameFnc	= { this.doAll } /> );
+				this.state.transientHeader = null;
+			}
+			else {
+				this.state.normalHeader = null;
+				this.state.transientHeader = (
+					<FrameTransientHeader frameId 	= { this.props.frameId }
+							 	 		  frameName	= { this.state.frameName }
+								 		  frameFnc	= { this.doAll } /> );
+			}
 		}
 
 
 
 		this.iconSlot		= null;
 		this.contentState 	= null;
+
+		this.mouseInTopPaneButtonBar = false;
 
 	//	this.props.appFrameContent ( { do: 			'set-call-down',
 	//								   to:			'frame',
@@ -134,16 +160,37 @@ class Frame extends React.Component {
 	}	//	mouseDown()
 
 	isHeaderVisible() {
+	//	let isHdrVisible = false;
+	//	if ( this.headerFnc ) {
+	//		isHdrVisible = this.headerFnc ( { do: 'is-visible' } ); }
+	//	return isHdrVisible;
+		return !! this.state.normalHeader;
+	}	//	isHeaderVisible()
+
+	isTransientHeaderVisible() {
+		if ( this.isHeaderVisible() ) {
+			return false; }
 		let isHdrVisible = false;
 		if ( this.headerFnc ) {
 			isHdrVisible = this.headerFnc ( { do: 'is-visible' } ); }
 		return isHdrVisible;
-	}	//	isHeaderVisible()
+	}	//	isTransientHeaderVisible()
+
+	getTransientHeaderStatus() {
+		if ( this.isHeaderVisible() ) {
+			return null; }
+		if ( this.headerFnc ) {
+			return this.headerFnc ( { do: 'get-status' } ); }
+		return null;
+	}	//	getTransientHeaderStatus()
 
 	isFooterVisible() {
 		let isFtrVisible = false;
-		if ( this.footerFnc ) {
-			isFtrVisible = this.footerFnc ( { do: 'is-visible' } ); }
+		if ( this.state.iconized ) {
+			isFtrVisible = this.state.iconized.ftrVisible; }
+		else {
+			if ( this.footerFnc ) {
+				isFtrVisible = this.footerFnc ( { do: 'is-visible' } ); } }
 		return isFtrVisible;
 	}	//	isFooterVisible()
 
@@ -152,11 +199,6 @@ class Frame extends React.Component {
 	//	console.log ( sW );
 		let fe = document.getElementById ( this.eleId );
 		let r  = fe.getBoundingClientRect();
-	//	this.setState ( { burgerMenu:
-	//		<BurgerMenu eleId = { 'rr-pe-frame-burger-menu' }
-	//					style = {{ left:	r.x + 'px',
-	//							   top: 	r.y + 'px' }} />
-	//	} );
 		let itemTextHdr = this.isHeaderVisible() ? 'Hide Header' 
 												 : 'Show Header';
 		let itemTextFtr = this.isFooterVisible() ? 'Hide Footer' 
@@ -309,6 +351,9 @@ class Frame extends React.Component {
 
 	nameFrameName ( o ) {
 		this.setState ( { frameName: o.name } );
+		if ( this.headerFnc ) {
+			this.headerFnc ( { do: 		'set-frame-name',
+							   name:	o.name} ); }
 	}	//	nameFrameName()
 	
 	doAll ( o ) {
@@ -338,23 +383,6 @@ class Frame extends React.Component {
 			if ( o.to === 'sizer' ) {
 				self.sizerFnc = o.sizerFnc;
 				return; }
-			if ( o.to === 'title-bar' ) {
-				self.titleBarFnc = o.titleBarFnc;
-			//	if ( self.rootPaneFnc ) {
-			//		self.titleBarFnc ( { do: 			'set-root-pane-fnc',
-			//							 rootPaneFnc:	self.rootPaneFnc } ); }
-
-				//	Do this here because it is now known that button bar functions 
-				//	are set	up in the title bar.
-				if ( self.state.contentRestoreIncomplete && self.state.titleBar ) {
-					self.titleBarFnc ( { do:		'set-root-pane-fnc',
-										 paneFnc:	self.rootPaneFnc } );
-
-					self.rootPaneFnc ( { do: 	'set-state',
-										state:	self.contentState } );
-					self.contentState = null;
-					self.state.contentRestoreIncomplete = false; }
-				return;	}
 		}
 
 		if ( o.do === 'set-call-down' ) {
@@ -383,8 +411,6 @@ class Frame extends React.Component {
 		if ( o.do === 'size-start' ) {
 			this.sizeW0 = Number.parseInt ( this.state.style.width );
 			this.sizeH0 = Number.parseInt ( this.state.style.height );
-			if ( this.titleBarFnc ) {
-				this.titleBarFnc ( o ); }
 			if ( this.rootPaneFnc ) {
 				o.visitedPanes = {};
 				this.rootPaneFnc ( o ); }
@@ -402,8 +428,6 @@ class Frame extends React.Component {
 					height:	(this.sizeH0 + o.dY) + 'px'
 				}
 			} );
-			if ( this.titleBarFnc ) {
-				this.titleBarFnc ( o ) }
 			if ( this.sizerFnc ) {
 				this.sizerFnc ( o ); }
 			if ( this.rootPaneFnc ) {
@@ -420,15 +444,19 @@ class Frame extends React.Component {
 		}
 		if ( o.do === 'get-state' ) {
 			let assign = Object.assign;
-			this.rootPaneFnc ( o );		//	update pane's state in app store
 			if ( this.state.iconized ) {
 				return {
+					hdrVisible:	!! this.state.normalHeader,
+					ftrVisible:	this.isFooterVisible(),
 					frameName:	this.state.frameName,
 					frameId:	this.props.frameId,
 					paneId:		this.props.paneId,
 					style:		assign ( {}, this.state.style ),
 					iconized:	assign ( {}, this.state.iconized ) }; }
+			this.rootPaneFnc ( o );		//	update pane's state in app store
 			return {
+				hdrVisible:	!! this.state.normalHeader,
+				ftrVisible:	this.isFooterVisible(),
 				frameName:	this.state.frameName,
 				frameId:	this.props.frameId,
 				paneId:		this.props.paneId,
@@ -448,28 +476,6 @@ class Frame extends React.Component {
 				this.rootPaneFnc ( o ); }
 			return;
 		}
-		if ( o.do === 'content-split-horz' ) {
-			if ( this.titleBarFnc ) {
-				this.titleBarFnc ( o ); }
-			return;
-		}
-	//	if ( o.do === 'content-split-drag' ) {
-	//		if ( this.titleBarFnc ) {
-	//			this.titleBarFnc ( o ) }
-	//		return;
-	//	}
-		if ( o.do === 'add-pane-btn-bar' ) {
-			self.titleBarFnc ( o );
-			return;
-		}
-		if ( o.do === 'clear-pane-btn-bars' ) {
-			self.titleBarFnc ( o );
-			return;
-		}
-		if ( o.do === 'remove-pane-btn-bar' ) {
-			self.titleBarFnc ( o );
-			return;
-		}
 		if ( o.do === 'show-menu' ) {
 			this.appFnc ( o );
 			return;
@@ -487,12 +493,26 @@ class Frame extends React.Component {
 				this.nameFrame();
 				return; }
 			if ( o.menuItemText === 'Show Header' ) {
-				if ( this.headerFnc ) {
-					this.headerFnc ( { do: 'show' } ); }
+			//	if ( this.headerFnc ) {
+			//		this.headerFnc ( { do: 'show' } ); }
+				this.setState ( {
+					normalHeader: ( <FrameHeader 
+						frameId 	= { this.props.frameId }
+						frameName	= { this.state.frameName }
+						frameFnc	= { this.doAll } /> ),
+					transientHeader: null
+				} );
 				return; }
 			if ( o.menuItemText === 'Hide Header' ) {
-				if ( this.headerFnc ) {
-					this.headerFnc ( { do: 'hide' } ); }
+			//	if ( this.headerFnc ) {
+			//		this.headerFnc ( { do: 'hide' } ); }
+				this.setState ( {
+					normalHeader: null,
+					transientHeader: ( <FrameTransientHeader 
+						frameId 	= { this.props.frameId }
+						frameName	= { this.state.frameName }
+						frameFnc	= { this.doAll } /> )
+				} );
 				return; }
 			if ( o.menuItemText === 'Show Footer' ) {
 				if ( this.footerFnc ) {
@@ -509,20 +529,55 @@ class Frame extends React.Component {
 		if ( o.do === 'name-frame-name' ) {
 			this.nameFrameName ( o );
 			return; }
+		if ( o.do === 'is-header-transient' ) {
+			return !! this.state.transientHeader;
+		}
+		if ( o.do === 'is-header-visible' ) {
+			return this.isHeaderVisible();
+		}
+		if ( o.do === 'is-transient-header-visible' ) {
+			return this.isTransientHeaderVisible();
+		}
+		if ( o.do === 'get-transient-header-status' ) {
+			return this.getTransientHeaderStatus();
+		}
+		if ( o.do === 'show-header' ) {
+			if ( this.state.normalHeader ) {
+				return true; }
+			if ( ! this.headerFnc ) { 
+				return false; }
+			let wasVisible = this.isTransientHeaderVisible();
+			if ( ! wasVisible ) {
+				this.headerFnc ( { do: 'show' } ); }
+			return wasVisible;
+		}
+		if ( o.do === 'hide-transient-header' ) {
+			if ( ! this.headerFnc ) { 
+				return; }
+			if ( ! this.state.transientHeader ) {
+				return true; }
+			this.headerFnc ( { do: 'hide' } );
+			return;
+		}
+		if ( o.do === 'mouse-entered-top-pane-button-bar' ) {
+		//	console.log ( sW );
+			this.mouseInTopPaneButtonBar = true;
+			return;
+		}
+		if ( o.do === 'mouse-exited-top-pane-button-bar' ) {
+		//	console.log ( sW );
+			this.mouseInTopPaneButtonBar = false;
+			return;
+		}
+		if ( o.do === 'is-mouse-in-any-top-pane-button-bar' ) {
+		//	console.log ( sW );
+			return this.mouseInTopPaneButtonBar;
+		}
 	}   //  doAll()
 
 	render() {
 		const sW = this.props.frameId + ' Frame render()';
 		diag ( [1, 2, 3], sW );
-		/*
-				<TitleBar frameId	= 'frame-1'
-						  appFnc 	= { this.appFnc }
-						  frameFnc	= { this.doAll } />
-
-				<TransientTitleBar frameEleId	= { this.eleId }
-								   appFnc 		= { this.appFnc }
-								   frameFnc		= { this.doAll } />
-		*/
 		if ( this.state.iconized ) {
 			return (
 				<div id					= { this.eleId }
@@ -541,29 +596,22 @@ class Frame extends React.Component {
 				 className		= "rr-pe-frame"
 				 style 			= { this.state.style}
 				 onMouseDown	= { this.mouseDown } >
-				<FrameHeader frameId 	= { this.props.frameId }
-							 frameName	= { this.state.frameName }
-							 frameFnc	= { this.doAll } />
+				{ this.state.normalHeader }
 				<Pane frameId		= { this.props.frameId }
 					  paneId		= { this.props.paneId }
 					  peId			= { this.peId } 
 					  frameFnc		= { this.doAll }
 					  tabs			= { false } 
 					  atFrameTop	= { true } 
-
-				//	  contentStyle	= { this.props.contentStyle }
-				//	  ccEleId		= { this.props.ccEleId }
-				//	  clientContent	= { this.props.clientContent } 
-					  
 					  clientFnc		= { this.props.clientFnc } />
 
-				<FrameFooter frameFnc = { this.doAll } />
+				<FrameFooter visible	= { this.state.ftrVisible }
+							 frameFnc 	= { this.doAll } />
 				<Sizer frameId 		= { this.props.frameId }
 					   frameEleId 	= { this.eleId }
 					   appFnc 		= { this.appFnc }
 					   frameFnc		= { this.doAll }  />
-				{ this.state.titleBar }
-				{ this.state.burgerMenu }
+				{ this.state.transientHeader }
 			</div>
 		)
 	}	//	render()
@@ -576,29 +624,13 @@ class Frame extends React.Component {
 								 to:		'frame',
 								 frameId:	this.props.frameId,
 								 paneId:	this.props.paneId,
-								 frameFnc:	this.doAll } );
+								 frameFnc:	this.doAll,
+								 iconized:	!! this.state.iconized } );
 
 		this.props.appFrameContent ( { do: 			'set-call-down',
 									   to:			'frame',
 									   frameId:		this.props.frameId,
 									   frameFnc:	this.doAll } );
-
-	//	if ( ! this.state.titleBar ) {
-	//		diag ( [1], sW + ' this.setState ( { titleBar: ... ' );
-	//		this.setState ( { titleBar:
-	//			<TransientTitleBar frameId		= { this.props.frameId }
-	//							   frameEleId	= { this.eleId }
-	//							   appFnc 		= { this.appFnc }
-	//							   frameFnc		= { this.doAll }
-	//							   rootPaneFnc	= { this.rootPaneFnc } />
-	//		}, () => {
-	//		} );
-	//	}
-
-		if ( this.titleBarFnc ) {
-			this.titleBarFnc ( { do:		'set-root-pane-fnc',
-								 paneFnc:	this.rootPaneFnc } );
-		}
 	}	//	componentDidMount()
 
 	componentDidUpdate() {
@@ -618,22 +650,10 @@ class Frame extends React.Component {
 	//	bar). So the pane's state is set in the 'title-bar-call-down'
 	//	command in doAll().
 
-		//	But do do this - 
-		if ( this.state.contentRestoreIncomplete && ! this.state.titleBar ) {
-			this.setState ( { titleBar:
-			//	<TransientTitleBar frameId		= { this.props.frameId }
-			//					   frameEleId	= { this.eleId }
-			//					   appFnc 		= { this.appFnc }
-			//					   frameFnc		= { this.doAll }
-			//					   rootPaneFnc	= { this.rootPaneFnc } />
-				<TransientTitleBar frameId		= { this.props.frameId }
-								   frameEleId	= { this.eleId }
-								   appFnc 		= { this.appFnc }
-								   frameFnc		= { this.doAll }
-								   rootPaneFnc	= { null } />
-			}, 
-			() => {	} );
-		}
+		if ( this.state.contentRestoreIncomplete ) {
+			this.rootPaneFnc ( { do: 	'set-state' } );
+			this.state.contentRestoreIncomplete = false; }
+
 	}	//	componentDidUpdate()
 
 }	//	class Frame

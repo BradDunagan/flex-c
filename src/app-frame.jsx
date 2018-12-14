@@ -17,6 +17,9 @@ class AppFrame extends Component {
 
 		this.dlgList = [];
 
+		this.appContentFnc = null;
+
+		this.keyDown		= this.keyDown.bind ( this );
 		this.mouseMove 		= this.mouseMove.bind ( this );
 		this.mouseUp 		= this.mouseUp.bind ( this );
 		this.doAll 			= this.doAll.bind ( this );
@@ -35,6 +38,33 @@ class AppFrame extends Component {
 			startY: 			0
 		};
 	}	//	constructor()
+
+	keyDown ( ev ) {
+		let sW = 'AppFrame keyDown()';
+		if ( ev.ctrlKey ) {
+			console.log ( sW + ' ctrl ' + ev.key ); }
+
+		//	Shift-Tab to cycle focus on not-iconized frames.
+		if ( ev.shiftKey ) {
+			console.log ( sW + ' shift ' + ev.key ); 
+			if ( ev.key === 'Tab' ) {
+				ev.preventDefault();
+
+				if ( this.activeMenuFnc ) {
+					return; }
+
+				//	Focus on next frame.
+				this.appContentFnc ( { do: 	'cycle-frame-focus' } );
+			} 
+		}
+
+		if ( ev.key === 'Escape' ) {
+			if ( this.activeMenuFnc ) {
+				this.activeMenuFnc ( { do: 'escape' } );
+				return;
+			}
+		}
+	}	//	keyDown()
 
 	mouseMove ( ev ) {
 		let sW = 'mouseMove()';
@@ -88,6 +118,20 @@ class AppFrame extends Component {
 	}	//	updateDialogState()
 
 	doAll ( o ) {
+		if ( o.do === 'set-call-down' ) {
+			if ( o.to === 'app-content' ) {
+				this.appContentFnc = o.fnc; }
+			return;
+		}
+		if ( o.do === 'focus-app-title' ) {
+			this.props.clientFnc ( o );
+			return;
+		}
+		if ( o.do === 'not-focus-app-title' ) {
+			if ( this.activeMenuFnc ) {
+				this.activeMenuFnc ( { do: 'escape' } ); }
+			return;
+		}
 		if ( o.do === 'move-frame' ) {
 			this.frameMoving.moverMouseDown	= true;
 			this.frameMoving.frameFnc 		= o.frameFnc;
@@ -145,6 +189,11 @@ class AppFrame extends Component {
 			</div>
 		);
 	}	//	render()
+
+	componentDidMount() {
+		document.addEventListener ( 'keydown', this.keyDown );
+	}	//	componentDidMount()
+
 } //  class AppFrame
 
 export default AppFrame;

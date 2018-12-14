@@ -53,7 +53,7 @@ class FrameIconize extends Component {
 		return (
 			<img id			= { this.eleId }
 				 className	= { cn }
-				 src		= "/images/frame_iconize_lite_18x18.png" 
+				 src		= "/images/gimp_d.png" 
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

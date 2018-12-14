@@ -66,19 +66,26 @@ class Tabs extends Component {
 		if ( paneId === 0 ) {
 			paneId = getPaneId(); }
 
+		this.props.clientFnc ( {
+			do:			'define-pane-content',
+			frameId:	this.props.frameId,
+			paneId:		paneId
+		} );
+
 		this.pages[tabId] = { 
 			page: (
-				<Pane key 		= { tabId }
-					  frameId 	= { this.props.frameId }
-					  paneId 	= { paneId }
-					  tabId		= { tabId }
-					  tabsFnc	= { this.doAll }
-					  peId		= { this.props.peId }
-					  frameFnc	= { this.props.frameFnc } 
-					  parentFnc	= { this.props.paneFnc }
-					  style 	= { null }
-					  clientFnc	= { this.props.clientFnc }
-					  tabs		= { false } /> ),
+				<Pane key 			= { tabId }
+					  frameId 		= { this.props.frameId }
+					  atFrameTop	= { this.props.atFrameTop }
+					  paneId 		= { paneId }
+					  tabId			= { tabId }
+					  tabsFnc		= { this.doAll }
+					  peId			= { this.props.peId }
+					  frameFnc		= { this.props.frameFnc } 
+					  parentFnc		= { this.props.paneFnc }
+					  style 		= { null }
+					  clientFnc		= { this.props.clientFnc }
+					  tabs			= { false } /> ),
 			paneId: 	paneId,
 			paneFnc:	null,
 		//	state:		null 

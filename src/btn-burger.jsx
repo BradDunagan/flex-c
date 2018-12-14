@@ -58,7 +58,7 @@ class BtnBurger extends Component {
 			<img id			= { this.props.eleId }
 				 className	= "rr-btn-burger"
 				 style		= { this.props.style }
-				 src		= "/images/burger_lite_18x18.png"
+				 src		= "/images/gimp_c.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

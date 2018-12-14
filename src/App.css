@@ -165,30 +165,45 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	word-wrap: 		break-word;
 }
 
-.rr-pe-frame-title-bar {
-/*
-	display:            flex;
-	flex-direction:     row;
-	justify-content:    left;
-	flex:               1 1  auto;
-	max-height:         18px;
-	min-height:         18px;
-	border-bottom:      solid 1px black;
-*/
+.rr-frame-title-bar {
 	display:			flex;
 	flex-direction:		row;
+	align-items: 		flex-start;
 	width:				100%;
 	height:				18px;
 	border-bottom:      solid 1px gray;
 	overflow-x: 		hidden;
 }
 
+.rr-frame-transient-title-bar {
+	position:               absolute;
+	display:				flex;
+	flex-direction:			row;
+	align-items: 			flex-start;
+	width:					100%;
+	height:					18px;
+	cursor:                 default;
+	transition-property:    background-color, opacity, border-bottom;
+	transition-duration:    300ms;
+}
+/*
+.rr-frame-transient-title-bar:hover {
+	background-color:       white;
+	opacity:                0.9;
+}
+*/
+
 .frame-title-bar-burger-menu {
-	width: 			18px;
+	width: 			16px;
+	height:			15px;
+	padding:		1px 3px 2px 2px;
 	flex:			0 1 auto;
 	left:			1px;
 	top: 			0px;
-	cursor: 		pointer;
+	cursor: 		default;
+}
+.frame-title-bar-burger-menu:hover {
+	background-color:	gainsboro;
 }
 
 .rr-frame-title {
@@ -198,27 +213,43 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	text-overflow: 		ellipsis;
 	white-space: 		nowrap;
 	padding-left: 		5px;
+	margin-left:		5px;
 	margin-right: 		5px;
 	margin-top: 		1px;
 	font-family:		sans-serif, 'Roboto';
 	font-size:			14px;
-	cursor:				inherit;
+	cursor:				move;
 }
 
 .frame-title-bar-iconize {
 	margin-right:	4px;
-	width: 			18px;
+	width: 			16px;
+	height:			15px;
 	flex:			0 1 auto;
-	cursor: 		pointer;
+	cursor: 		default;
+	padding-top:	2px;
+	padding-left:	3px;
+	padding-right:	3px;
+	padding-bottom:	1px;
+	background-color:	inherit;
+}
+
+.frame-title-bar-iconize:hover {
+	background-color:	gainsboro;
 }
 
 .frame-title-bar-destroy {
-	margin-right:	2px;
-	width: 			18px;
+	width: 			16px;
+	height:			15px;
 	flex:			0 1 auto;
-	cursor: 		pointer;
+	cursor: 		default;
+	padding:		2px 2px 1px 2px;
+	background-color:	inherit;
 }
 
+.frame-title-bar-destroy:hover {
+	background-color:	gainsboro;
+}
 
 .rr-pe-frame-content {
 	display:            flex;
@@ -376,11 +407,37 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 
 .rr-btn-burger {
-	margin-left:	1px;
-	margin-right:	4px;
-	width: 			18px;
-	float: 			left;
-	cursor: 		pointer;
+	width: 				16px;
+	height:				15px;
+	padding:			3px 3px 2px 2px;
+/*	margin-left:		1px;
+	margin-right:		4px;	*/
+	float: 				left;
+	cursor: 			default;
+}
+
+.rr-btn-burger:hover {
+	background-color:	gainsboro;
+}
+.rr-pane-button-bar {
+	position:               absolute;
+/*	top:					18px;		*/
+/*	height:					18px;		*/
+/*	height:					38px;		*/
+	width:					100%;
+	display: 				flex;
+	align-items: 			flex-end;
+	justify-content:		center;
+	border-bottom: 			solid 1px;
+	text-align:				center;
+	cursor:					default;
+/*	background-color:       transparent;
+	border-bottom-color:	transparent;
+	opacity:                0.0;		*/
+/*	border-bottom-color:	red;		*/
+/*	opacity:                1.0;		*/
+	transition-property:    background-color, border-bottom-color, opacity;
+	transition-duration:    300ms;
 }
 
 
@@ -402,19 +459,25 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 */
 .btn-split-horz {
-	margin-right:	4px;
-	width: 			18px;
-/*	float: 			right;		*/
-/*	position:		absolute;	*/
-	cursor: 		pointer;
+	width: 				17px;
+	height:				15px;
+	padding:			3px 3px 2px 3px;
+	cursor: 			default;
+}
+
+.btn-split-horz:hover {
+	background-color:	gainsboro;
 }
 
 .btn-split-vert {
-	margin-right:	4px;
-	width: 			18px;
-/*	float: 			right;		*/
-/*	position:		absolute;	*/
-	cursor: 		pointer;
+	width: 				15px;
+	height:				17px;
+	padding:			2px 3px 1px 3px;
+	cursor: 			default;
+}
+
+.btn-split-vert:hover {
+	background-color:	gainsboro;
 }
 
 .split {
@@ -436,6 +499,7 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	display:            flex;
 /*	flex-direction:     column;	dependent on split - therefore, in style 	*/
 	flex:               1 1 auto;
+	position:			relative;	/*	To make absolute work for btn bar.	*/
 }
 .gutter {
 	background-color:		transparent;

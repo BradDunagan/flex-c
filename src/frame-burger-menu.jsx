@@ -1,3 +1,8 @@
+/*
+		 1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+*/
 
 import React, { Component } from 'react';
 
@@ -53,7 +58,7 @@ class FrameBurgerMenu extends Component {
 		return (
 			<img id			= { this.eleId }
 				 className	= { cn }
-				 src		= "/images/burger_lite_18x18.png"
+				 src		= "/images/gimp_c.png"
 				 onMouseDown 	= { this.mouseDown }
 				 onMouseUp		= { this.mouseUp }
 				 onMouseMove	= { this.mouseMove }

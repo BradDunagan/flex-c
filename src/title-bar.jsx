@@ -103,16 +103,6 @@ class TitleBar extends Component {
 			} );
 			return;
 		}
-		/*
-		if ( o.do === 'content-split-horz' ) {
-			this.contentSplit ( o );
-			return;
-		}
-		if ( o.do === 'content-split-drag' ) {
-			this.contentSplit ( o );
-			return;
-		}
-		*/
 	}
 
 	mouseDown ( ev ) {

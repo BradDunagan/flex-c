@@ -20,15 +20,37 @@ class AppContent extends React.Component {
 
 		this.frames = {};			//	PEs, VPs (what else?) code/interfaces.
 
+		this.cycleFocus	= this.cycleFocus.bind ( this );
 		this.addFrame 	= this.addFrame.bind ( this );
 		this.addFrames	= this.addFrames.bind ( this );
 		this.doAll 		= this.doAll.bind ( this );
 
+		this.focusedFrameId = null;
+
 	}   //  constructor()
+
+	cycleFocus() {
+		let sW = 'AppContent cycleFocus()';
+		let frameIds = Object.keys ( this.frames );
+		frameIds.sort();
+		if ( typeof this.focusedFrameId === 'number' ) {
+			if ( this.focusedFrameId === 0 ) {
+				this.props.appFrameFnc ( { do: 'not-focus-app-title' } );
+			}
+		}
+		else {
+			//	First focus on app title display its menu.
+			this.props.appFrameFnc ( { do: 'focus-app-title' } );
+			this.focusedFrameId = 0;
+		}
+
+	}	//	cycleFocus()
 
 	addFrame ( o ) {
 		let frame = null, fa = [];
 		frame = <Frame key 				= { o.frameId }
+					   hdrVisible		= { o.hdrVisible }
+					   ftrVisible		= { o.ftrVisible }
 					   frameName		= { o.frameName }
 					   frameId 			= { o.frameId }
 					   paneId			= { o.paneId }
@@ -59,6 +81,8 @@ class AppContent extends React.Component {
 		for ( let i = 0; i < a.length; i++ ) {
 			let o = a[i];
 			frame = <Frame key 				= { o.frameId }
+						   hdrVisible		= { o.hdrVisible }
+						   ftrVisible		= { o.ftrVisible }
 						   frameName		= { o.frameName }
 						   frameId 			= { o.frameId }
 						   paneId			= { o.paneId }
@@ -101,6 +125,10 @@ class AppContent extends React.Component {
 				return;
 			}
 			console.log ( sW + 'ERROR set-call-down: unrecognized frame' )
+			return;
+		}
+		if ( o.do === 'cycle-frame-focus' ) {
+			this.cycleFocus();
 			return;
 		}
 		if ( o.do === 'get-new-frame-id' ) {
@@ -215,6 +243,9 @@ class AppContent extends React.Component {
 		const sW = 'AppContent componentDidMount()';
 		diag ( [1], sW );
 
+		this.props.appFrameFnc ( { do: 'set-call-down',
+								   to:	'app-content',
+								   fnc:	this.doAll } );
 		this.props.clientFnc ( { do: 	'set-call-down',
 								 to: 	'app-frame',
 								 fnc:	this.props.appFrameFnc } );

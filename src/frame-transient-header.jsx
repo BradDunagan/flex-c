@@ -11,30 +11,73 @@ import FrameIconize			from './frame-iconize';
 import FrameDestroy			from './frame-destroy';
 
 
-class FrameHeader extends React.Component {
+class FrameTransientHeader extends React.Component {
 	
 	constructor ( props ) {
 		super ( props );
 		this.state = {
 			frameName:	props.frameName,
-			class:		"rr-frame-title-bar",
-			style:		null
+			class:	    "rr-frame-transient-title-bar",
+			isVisible:  false,
+			style:	    {
+				backgroundColor:	'transparent',
+				borderBottom:	    'solid 1px transparent',
+				opacity:			'0.0',
+			}
 		};
 
+		this.show           = this.show.bind ( this );
+		this.hide           = this.hide.bind ( this );
 		this.mouseEnter		= this.mouseEnter.bind ( this );
 		this.mouseLeave		= this.mouseLeave.bind ( this );
 		this.mouseDown		= this.mouseDown.bind ( this );
 		this.doAll			= this.doAll.bind ( this );
+
+		this.mouseIn = false;
 	}	//	constructor()
 
+	show() {
+		this.setState ( { isVisible:    true,
+						  style: {
+			backgroundColor:	'white',
+			borderBottom:	    'solid 1px gray',
+			opacity:			'1.0',
+		} } );
+	}   //  show()
+
+	hide() {
+		if ( ! this.state.isVisible ) {
+			return; }
+		this.setState ( { isVisible:    false,
+						  style: {
+			backgroundColor:	'transparent',
+			borderBottom:	    'solid 1px transparent',
+			opacity:			'0.0',
+		} } );
+	}   //  hide()
+
 	mouseEnter ( ev ) {
-		let sW = 'FrameHeader mouseEnter()';
+		let sW = 'FrameTransientHeader mouseEnter()';
 	//	console.log ( sW );
+		this.mouseIn = true;
+		if ( this.state.isVisible ) {
+			return; }
+		this.show();
 	}	//	mouseEnter()
 	
 	mouseLeave ( ev ) {
-		let sW = 'FrameHeader mouseLeave()';
+		let sW = 'FrameTransientHeader mouseLeave()';
 	//	console.log ( sW );
+
+		this.mouseIn = false;
+
+		window.setTimeout ( () => {
+			let msInAnyBB = this.props.frameFnc ( { 
+				do: 'is-mouse-in-any-top-pane-button-bar' } );
+			if ( msInAnyBB ) {
+				return;	}
+			this.hide();
+		}, 100 );
 	}	//	mouseLeave()
 	
 	mouseDown ( ev ) {
@@ -45,18 +88,23 @@ class FrameHeader extends React.Component {
 	}	//	mouseDown()
 
 	doAll ( o ) {
+		let sW = 'FrameTransientHeader doAll()';
 		if ( o.do === 'is-visible' ) {
-			if ( (! this.state.style) || (! this.state.style.display) ) {
-				return true; }
-			return this.state.style.display !== 'none'; }
+		//	console.log ( sW + ' do is-visible: ' + this.state.isVisible );
+			return this.state.isVisible; }
 		if ( o.do === 'show' ) {
-		//	this.setState ( { style: null } );
-			this.setState ( { class:	'rr-frame-title-bar' } );
+			if ( this.state.isVisible ) {
+				return; }
+			this.show();
 			return;	}
 		if ( o.do === 'hide' ) {
-		//	this.setState ( { style:	{ display: 'none' } } );
-			this.setState ( { class:	'rr-frame-transient-title-bar' } );
+		//	console.log ( sW + ' do hide' );
+			this.hide();
 			return;	}
+		if ( o.do === 'get-status' ) {
+			return { visible: this.state.isVisible,
+					 mouseIn: this.mouseIn };
+		}
 		if ( o.do === 'set-frame-name' ) {
 			this.setState ( { frameName: o.name } );
 			return; }
@@ -97,6 +145,6 @@ class FrameHeader extends React.Component {
 								fnc:	null } );
 	}	//	componentWillUnmount()
 
-}   //  class FrameHeader
+}   //  class FrameTransientHeader
 
-export { FrameHeader as default };
+export { FrameTransientHeader as default };
