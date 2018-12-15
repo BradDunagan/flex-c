@@ -46,6 +46,7 @@ class Frame extends React.Component {
 		this.footerFnc	= null;
 		this.rootPaneFnc	= null;
 
+		this.keyDown			= this.keyDown.bind ( this );
 		this.zTop				= this.zTop.bind ( this );
 		this.mouseDown			= this.mouseDown.bind ( this );
 		this.isHeaderVisible	= this.isHeaderVisible.bind ( this );
@@ -61,6 +62,7 @@ class Frame extends React.Component {
 		this.clickIcon			= this.clickIcon.bind ( this );
 		this.nameFrame			= this.nameFrame.bind ( this );
 		this.nameFrameName		= this.nameFrameName.bind ( this );
+		this.setBorderColor		= this.setBorderColor.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 
 		/*	From persistence - as an icon -
@@ -76,16 +78,19 @@ class Frame extends React.Component {
 					hdrVisible:		icon.hdrVisible,
 					ftrVisible:		icon.ftrVisible,
 					style: {
-						left:		icon.style.left,
-						top: 		icon.style.top,
-						width:		icon.style.width,
-						height:		icon.style.height },
+						left:	icon.style.left,
+						top: 	icon.style.top,
+						width:	icon.style.width,
+						height:	icon.style.height,
+						borderColor:	'black',
+					 },
 					iconName: { visibility: 'visible' } }, 
 				style: {
-					left:       props.left,
-					top:        props.top,
-					width:      props.width,
-					height:     props.height,
+					left:   props.left,
+					top:    props.top,
+					width:  props.width,
+					height:	props.height,
+					borderColor:	'black',
 				},
 				contentRestoreIncomplete:	false
 			};
@@ -110,10 +115,11 @@ class Frame extends React.Component {
 							: 'Paneless Frame - ' + props.frameId,
 				iconized:	null,
 				style: {
-					left:       props.left,
-					top:        props.top,
-					width:      props.width,
-					height:     props.height,
+					left:	props.left,
+					top:	props.top,
+					width:	props.width,
+					height:	props.height,
+					borderColor:	'black',
 				},
 				ftrVisible:		props.ftrVisible,
 				contentRestoreIncomplete:	false
@@ -141,22 +147,30 @@ class Frame extends React.Component {
 
 		this.mouseInTopPaneButtonBar = false;
 
-	//	this.props.appFrameContent ( { do: 			'set-call-down',
-	//								   to:			'frame',
-	//								   frameId:		this.props.frameId,
-	//								   frameFnc:	this.doAll } );
-
 	}	//	constructor()
 
 	zTop() {
-		this.props.appFrameContent ( { do: 		'ensure-frame-z-is-top',
-									  frameId:	this.props.frameId } );
+		this.props.appContentFnc ( { do: 		'ensure-frame-z-is-top',
+									 frameId:	this.props.frameId } );
 	}	//	zTop()
+
+	keyDown ( o ) {
+		let sW = 'Frame keyDown()';
+		console.log ( sW + '  ' + o.ev.key );
+		if ( this.state.iconized ) {
+			if ( o.ev.key === 'Enter' ) {
+				this.clickIcon ( null ); }		//	Un-iconize.
+			return; }
+		if ( o.ev.shiftKey && (o.ev.key === ' ') ) {
+			this.doAll ( { do: 'frame-burger-click' } );
+			return; }
+	}	//	keyDown()
 
 	mouseDown ( ev ) {
 		let sW = 'Frame mouseDown()';
 	//	console.log ( sW );
-		this.zTop();
+		this.props.appContentFnc ( { do:		'set-frame-focus',
+									frameId:	this.props.frameId } );
 	}	//	mouseDown()
 
 	isHeaderVisible() {
@@ -219,8 +233,9 @@ class Frame extends React.Component {
 	iconize2() {
 		let self = this;
 		window.setTimeout ( () => {
-			let hdrVisible = self.state.iconized.hdrVisible;
-			let ftrVisible = self.state.iconized.ftrVisible;
+			let hdrVisible  = self.state.iconized.hdrVisible;
+			let ftrVisible  = self.state.iconized.ftrVisible;
+			let borderColor = self.state.iconized.style.borderColor;
 			self.setState ( { iconized: { 
 				hdrVisible:	hdrVisible,
 				ftrVisible:	ftrVisible,
@@ -231,6 +246,7 @@ class Frame extends React.Component {
 					top: 		self.iconSlot.y + 'px',
 					width:		'50px',
 					height:		'60px',
+					borderColor:	borderColor,
 					transitionProperty: 	'left, top, width, height',
 					transitionDuration:		'200ms' },
 				iconName: {
@@ -256,6 +272,7 @@ class Frame extends React.Component {
 				top: 		this.state.style.top,
 				width:		this.state.style.width,
 				height:		this.state.style.height,
+				borderColor:	this.state.style.borderColor,
 				transitionProperty: 	'left, top, width, height',
 				transitionDuration:		'200ms' },
 			iconName: {
@@ -263,14 +280,7 @@ class Frame extends React.Component {
 			}
 		} } );
 		if ( ! this.iconSlot ) {
-		//	this.props.appFrameContent ( { 
-		//		do: 		'get-icon-slot',
-		//		frameId: 	this.props.frameId } )
-		//	.then ( ( slot ) => {
-		//		this.iconSlot = slot;
-		//		this.iconize2();
-		//	} );
-			this.iconSlot = this.props.appFrameContent ( { 
+			this.iconSlot = this.props.appContentFnc ( { 
 				do: 		'get-icon-slot',
 				frameId: 	this.props.frameId } ); 
 		}
@@ -294,6 +304,7 @@ class Frame extends React.Component {
 					top: 		icon.style.top,
 					width:		icon.style.width,
 					height:		icon.style.height,
+					borderColor:	icon.style.borderColor,
 					transitionProperty: 	'left, top, width, height',
 					transitionDuration:		'200ms' },
 				iconName: { visibility: 'visible' } } 
@@ -310,19 +321,29 @@ class Frame extends React.Component {
 		if ( this.state.iconized ) {
 			iconized = Object.assign ( {}, this.state.iconized ); }
 		//	First, transition to the frame's position and size.
-		let style = this.state.iconized.style;
-		this.setState ( { iconized: { 
+		let style 		= this.state.style;
+		let borderColor = this.state.iconized.style.borderColor;
+		this.setState ( { 
+			iconized: { 
+				style: {
+					left:		style.left,
+					top: 		style.top,
+					width:		style.width,
+					height:		style.height,
+					borderColor:	borderColor,
+					transitionProperty: 	'left, top, width, height',
+					transitionDuration:		'200ms' },
+				iconName: {
+					visibility:		'hidden'
+				} },
 			style: {
-				left:		this.state.style.left,
-				top: 		this.state.style.top,
-				width:		this.state.style.width,
-				height:		this.state.style.height,
-				transitionProperty: 	'left, top, width, height',
-				transitionDuration:		'200ms' },
-			iconName: {
-				visibility:		'hidden'
+				left:		style.left,
+				top: 		style.top,
+				width:		style.width,
+				height:		style.height,
+				borderColor:	borderColor,
 			}
-		} } );
+		} );
 		//	Now, after a delay, restore the frame.
 		let self = this;
 		window.setTimeout ( () => {
@@ -337,7 +358,8 @@ class Frame extends React.Component {
 							do: iconized.ftrVisible ? 'show' : 'hide' } ); }
 				}
 			} );
-			self.zTop();
+			this.props.appContentFnc ( { do:		'set-frame-focus',
+										 frameId:	this.props.frameId } );
 		}, 200 );
 	}	//	clickIcon()
 
@@ -355,7 +377,19 @@ class Frame extends React.Component {
 			this.headerFnc ( { do: 		'set-frame-name',
 							   name:	o.name} ); }
 	}	//	nameFrameName()
-	
+
+	setBorderColor ( color ) {
+		if ( this.state.iconized ) {
+			let iconized   = Object.assign ( {}, this.state.iconized );
+			iconized.style = Object.assign ( {}, this.state.iconized.style );
+			iconized.style.borderColor = color;
+			this.setState ( { iconized: iconized } );	}
+		else {
+			let style = Object.assign ( {}, this.state.style );
+			style.borderColor = color;
+			this.setState ( { style: style } );	}
+	}	//	setBorderColor()
+
 	doAll ( o ) {
 		let sW = this.props.frameId + ' Frame doAll() ' + o.do;
 		if ( o.to ) {
@@ -389,6 +423,22 @@ class Frame extends React.Component {
 			setCallDown ( o );
 			return; 
 		}
+		if ( o.do === 'z-top' ) {
+			this.zTop();
+			return;
+		}
+		if ( o.do === 'focus' ) {
+			this.setBorderColor ( 'blue' );
+			return;
+		}
+		if ( o.do === 'not-focus' ) {
+			this.setBorderColor ( 'black' );
+			return;
+		}
+		if ( o.do === 'keyboard-key-down' ) {
+			this.keyDown ( o );
+			return;
+		}
 		if ( o.do === 'move-start' ) {
 			this.moveX0 = Number.parseInt ( this.state.style.left );
 			this.moveY0 = Number.parseInt ( this.state.style.top );
@@ -404,6 +454,7 @@ class Frame extends React.Component {
 					top:	(this.moveY0 + o.dY) + 'px',
 					width:	this.state.style.width,
 					height:	this.state.style.height,
+					borderColor:	this.state.style.borderColor,
 				}
 			} );
 			return;
@@ -425,7 +476,8 @@ class Frame extends React.Component {
 					left:	this.state.style.left,
 					top:	this.state.style.top,
 					width:	(this.sizeW0 + o.dX) + 'px',
-					height:	(this.sizeH0 + o.dY) + 'px'
+					height:	(this.sizeH0 + o.dY) + 'px',
+					borderColor:	this.state.style.borderColor,
 				}
 			} );
 			if ( this.sizerFnc ) {
@@ -485,7 +537,7 @@ class Frame extends React.Component {
 			return;
 		}
 		if ( o.do === 'append-menu-items' ) {
-			this.props.appFrameContent ( o );
+			this.props.appContentFnc ( o );
 			return;
 		}
 		if ( o.do === 'menu-item' ) {
@@ -523,7 +575,7 @@ class Frame extends React.Component {
 					this.footerFnc ( { do: 'hide' } ); }
 				return; }
 			o.frameId = this.props.frameId;
-			this.props.appFrameContent ( o );
+			this.props.appContentFnc ( o );
 			return;
 		}
 		if ( o.do === 'name-frame-name' ) {
@@ -627,10 +679,10 @@ class Frame extends React.Component {
 								 frameFnc:	this.doAll,
 								 iconized:	!! this.state.iconized } );
 
-		this.props.appFrameContent ( { do: 			'set-call-down',
-									   to:			'frame',
-									   frameId:		this.props.frameId,
-									   frameFnc:	this.doAll } );
+		this.props.appContentFnc ( { do: 		'set-call-down',
+									 to:		'frame',
+									 frameId:	this.props.frameId,
+									 frameFnc:	this.doAll } );
 	}	//	componentDidMount()
 
 	componentDidUpdate() {

@@ -157,12 +157,13 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 }
 
 .rr-iconized-frame-name {
-	position:		absolute;
-	left:			-10px;
-	top:			62px;
-	width: 			70px;
-	text-align: 	center;
-	word-wrap: 		break-word;
+	position:			absolute;
+	left:				-10px;
+	top:				62px;
+	width: 				70px;
+	text-align: 		center;
+	word-wrap:	 		break-word;
+	background-color:	white;
 }
 
 .rr-frame-title-bar {
@@ -539,13 +540,15 @@ https://stackoverflow.com/questions/985134/absolute-positioning-elements-within-
 	list-style-type:	none;
 	text-align:			left;
 	margin-bottom:		4px;
-	cursor:				pointer;
+	padding-left:		4px;
+	padding-right:		2px;
+	cursor:				default;
 }
-
+/*
 .rr-burger-menu ul li:hover {
 	background-color:	lightgrey;
 }
-
+*/
 .rr-menu-items-separator {
 	margin-top:			4px;
 	border-top:			solid 1px lightgray;

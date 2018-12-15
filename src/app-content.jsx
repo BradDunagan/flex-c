@@ -1,3 +1,7 @@
+/*
+		 1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+*/
 import React, { Component } from 'react';
 
 import Frame			from './frame';
@@ -20,7 +24,10 @@ class AppContent extends React.Component {
 
 		this.frames = {};			//	PEs, VPs (what else?) code/interfaces.
 
-		this.cycleFocus	= this.cycleFocus.bind ( this );
+		this.keyDown			= this.keyDown.bind ( this );
+		this.setFrameFocus2		= this.setFrameFocus2.bind ( this );
+		this.setFrameFocus		= this.setFrameFocus.bind ( this );
+		this.cycleFrameFocus	= this.cycleFrameFocus.bind ( this );
 		this.addFrame 	= this.addFrame.bind ( this );
 		this.addFrames	= this.addFrames.bind ( this );
 		this.doAll 		= this.doAll.bind ( this );
@@ -29,22 +36,81 @@ class AppContent extends React.Component {
 
 	}   //  constructor()
 
-	cycleFocus() {
-		let sW = 'AppContent cycleFocus()';
-		let frameIds = Object.keys ( this.frames );
+	keyDown ( o ) {
+		let sW = 'AppContent keyDown()';
+		console.log ( sW + '  ' + o.ev.key );
+		let frameId = this.focusedFrameId;
+		if ( ! frameId ) {
+			return; }
+		let frame = this.frames[frameId];
+		if ( ! frame ) {
+			return; }
+		frame.frameFnc ( o );
+	}	//	keyDown()
+
+	setFrameFocus2 ( frameId ) {
+		let frame = this.frames[frameId];
+		if ( ! frame ) {
+			return; }
+		this.focusedFrameId = frameId;
+		frame.frameFnc ( { do: 'z-top' } );
+		frame.frameFnc ( { do: 'focus' } );
+	}	//	setFrameFocus2()
+
+	setFrameFocus ( frameId ) {
+		let sW = 'AppContent setFrameFocus()';
+		if ( this.focusedFrameId === frameId ) {
+			return; }
+		if ( typeof this.focusedFrameId === 'number' ) {	
+			if ( this.focusedFrameId === 0 ) {
+				this.props.appFrameFnc ( { 
+					do: 'not-focus-app-title' } ); }
+			else {
+				this.frames[this.focusedFrameId].frameFnc ( { 
+					do: 'not-focus' } ); }
+		}
+		if ( frameId === null ) {
+			this.focusedFrameId = null;
+			return; }
+		this.setFrameFocus2 ( frameId );
+	}	//	setFrameFocus()
+
+	cycleFrameFocus() {
+		let sW = 'AppContent cycleFrameFocus()';
+		let frame, frameId, frameIds = Object.keys ( this.frames );
+		frameIds.forEach ( ( x, i ) => { 
+			frameIds[i] = Number.parseInt ( x ) } );
 		frameIds.sort();
 		if ( typeof this.focusedFrameId === 'number' ) {
 			if ( this.focusedFrameId === 0 ) {
 				this.props.appFrameFnc ( { do: 'not-focus-app-title' } );
+				if ( ! frameIds[0] ) {
+					return; }
+				frameId = this.focusedFrameId = frameIds[0]
+				frame = this.frames[frameId];
+				frame.frameFnc ( { do: 'focus' } );
+				frame.frameFnc ( { do: 'z-top' } );
+				return;
+			}
+			frameId = this.focusedFrameId;
+			let i = frameIds.indexOf ( frameId );
+			if ( i >= 0 ) {
+				this.frames[frameId].frameFnc ( { do: 'not-focus' } ); 
+				i++; }
+			else {
+				i = 0; }
+			if ( frameIds[i] ) {
+				frameId = this.focusedFrameId = frameIds[i]
+				frame = this.frames[frameId];
+				frame.frameFnc ( { do: 'focus' } );
+				frame.frameFnc ( { do: 'z-top' } );
+				return;
 			}
 		}
-		else {
-			//	First focus on app title display its menu.
-			this.props.appFrameFnc ( { do: 'focus-app-title' } );
-			this.focusedFrameId = 0;
-		}
-
-	}	//	cycleFocus()
+		//	First focus on app title display its menu.
+		this.props.appFrameFnc ( { do: 'focus-app-title' } );
+		this.focusedFrameId = 0;	//	Indicates app title menu.
+	}	//	cycleFrameFocus()
 
 	addFrame ( o ) {
 		let frame = null, fa = [];
@@ -55,7 +121,7 @@ class AppContent extends React.Component {
 					   frameId 			= { o.frameId }
 					   paneId			= { o.paneId }
 					   appFrameFnc 		= { this.props.appFrameFnc } 
-					   appFrameContent	= { this.doAll }
+					   appContentFnc	= { this.doAll }
 					   left 			= { o.left }
 					   top				= { o.top }
 					   width 			= { o.width }
@@ -71,7 +137,9 @@ class AppContent extends React.Component {
 		for ( var id in this.frames ) {
 			fa.push ( this.frames[id].frame ); }
 
-		this.setState ( { frames: fa } );
+		this.setState ( { frames: fa }, () => {
+			this.setFrameFocus ( o.frameId );
+		} );
 
 		return o.frameId;
 	}	//	addFrame()
@@ -87,7 +155,7 @@ class AppContent extends React.Component {
 						   frameId 			= { o.frameId }
 						   paneId			= { o.paneId }
 						   appFrameFnc 		= { this.props.appFrameFnc } 
-						   appFrameContent	= { this.doAll }
+						   appContentFnc	= { this.doAll }
 						   left 			= { o.left }
 						   top				= { o.top }
 						   width 			= { o.width }
@@ -127,8 +195,21 @@ class AppContent extends React.Component {
 			console.log ( sW + 'ERROR set-call-down: unrecognized frame' )
 			return;
 		}
+		if ( o.do === 'keyboard-key-down' ) {
+			this.keyDown ( o );
+			return;
+		}
 		if ( o.do === 'cycle-frame-focus' ) {
-			this.cycleFocus();
+			this.cycleFrameFocus();
+			return;
+		}
+		if ( o.do === 'set-frame-focus' ) {
+			this.setFrameFocus ( o.frameId );
+			return;
+		}
+		if ( o.do === 'menu-dismiss' ) {
+			if ( this.focusedFrameId === 0 ) {		// App title menu?
+				this.focusedFrameId = null; }
 			return;
 		}
 		if ( o.do === 'get-new-frame-id' ) {
@@ -160,6 +241,7 @@ class AppContent extends React.Component {
 		}
 		if ( o.do === 'clear' ) {
 			this.frames = {};
+			this.focusedFrameId = null;
 			this.setState ( { frames: [] } );
 		}
 		if ( o.do === 'ensure-frame-z-is-top' ) {

@@ -30,7 +30,7 @@ class App extends Component {
 		this.loadApp			= this.loadApp.bind ( this );
 		this.newFrame			= this.newFrame.bind ( this );
 		this.clearLayout		= this.clearLayout.bind ( this );
-		this.showAppTitleMenu	= this.showAppTitleMenu.bind ( this ):
+		this.showAppTitleMenu	= this.showAppTitleMenu.bind ( this );
 		this.clickAppTitle		= this.clickAppTitle.bind ( this );
 		this.doAll 				= this.doAll.bind ( this );
 

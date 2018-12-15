@@ -17,7 +17,8 @@ class AppFrame extends Component {
 
 		this.dlgList = [];
 
-		this.appContentFnc = null;
+		this.appContentFnc	= null;
+		this.activeMenuFnc	= null;
 
 		this.keyDown		= this.keyDown.bind ( this );
 		this.mouseMove 		= this.mouseMove.bind ( this );
@@ -41,6 +42,14 @@ class AppFrame extends Component {
 
 	keyDown ( ev ) {
 		let sW = 'AppFrame keyDown()';
+
+		if ( 	this.activeMenuFnc 
+			 && this.activeMenuFnc ( { do: 'keyboard-key-down', ev: ev } ) ) {
+			return; }
+
+		if ( this.appContentFnc ( { do: 'keyboard-key-down', ev: ev } ) ) {
+			return; }
+			
 		if ( ev.ctrlKey ) {
 			console.log ( sW + ' ctrl ' + ev.key ); }
 
@@ -49,18 +58,14 @@ class AppFrame extends Component {
 			console.log ( sW + ' shift ' + ev.key ); 
 			if ( ev.key === 'Tab' ) {
 				ev.preventDefault();
-
-				if ( this.activeMenuFnc ) {
-					return; }
-
 				//	Focus on next frame.
-				this.appContentFnc ( { do: 	'cycle-frame-focus' } );
+				this.appContentFnc ( { do: 'cycle-frame-focus' } );
 			} 
 		}
 
 		if ( ev.key === 'Escape' ) {
 			if ( this.activeMenuFnc ) {
-				this.activeMenuFnc ( { do: 'escape' } );
+				this.activeMenuFnc ( { do: 'keyboard-escape' } );
 				return;
 			}
 		}
@@ -102,14 +107,14 @@ class AppFrame extends Component {
 			appDialog: this.dlgList.map ( ( r, i ) => {
 				if ( ! r.mnu ) {
 					return ( <AppDialog key = {i}
-										upFncAppFrame = {this.doAll}
+										appFrameFnc = {this.doAll}
 										upFnc = {r.upFnc}
 										ctx = {r.ctx}
 										dlg = {r.dlg}
 										mnu = {r.mnu} /> );
 				} else {
 					return ( <AppDialog key = {i}
-										upFncAppFrame = {this.doAll}
+										appFrameFnc = {this.doAll}
 										dlg = {r.dlg}
 										mnu = {r.mnu} /> );
 				}
@@ -120,7 +125,11 @@ class AppFrame extends Component {
 	doAll ( o ) {
 		if ( o.do === 'set-call-down' ) {
 			if ( o.to === 'app-content' ) {
-				this.appContentFnc = o.fnc; }
+				this.appContentFnc = o.fnc; 
+				return; }
+			if ( o.to === 'active-menu' ) {
+				this.activeMenuFnc = o.fnc;
+				return; }
 			return;
 		}
 		if ( o.do === 'focus-app-title' ) {
@@ -129,7 +138,7 @@ class AppFrame extends Component {
 		}
 		if ( o.do === 'not-focus-app-title' ) {
 			if ( this.activeMenuFnc ) {
-				this.activeMenuFnc ( { do: 'escape' } ); }
+				this.activeMenuFnc ( { do: 'keyboard-escape' } ); }
 			return;
 		}
 		if ( o.do === 'move-frame' ) {
@@ -166,11 +175,19 @@ class AppFrame extends Component {
 			this.updateDialogState();
 			return;
 		}
-		if ( (o.do === 'menu-dismiss')  ||  (o.do === 'close-dlg') ) {
+		if ( o.do === 'menu-dismiss' ) {
+			this.dlgList.pop();
+			this.updateDialogState();
+			this.activeMenuFnc = null;
+			this.appContentFnc ( o );
+			return;
+		}
+		if ( o.do === 'close-dlg' ) {
 			this.dlgList.pop();
 			this.updateDialogState();
 			return;
 		}
+
 	}	//	doAll()
 
 	render() {

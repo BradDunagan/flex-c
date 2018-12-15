@@ -18,12 +18,12 @@ class AppDialog extends React.Component {
 	}
 
 	click ( ev ) {
-		this.props.upFncAppFrame ( { do: 'menu-dismiss' } );
+		this.props.appFrameFnc ( { do: 'menu-dismiss' } );
 	}	//	click()
 
 	doAll ( o ) {
 		if ( o.do === 'menu-dismiss' ) {
-			this.props.upFncAppFrame ( o );
+			this.props.appFrameFnc ( o );
 			return;
 		}
 	}	//	doAll()
@@ -39,7 +39,7 @@ class AppDialog extends React.Component {
 			case 'dlg-name':
 				return (
 					<div className	= "rr-app-screen-dialog" >
-						<DlgName appFrameFnc =	{ this.props.upFncAppFrame }
+						<DlgName appFrameFnc =	{ this.props.appFrameFnc }
 								 upFnc = 		{ this.props.upFnc }
 								 ctx = 			{ this.props.ctx }/>
 					</div>
@@ -53,6 +53,7 @@ class AppDialog extends React.Component {
 									style 		= {{ left:	mnu.menuX + 'px',
 													 top: 	mnu.menuY + 'px' }}
 									items		= { mnu.menuItems }
+									appFrameFnc	= { this.props.appFrameFnc }
 									screenFnc 	= { this.doAll }
 									upFnc		= { mnu.upFnc }
 									ctx			= { mnu.ctx } />
