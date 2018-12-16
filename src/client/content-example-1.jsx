@@ -62,7 +62,8 @@ class ContentExample1 extends Component {
 						  { type: 'item', text: 'Menu' },
 						  { type: 'item', text: 'Items' } ],
 			upFnc:		this.doAll,
-			ctx:		{ after:	'menu-item' }
+			ctx:		{ what:		'content example-1 burger',
+						  after:	'menu-item' }
 		} );
 	}	//	burgerClick()
 

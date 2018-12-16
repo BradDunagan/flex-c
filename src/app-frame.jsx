@@ -17,8 +17,9 @@ class AppFrame extends Component {
 
 		this.dlgList = [];
 
-		this.appContentFnc	= null;
-		this.activeMenuFnc	= null;
+		this.appContentFnc		= null;
+		this.activeMenuFnc		= null;
+		this.activeDialogFnc	= null;
 
 		this.keyDown		= this.keyDown.bind ( this );
 		this.mouseMove 		= this.mouseMove.bind ( this );
@@ -47,9 +48,13 @@ class AppFrame extends Component {
 			 && this.activeMenuFnc ( { do: 'keyboard-key-down', ev: ev } ) ) {
 			return; }
 
+		if ( 	this.activeDialogFnc 
+			 && this.activeDialogFnc ( { do: 'keyboard-key-down', ev: ev } ) ) {
+			return; }
+
 		if ( this.appContentFnc ( { do: 'keyboard-key-down', ev: ev } ) ) {
 			return; }
-			
+
 		if ( ev.ctrlKey ) {
 			console.log ( sW + ' ctrl ' + ev.key ); }
 
@@ -58,9 +63,13 @@ class AppFrame extends Component {
 			console.log ( sW + ' shift ' + ev.key ); 
 			if ( ev.key === 'Tab' ) {
 				ev.preventDefault();
+				//	If menu and not app title menu then close it.
+				if ( 	this.activeMenuFnc 
+					 && ! this.activeMenuFnc ( { do: 'is-app-title-menu' } ) ) {
+					this.activeMenuFnc ( { do: 'keyboard-escape' } ); }
 				//	Focus on next frame.
 				this.appContentFnc ( { do: 'cycle-frame-focus' } );
-			} 
+				return; } 
 		}
 
 		if ( ev.key === 'Escape' ) {
@@ -130,6 +139,9 @@ class AppFrame extends Component {
 			if ( o.to === 'active-menu' ) {
 				this.activeMenuFnc = o.fnc;
 				return; }
+			if ( o.to === 'active-dialog' ) {
+				this.activeDialogFnc = o.fnc;
+				return; }
 			return;
 		}
 		if ( o.do === 'focus-app-title' ) {
@@ -185,6 +197,7 @@ class AppFrame extends Component {
 		if ( o.do === 'close-dlg' ) {
 			this.dlgList.pop();
 			this.updateDialogState();
+			this.activeDialogFnc = null;
 			return;
 		}
 

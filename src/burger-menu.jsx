@@ -89,21 +89,23 @@ class BurgerMenu extends Component {
 		if ( ev.key === 'Enter' ) {
 			if ( this.curItem ) {
 				this.selectItem ( this.curItem.idx, 
-								  this.curItem.ele.innerText ); }
-			return; }
+								  this.curItem.ele.innerText ); 
+				return true; }
+			return false; }
 		if ( ev.key === 'ArrowDown' ) {
 			i = this.curItem ? this.curItem.idx + 1 : 0;
 			if ( i >= this.state.listItems.length ) {
 				i = 0; }
 			this.setCurItem ( i );
-			return;	}
+			return true;	}
 		if ( ev.key === 'ArrowUp' ) {
 			i = this.curItem ? this.curItem.idx - 1 
 							 : this.state.listItems.length - 1;
 			if ( i < 0 ) {
 				i = this.state.listItems.length - 1; }
 			this.setCurItem ( i );
-			return; }
+			return true; }
+		return false;
 	}	//	keyDown()
 
 	mouseEnter ( i, ev ) {
@@ -127,14 +129,19 @@ class BurgerMenu extends Component {
 	}	//	click()
 
 	doAll ( o ) {
+		if ( o.do === 'is-app-title-menu' ) {
+			let ctx = this.props.ctx;
+			if ( (! ctx) || (typeof ctx.what !== 'string') ) {
+				return false; }
+			return ctx.what === 'app title';
+		}
 		if ( o.do === 'keyboard-escape' ) {
 			this.props.screenFnc ( { do: 'menu-dismiss' } );
 			this.setGlobalActiveMenuFnc ( null );
 			return;
 		}
 		if ( o.do === 'keyboard-key-down' ) {
-			this.keyDown ( o.ev );
-			return;
+			return this.keyDown ( o.ev );
 		}
 	}	//	doAll()
 

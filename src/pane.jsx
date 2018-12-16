@@ -154,7 +154,8 @@ class Pane extends React.Component {
             menuY:		r.y - 1,
             menuItems:	menuItems,
             upFnc:		this.doAll,
-            ctx:		{ after:	'menu-item' }
+            ctx:		{ what:		'pane burger',
+						  after:	'menu-item' }
 		} );
 
 	}	//	burgerClick()

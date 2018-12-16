@@ -226,7 +226,8 @@ class Frame extends React.Component {
 						  { type: 'item', 		text: itemTextHdr },
 						  { type: 'item', 		text: itemTextFtr } ],
 			upFnc:		this.doAll,
-			ctx:		{ after:	'menu-item' }
+			ctx:		{ what:		'frame burger',
+						  after:	'menu-item' }
 		} );
 	}	//	burgerClick()
 

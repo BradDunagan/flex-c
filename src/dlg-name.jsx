@@ -20,9 +20,50 @@ class DlgName extends React.Component {
 			name:           '',
 			okDisabled:     true,
 		}
-		this.doAll       = this.doAll.bind ( this );
-		this.clickCancel = this.clickCancel.bind ( this );
-		this.clickOK     = this.clickOK.bind ( this );
+		this.setGlobalActiveDialogFnc =
+			this.setGlobalActiveDialogFnc.bind ( this );
+		this.keyDown		= this.keyDown.bind ( this );
+		this.clickCancel	= this.clickCancel.bind ( this );
+		this.clickOK		= this.clickOK.bind ( this );
+		this.doAll			= this.doAll.bind ( this );
+	}
+
+	setGlobalActiveDialogFnc ( fnc ) {
+		this.props.appFrameFnc ( { do:	'set-call-down',
+								   to:	'active-dialog',
+								   fnc:	fnc } );
+	}	//	setGlobalActiveDialogFnc()
+
+	keyDown ( ev ) {
+		let sW = 'DlgName keyDown()';
+		console.log ( sW + '  ' + ev.key );
+		let i;
+		if ( ev.key === 'Enter' ) {
+			if ( this.state.okDisabled ) {
+				return false; }
+			this.clickOK();
+			return true; }
+		if ( ev.key === 'Escape' ) {
+			this.clickCancel();
+			return true; }
+		return false;
+	}	//	keyDown()
+
+	clickCancel() {
+		console.log ( 'DlgName clickCancel()' );
+		this.setGlobalActiveDialogFnc ( null );
+		this.props.appFrameFnc ( { do: 'close-dlg' } );
+	}
+
+	clickOK() {
+		console.log ( 'DlgName clickOK()' );
+		this.setGlobalActiveDialogFnc ( null );
+		this.props.appFrameFnc ( { do: 'close-dlg' } );
+		this.props.upFnc ( { 
+			do:   this.props.ctx.after ? this.props.ctx.after 
+									   : 'ok-record-name',
+			ctx:  this.props.ctx,
+			name: this.state.name } );
 	}
 
 	doAll ( o ) {
@@ -34,23 +75,14 @@ class DlgName extends React.Component {
 			this.setState ( { okDisabled: false,
 							  name: o.name } );
 		}
-	}
-
-	clickCancel() {
-		console.log ( 'DlgNameRecord clickCancel()' );
-	//	this.props.upFnc ( { do: 'close-dlg' } );
-		this.props.appFrameFnc ( { do: 'close-dlg' } );
-	}
-
-	clickOK() {
-		console.log ( 'DlgNameRecord clickOK()' );
-	//	this.props.upFnc ( { do: 'close-dlg' } );
-		this.props.appFrameFnc ( { do: 'close-dlg' } );
-		this.props.upFnc ( { 
-			do:   this.props.ctx.after ? this.props.ctx.after 
-									   : 'ok-record-name',
-			ctx:  this.props.ctx,
-			name: this.state.name } );
+	//	if ( o.do === 'keyboard-escape' ) {
+	//		this.setGlobalActiveDialogFnc ( null );
+	//		this.props.appFrameFnc ( { do: 'close-dlg' } );
+	//		return;
+	//	}
+		if ( o.do === 'keyboard-key-down' ) {
+			return this.keyDown ( o.ev );
+		}
 	}
 
 	/*	On this.props.nameComp -
@@ -90,8 +122,8 @@ class DlgName extends React.Component {
 							nothing
 						</button>
 						<button className = "rr-general-button"
-								disabled = {this.state.okDisabled}
-								onClick = {this.clickOK} >
+								disabled = { this.state.okDisabled }
+								onClick = { this.clickOK } >
 							OK
 						</button>
 						<button className = "rr-general-button"
@@ -106,6 +138,7 @@ class DlgName extends React.Component {
 
 	componentDidMount() {
 		const sW = 'DlgName componentDidMount()'
+		this.setGlobalActiveDialogFnc ( this.doAll );
 		//  Set focus on the name editor.
 		const selector = '.rr-pe-dlg-name-dlg .rr-pe-dlg-name-input';
 		let ele = document.querySelectorAll ( selector );

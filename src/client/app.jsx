@@ -413,7 +413,8 @@ class App extends Component {
 				{ type: 'item', 
 				  text: 'Load Layout ...',	fnc: this.loadLayout } ],
 			upFnc:		this.doAll,
-			ctx:		{ after:	'menu-item' }
+			ctx:		{ what:		'app title',
+						  after:	'menu-item' }
 		} );
 	}	//	showAppTitleMenu()
 
